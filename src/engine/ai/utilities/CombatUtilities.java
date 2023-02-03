@@ -58,7 +58,6 @@ public class CombatUtilities {
 		}
 
 	}
-	
 	public static boolean inRangeToAttack2D(Mob agent,AbstractWorldObject target){
 
 		if (Float.isNaN(agent.getLoc().x))
@@ -82,7 +81,21 @@ public class CombatUtilities {
 		}
 
 	}
+	public static boolean inRangeToCast2D(Mob agent,AbstractWorldObject target, PowersBase power) {
 
+		if (Float.isNaN(agent.getLoc().x))
+			return false;
+		try {
+			Vector3fImmutable sl = agent.getLoc();
+			Vector3fImmutable tl = target.getLoc();
+			float range = power.getRange();
+			range += CombatManager.calcHitBox(target) + CombatManager.calcHitBox(agent);
+			return !(sl.distanceSquared2D(tl) > sqr(range));
+		} catch (Exception e) {
+			Logger.error(e.toString());
+			return false;
+		}
+	}
 	public static void swingIsBlock(Mob agent,AbstractWorldObject target, int animation) {
 
 		if (!target.isAlive())

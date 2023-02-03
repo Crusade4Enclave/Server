@@ -34,13 +34,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static engine.math.FastMath.sqr;
 
 public class MobileFSM {
-
 
     public enum STATE {
         Disabled,
@@ -56,13 +56,10 @@ public class MobileFSM {
         Recalling,
         Retaliate
     }
-
     public static void run(Mob mob) {
         if (mob == null) {
             return;
         }
-
-
         STATE state = mob.getState();
         switch (state) {
             case Idle:
@@ -73,11 +70,9 @@ public class MobileFSM {
                     guardAwake(mob);
                     break;
                 }
-
                 idle(mob);
                 break;
             case Awake:
-
                 if (mob.isAlive())
                     mob.updateLocation();
 
@@ -91,11 +86,8 @@ public class MobileFSM {
                     else
                         awake(mob);
                 }
-
                 break;
             case Aggro:
-
-
                 if (mob.isAlive())
                     mob.updateLocation();
 
@@ -609,8 +601,12 @@ public class MobileFSM {
                     aiAgent.setState(STATE.Idle);
                     return;
                 }
-
-                handlePlayerAttackForMob(aiAgent, player);
+                if(canCast(aiAgent) == true){
+                    MobCast(aiAgent);
+                }
+                else {
+                    handlePlayerAttackForMob(aiAgent, player);
+                }
                 break;
             case Building:
                 Building building = (Building) target;
@@ -821,20 +817,6 @@ public class MobileFSM {
         if (!player.isAlive()) {
             aiAgent.setCombatTarget(null);
             aiAgent.setState(STATE.Awake);
-            return;
-        }
-
-        if (aiAgent.getLastMobPowerToken() != 0) {
-
-            PowersBase mobPower = PowersManager.getPowerByToken(aiAgent.getLastMobPowerToken());
-
-            if (System.currentTimeMillis() > aiAgent.getTimeStamp("FInishCast")) {
-                PerformActionMsg msg = PowersManager.createPowerMsg(mobPower, 40, aiAgent, player);
-                msg.setUnknown04(2);
-                PowersManager.finishUseMobPower(msg, aiAgent, 0, 0);
-                aiAgent.setLastMobPowerToken(0);
-                aiAgent.setIsCasting(false);
-            }
             return;
         }
 
@@ -1682,8 +1664,12 @@ public class MobileFSM {
                     aiAgent.setState(STATE.Idle);
                     return;
                 }
-
-                handlePlayerAttackForMob(aiAgent, player);
+                if(canCast(aiAgent) == true){
+                    MobCast(aiAgent);
+                }
+                else {
+                    handlePlayerAttackForMob(aiAgent, player);
+                }
                 break;
             case Building:
                 Logger.info("PLAYER GUARD ATTEMPTING TO ATTACK BUILDING IN " + aiAgent.getParentZone().getName());
@@ -1764,5 +1750,43 @@ public class MobileFSM {
             return;
 
         MovementManager.translocate(mob, regionObject.getLoc(), null);
+    }
+
+    public static boolean canCast(Mob mob){
+        if(mob == null || mob.mobPowers.isEmpty() || mob.nextCastTime > System.currentTimeMillis()){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+    public static void MobCast(Mob mob){
+        if(mob.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP)){
+            MobCallForHelp(mob);
+        }
+            PlayerCharacter target = (PlayerCharacter)mob.getCombatTarget();
+            Random rand = new Random();
+            int powerPos = rand.nextInt(mob.mobPowers.size());
+            int spellId = mob.mobPowers.get(powerPos);
+            PowersBase mobPower = PowersManager.getPowerByToken(spellId);
+            if(CombatUtilities.inRangeToCast2D(mob, mob.getCombatTarget(),mobPower)) {
+                PerformActionMsg msg = PowersManager.createPowerMsg(mobPower, 40, mob, target);
+                msg.setUnknown04(2);
+                PowersManager.finishUseMobPower(msg, mob, 0, 0);
+                mob.setLastMobPowerToken(0);
+                mob.setIsCasting(false);
+                mob.nextCastTime = System.currentTimeMillis() + mobPower.getCooldown();
+            }else{
+                MovementUtilities.moveToLocation(mob,mob.getCombatTarget().getLoc(),mobPower.getRange());
+            }
+    }
+    public static void MobCallForHelp(Mob mob){
+        Zone mobCamp = mob.getParentZone();
+        for (Mob mob1 : mobCamp.zoneMobSet) {
+            if(mob1.getMobBase().getFlags().contains(Enum.MobFlagType.RESPONDSTOCALLSFORHELP)){
+                mob1.setCombatTarget(mob.getCombatTarget());
+                mob1.setState(STATE.Aggro);
+            }
+        }
     }
 }
