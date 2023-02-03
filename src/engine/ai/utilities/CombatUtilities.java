@@ -306,68 +306,6 @@ public class CombatUtilities {
 				swingIsBlock(agent, target, passiveAnim);
 				return;
 			}
-			else
-				//check for a cast here?
-
-			//agent.mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(agent.getMobBaseID());
-
-			if(agent.mobPowers.size() > 0 && agent.mobPowers != null)
-			{
-				//get cast chance 33% cast 67% mele
-				int random = ThreadLocalRandom.current().nextInt(agent.mobPowers.size() * 10);
-				//allow casting of spell
-				if(random <= agent.mobPowers.size())
-				{
-					int powerToken;
-					int powerRank;
-					//cast a spell
-					Map<Integer,Integer> entries = agent.mobPowers;
-					int count = 0;
-					for(Map.Entry<Integer,Integer> entry : entries.entrySet())
-					{
-						count += 1;
-						if(count == random)
-						{
-							powerToken = entry.getKey();
-							//powerRank = entry.getValue();
-							switch(agent.getLevel())
-							{
-								default:
-									powerRank = 1;
-									break;
-								case 10:
-									powerRank = 5;
-									break;
-								case 20:
-									powerRank = 10;
-									break;
-								case 30:
-									powerRank = 15;
-									break;
-								case 40:
-									powerRank = 25;
-									break;
-								case 50:
-									powerRank = 30;
-									break;
-								case 60:
-									powerRank = 35;
-									break;
-								case 70:
-									powerRank = 40;
-									break;
-							}
-							//System.out.println(agent.getMobBase().getFirstName() + " is casting: " + PowersManager.getPowerByToken(powerToken).skillName);
-							PowersManager.applyPower(agent,target,target.getLoc(),powerToken,powerRank, false);
-							//PerformActionMsg msg = new PerformActionMsg();
-							//PowersManager.sendPowerMsg((PlayerCharacter)target,0,msg);
-							//return;
-						}
-					}
-					return;
-				}
-			}
-			//finished with casting check
 				swingIsDamage(agent,target, determineDamage(agent,target, mainHand, speed, dt), anim);
 
 			if (agent.getWeaponPower() != null)

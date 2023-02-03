@@ -30,11 +30,8 @@ import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -477,7 +474,12 @@ public class MobileFSM {
             aiAgent.setState(STATE.Patrol);
             return;
         }
-
+        if(canCast(aiAgent) == true){
+            if(MobCast(aiAgent) == false) {
+                attack(aiAgent, targetID);
+            }
+        }
+        else
         if (CombatUtilities.inRangeToAttack(aiAgent, aggroTarget)) {
             aiAgent.setState(STATE.Attack);
             attack(aiAgent, targetID);
@@ -602,7 +604,9 @@ public class MobileFSM {
                     return;
                 }
                 if(canCast(aiAgent) == true){
-                    MobCast(aiAgent);
+                    if(MobCast(aiAgent) == false) {
+                        handlePlayerAttackForMob(aiAgent, player);
+                    }
                 }
                 else {
                     handlePlayerAttackForMob(aiAgent, player);
@@ -1665,7 +1669,9 @@ public class MobileFSM {
                     return;
                 }
                 if(canCast(aiAgent) == true){
-                    MobCast(aiAgent);
+                    if(MobCast(aiAgent) == false) {
+                        handlePlayerAttackForMob(aiAgent, player);
+                    }
                 }
                 else {
                     handlePlayerAttackForMob(aiAgent, player);
@@ -1753,32 +1759,42 @@ public class MobileFSM {
     }
 
     public static boolean canCast(Mob mob){
-        if(mob == null || mob.mobPowers.isEmpty() || mob.nextCastTime > System.currentTimeMillis()){
+        if(mob == null || mob.mobPowers.isEmpty() == true || mob.nextCastTime > System.currentTimeMillis()){
             return false;
         }
         else{
             return true;
         }
     }
-    public static void MobCast(Mob mob){
+    public static boolean MobCast(Mob mob){
         if(mob.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP)){
             MobCallForHelp(mob);
         }
-            PlayerCharacter target = (PlayerCharacter)mob.getCombatTarget();
-            Random rand = new Random();
-            int powerPos = rand.nextInt(mob.mobPowers.size());
-            int spellId = mob.mobPowers.get(powerPos);
-            PowersBase mobPower = PowersManager.getPowerByToken(spellId);
-            if(CombatUtilities.inRangeToCast2D(mob, mob.getCombatTarget(),mobPower)) {
-                PerformActionMsg msg = PowersManager.createPowerMsg(mobPower, 40, mob, target);
-                msg.setUnknown04(2);
-                PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                mob.setLastMobPowerToken(0);
-                mob.setIsCasting(false);
-                mob.nextCastTime = System.currentTimeMillis() + mobPower.getCooldown();
-            }else{
-                MovementUtilities.moveToLocation(mob,mob.getCombatTarget().getLoc(),mobPower.getRange());
+        PlayerCharacter target = (PlayerCharacter)mob.getCombatTarget();
+        int random = ThreadLocalRandom.current().nextInt(mob.mobPowers.size() * 2);
+        int powerToken = 0;
+        int powerRank = 0;
+        Map<Integer,Integer> entries = mob.mobPowers;
+        int count = -1;
+        for(Map.Entry<Integer,Integer> entry : entries.entrySet())
+        {
+            count += 1;
+            if(count == random)
+            {
+                powerToken = entry.getKey();
+                powerRank = entry.getValue();
+                PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
+                if(CombatUtilities.inRangeToCast2D(mob, mob.getCombatTarget(),mobPower)) {
+                    //PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
+                    PerformActionMsg msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                    msg.setUnknown04(2);
+                    PowersManager.finishUseMobPower(msg, mob, 0, 0);
+                    mob.nextCastTime = System.currentTimeMillis() + (mobPower.getCooldown() * 1000);
+                    return true;
+                }
             }
+        }
+        return false;
     }
     public static void MobCallForHelp(Mob mob){
         Zone mobCamp = mob.getParentZone();
