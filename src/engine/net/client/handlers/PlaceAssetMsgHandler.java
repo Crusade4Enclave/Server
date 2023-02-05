@@ -436,7 +436,9 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
 			if (!building.getGuild().equals(serverCity.getGuild()) && !building.getGuild().equals(serverCity.getBane().getOwner().getGuild()))
 				continue;
-
+			if (building.getRank() < 0) {
+				continue;
+			}
 			if (building.getGuild().equals(serverCity.getGuild()))
 				defenderBuildings.add(building);
 
