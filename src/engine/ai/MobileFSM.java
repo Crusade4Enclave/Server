@@ -53,6 +53,7 @@ public class MobileFSM {
         Recalling,
         Retaliate
     }
+
     public static void run(Mob mob) {
         if (mob == null) {
             return;
@@ -166,11 +167,9 @@ public class MobileFSM {
         }
         return false;
     }
-
     public static Mob getMobile(int mobileID) {
         return Mob.getFromCache(mobileID);
     }
-
     private static void idle(Mob mob) {
 
         if (mob.getLoc().distanceSquared2D(mob.getBindLoc()) > sqr(2000)) {
@@ -179,8 +178,6 @@ public class MobileFSM {
             mob.setState(STATE.Home);
         }
     }
-
-
     private static void awake(Mob aiAgent) {
         if (!aiAgent.isAlive()) {
             aiAgent.setState(STATE.Dead);
@@ -269,7 +266,6 @@ public class MobileFSM {
         }
 
     }
-
     private static void guardAttackMob(Mob aiAgent) {
         if (!aiAgent.isAlive()) {
             aiAgent.setState(STATE.Dead);
@@ -354,7 +350,6 @@ public class MobileFSM {
 
         MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
     }
-
     private static void awakeNPCguard(Mob aiAgent) {
         if (!aiAgent.isAlive()) {
             aiAgent.setState(STATE.Dead);
@@ -393,7 +388,6 @@ public class MobileFSM {
             aiAgent.setState(STATE.Attack);
         }
     }
-
     private static void petAwake(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
@@ -430,7 +424,6 @@ public class MobileFSM {
             MovementUtilities.moveToLocation(aiAgent, petOwner.getLoc(), aiAgent.getRange());
         }
     }
-
     private static void aggro(Mob aiAgent, int targetID) {
 
         if (!aiAgent.isAlive()) {
@@ -474,13 +467,11 @@ public class MobileFSM {
             aiAgent.setState(STATE.Patrol);
             return;
         }
-        if(canCast(aiAgent) == true){
-            if(MobCast(aiAgent) == false) {
+        if (canCast(aiAgent) == true) {
+            if (MobCast(aiAgent) == false) {
                 attack(aiAgent, targetID);
             }
-        }
-        else
-        if (CombatUtilities.inRangeToAttack(aiAgent, aggroTarget)) {
+        } else if (CombatUtilities.inRangeToAttack(aiAgent, aggroTarget)) {
             aiAgent.setState(STATE.Attack);
             attack(aiAgent, targetID);
             return;
@@ -518,7 +509,6 @@ public class MobileFSM {
         MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
 
     }
-
     private static void petAttack(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
@@ -564,7 +554,6 @@ public class MobileFSM {
                 break;
         }
     }
-
     private static void mobAttack(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
@@ -603,12 +592,11 @@ public class MobileFSM {
                     aiAgent.setState(STATE.Idle);
                     return;
                 }
-                if(canCast(aiAgent) == true){
-                    if(MobCast(aiAgent) == false) {
+                if (canCast(aiAgent) == true) {
+                    if (MobCast(aiAgent) == false) {
                         handlePlayerAttackForMob(aiAgent, player);
                     }
-                }
-                else {
+                } else {
                     handlePlayerAttackForMob(aiAgent, player);
                 }
                 break;
@@ -621,7 +609,6 @@ public class MobileFSM {
                 handleMobAttackForMob(aiAgent, mob);
         }
     }
-
     private static void petHandleBuildingAttack(Mob aiAgent, Building building) {
 
         int buildingHitBox = (int) CombatManager.calcHitBox(building);
@@ -732,7 +719,6 @@ public class MobileFSM {
             if (MovementUtilities.canMove(aiAgent))
                 MovementUtilities.moveToLocation(aiAgent, building.getLoc(), aiAgent.getRange() + buildingHitBox);
     }
-
     private static void handlePlayerAttackForPet(Mob aiAgent, PlayerCharacter player) {
 
         if (aiAgent.getMobBase().getSeeInvis() < player.getHidden()) {
@@ -809,7 +795,6 @@ public class MobileFSM {
         aiAgent.destination = MovementUtilities.GetDestinationToCharacter(aiAgent, player);
         MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
     }
-
     private static void handlePlayerAttackForMob(Mob aiAgent, PlayerCharacter player) {
 
         if (aiAgent.getMobBase().getSeeInvis() < player.getHidden()) {
@@ -824,36 +809,9 @@ public class MobileFSM {
             return;
         }
 
-        if (System.currentTimeMillis() > aiAgent.getTimeStamp("CallForHelp")) {
-            CombatUtilities.CallForHelp(aiAgent);
-            aiAgent.getTimestamps().put("CallForHelp", System.currentTimeMillis() + 60000);
+        if (aiAgent.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP)) {
+            MobCallForHelp(aiAgent);
         }
-
-        HashMap<Integer, Integer> staticPowers = aiAgent.getMobBase().getStaticPowers();
-
-        if (staticPowers != null && !staticPowers.isEmpty()) {
-            int chance = ThreadLocalRandom.current().nextInt(300);
-
-            if (chance <= 1) {
-
-                int randomPower = ThreadLocalRandom.current().nextInt(staticPowers.size());
-                int powerToken = (int) staticPowers.keySet().toArray()[randomPower];
-                PowersBase pb = PowersManager.getPowerByToken(powerToken);
-
-                if (pb == null)
-                    return;
-
-                if (System.currentTimeMillis() > aiAgent.getTimeStamp(pb.getIDString())) {
-
-                    PowersManager.useMobPower(aiAgent, player, pb, staticPowers.get(powerToken));
-
-                    int cooldown = pb.getRecycleTime(staticPowers.get(powerToken));
-                    aiAgent.getTimestamps().put(pb.getIDString(), System.currentTimeMillis() + cooldown + (pb.getToken() == 429023263 ? 10000 : 120000));
-                    return;
-                }
-            }
-        }
-
         if (!MovementUtilities.inRangeOfBindLocation(aiAgent)) {
             aiAgent.setCombatTarget(null);
             aiAgent.setAggroTargetID(0);
@@ -861,7 +819,6 @@ public class MobileFSM {
             aiAgent.setState(STATE.Home);
             return;
         }
-
         if (!MovementUtilities.inRangeDropAggro(aiAgent, player)) {
             aiAgent.setAggroTargetID(0);
             aiAgent.setCombatTarget(null);
@@ -869,7 +826,6 @@ public class MobileFSM {
             aiAgent.setState(STATE.Awake);
             return;
         }
-
         if (CombatUtilities.inRangeToAttack(aiAgent, player)) {
 
             //no weapons, defualt mob attack speed 3 seconds.
@@ -916,7 +872,9 @@ public class MobileFSM {
 
                     if (aiAgent.isSiege())
                         attackDelay = 11000;
-
+                    if (aiAgent.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP)) {
+                        MobCallForHelp(aiAgent);
+                    }
                     CombatUtilities.combatCycle(aiAgent, player, false, aiAgent.getWeaponItemBase(false));
                     aiAgent.setLastAttackTime(System.currentTimeMillis() + attackDelay);
                 }
@@ -937,7 +895,6 @@ public class MobileFSM {
         MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
 
     }
-
     private static void handleMobAttackForPet(Mob aiAgent, Mob mob) {
 
         if (!mob.isAlive()) {
@@ -1009,7 +966,6 @@ public class MobileFSM {
         aiAgent.destination = MovementUtilities.GetDestinationToCharacter(aiAgent, mob);
         MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
     }
-
     private static void handleMobAttackForMob(Mob aiAgent, Mob mob) {
 
 
@@ -1082,7 +1038,6 @@ public class MobileFSM {
         aiAgent.destination = MovementUtilities.GetDestinationToCharacter(aiAgent, mob);
         MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
     }
-
     private static void attack(Mob aiAgent, int targetID) {
 
         //in range to attack, start attacking now!
@@ -1210,7 +1165,6 @@ public class MobileFSM {
         aiAgent.destination = MovementUtilities.GetDestinationToCharacter(aiAgent, aggroTarget);
         MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
     }
-
     private static void home(Mob aiAgent, boolean walk) {
 
         //recall home.
@@ -1219,14 +1173,12 @@ public class MobileFSM {
         aiAgent.setCombatTarget(null);
         aiAgent.setState(STATE.Awake);
     }
-
     private static void recall(Mob aiAgent) {
         //recall home.
         PowersBase recall = PowersManager.getPowerByToken(-1994153779);
         PowersManager.useMobPower(aiAgent, aiAgent, recall, 40);
         aiAgent.setState(MobileFSM.STATE.Recalling);
     }
-
     private static void recalling(Mob aiAgent) {
         //recall home.
         if (aiAgent.getLoc() == aiAgent.getBindLoc())
@@ -1238,7 +1190,6 @@ public class MobileFSM {
             aiAgent.setState(STATE.Home);
         }
     }
-
     private static void patrol(Mob aiAgent) {
 
         MobBase mobbase = aiAgent.getMobBase();
@@ -1262,7 +1213,6 @@ public class MobileFSM {
         }
         aiAgent.setState(STATE.Awake);
     }
-
     public static void goHome(Mob aiAgent, boolean walk) {
 
         if (aiAgent.getState() != STATE.Dead) {
@@ -1271,7 +1221,6 @@ public class MobileFSM {
             aiAgent.setState(STATE.Home);
         }
     }
-
     private static void dead(Mob aiAgent) {
         //Despawn Timer with Loot currently in inventory.
         if (aiAgent.getCharItemManager().getInventoryCount() > 0) {
@@ -1303,7 +1252,6 @@ public class MobileFSM {
             }
         }
     }
-
     private static void guardAwake(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
@@ -1451,7 +1399,6 @@ public class MobileFSM {
         if (aiAgent.isMoving() == false)
             aiAgent.setState(STATE.Patrol);
     }
-
     private static void guardAggro(Mob aiAgent, int targetID) {
 
         if (!aiAgent.isAlive()) {
@@ -1487,13 +1434,6 @@ public class MobileFSM {
             aiAgent.setState(STATE.Patrol);
             return;
         }
-
-        if (System.currentTimeMillis() > aiAgent.getTimeStamp("CallForHelp")) {
-            CombatUtilities.CallForHelp(aiAgent);
-            aiAgent.getTimestamps().put("CallForHelp", System.currentTimeMillis() + 60000);
-        }
-
-
         if (CombatUtilities.inRangeToAttack(aiAgent, aggroTarget)) {
             aiAgent.setCombatTarget(aggroTarget);
             aiAgent.setState(STATE.Attack);
@@ -1536,7 +1476,6 @@ public class MobileFSM {
         MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
 
     }
-
     private static void guardPatrol(Mob aiAgent) {
 
         if (aiAgent.getPlayerAgroMap().isEmpty()) {
@@ -1637,7 +1576,6 @@ public class MobileFSM {
         }
         aiAgent.setState(STATE.Awake);
     }
-
     private static void guardAttack(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
@@ -1668,12 +1606,11 @@ public class MobileFSM {
                     aiAgent.setState(STATE.Idle);
                     return;
                 }
-                if(canCast(aiAgent) == true){
-                    if(MobCast(aiAgent) == false) {
+                if (canCast(aiAgent) == true) {
+                    if (MobCast(aiAgent) == false) {
                         handlePlayerAttackForMob(aiAgent, player);
                     }
-                }
-                else {
+                } else {
                     handlePlayerAttackForMob(aiAgent, player);
                 }
                 break;
@@ -1686,7 +1623,6 @@ public class MobileFSM {
                 handleMobAttackForMob(aiAgent, mob);
         }
     }
-
     private static void guardHome(Mob aiAgent, boolean walk) {
 
         //recall home.
@@ -1697,7 +1633,6 @@ public class MobileFSM {
         aiAgent.setCombatTarget(null);
         aiAgent.setState(STATE.Awake);
     }
-
     private static void guardRespawn(Mob aiAgent) {
 
         if (!aiAgent.canRespawn())
@@ -1713,7 +1648,6 @@ public class MobileFSM {
             aiAgent.setState(STATE.Idle);
         }
     }
-
     private static void respawn(Mob aiAgent) {
 
         if (!aiAgent.canRespawn())
@@ -1729,7 +1663,6 @@ public class MobileFSM {
             aiAgent.setState(STATE.Idle);
         }
     }
-
     private static void retaliate(Mob aiAgent) {
 
         if (aiAgent.getCombatTarget() == null)
@@ -1749,7 +1682,6 @@ public class MobileFSM {
 
         MovementUtilities.moveToLocation(aiAgent, aiAgent.getCombatTarget().getLoc(), aiAgent.getRange());
     }
-
     private static void moveToWorldObjectRegion(Mob mob, AbstractWorldObject regionObject) {
 
         if (regionObject.getRegion() == null)
@@ -1757,52 +1689,62 @@ public class MobileFSM {
 
         MovementManager.translocate(mob, regionObject.getLoc(), null);
     }
-
-    public static boolean canCast(Mob mob){
-        if(mob == null || mob.mobPowers.isEmpty() == true || mob.nextCastTime > System.currentTimeMillis()){
+    public static boolean canCast(Mob mob) {
+        if(mob == null){
             return false;
         }
-        else{
-            return true;
+        if(mob.mobPowers.isEmpty() == true){
+            return false;
         }
+        if(mob.nextCastTime == 0){
+            mob.nextCastTime = System.currentTimeMillis();
+        }
+        if (mob.nextCastTime > System.currentTimeMillis()) {
+            return false;
+        }
+        return true;
     }
-    public static boolean MobCast(Mob mob){
-        if(mob.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP)){
+    public static boolean MobCast(Mob mob) {
+        if (mob.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP)) {
             MobCallForHelp(mob);
         }
-        PlayerCharacter target = (PlayerCharacter)mob.getCombatTarget();
+        PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
         int random = ThreadLocalRandom.current().nextInt(mob.mobPowers.size() * 2);
         int powerToken = 0;
         int powerRank = 0;
-        Map<Integer,Integer> entries = mob.mobPowers;
+        Map<Integer, Integer> entries = mob.mobPowers;
         int count = -1;
-        for(Map.Entry<Integer,Integer> entry : entries.entrySet())
-        {
+        for (Map.Entry<Integer, Integer> entry : entries.entrySet()) {
             count += 1;
-            if(count == random)
-            {
+            if (count == random) {
                 powerToken = entry.getKey();
                 powerRank = entry.getValue();
                 PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
-                if(CombatUtilities.inRangeToCast2D(mob, mob.getCombatTarget(),mobPower)) {
+                if (CombatUtilities.inRangeToCast2D(mob, mob.getCombatTarget(), mobPower)) {
                     //PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
                     PerformActionMsg msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
                     msg.setUnknown04(2);
                     PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                    mob.nextCastTime = System.currentTimeMillis() + (mobPower.getCooldown() * 1000);
+                    mob.nextCastTime = System.currentTimeMillis() + (mobPower.getCooldown());
                     return true;
                 }
             }
         }
         return false;
     }
-    public static void MobCallForHelp(Mob mob){
+    public static void MobCallForHelp(Mob mob) {
+        if(mob.nextCallForHelp > System.currentTimeMillis()){
+            return;
+        }
         Zone mobCamp = mob.getParentZone();
         for (Mob mob1 : mobCamp.zoneMobSet) {
-            if(mob1.getMobBase().getFlags().contains(Enum.MobFlagType.RESPONDSTOCALLSFORHELP)){
-                mob1.setCombatTarget(mob.getCombatTarget());
-                mob1.setState(STATE.Aggro);
+            if (mob1.getMobBase().getFlags().contains(Enum.MobFlagType.RESPONDSTOCALLSFORHELP)) {
+                if (mob1.getState() == STATE.Idle) {
+                    MovementUtilities.moveToLocation(mob1, mob.getLoc(), 0);
+                }
             }
         }
+        //wait 60 seconds to call for help again
+        mob.nextCallForHelp = System.currentTimeMillis() + 60000;
     }
 }

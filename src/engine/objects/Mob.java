@@ -92,6 +92,7 @@ public class Mob extends AbstractIntelligenceAgent {
 	private boolean walkingHome = true;
 	private long lastAttackTime = 0;
 	public long nextCastTime = 0;
+	public long nextCallForHelp = 0;
 	private long deathTime = 0;
 	private ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
 	public ReentrantReadWriteLock minionLock = new ReentrantReadWriteLock();
@@ -2700,7 +2701,6 @@ public class Mob extends AbstractIntelligenceAgent {
 	public boolean isPlayerGuard() {
 		return isPlayerGuard;
 	}
-
 	public void setPlayerGuard(boolean isPlayerGuard) {
 		this.isPlayerGuard = isPlayerGuard;
 	}
