@@ -872,7 +872,7 @@ public class City extends AbstractWorldObject {
 
 			if (playerObject == null)
 				continue;
-			if (!this.isLocationOnCityZone(playerObject.getLoc()))
+			if (!this.isLocationWithinSiegeBounds(playerObject.getLoc()))
 				continue;
 
 			player = (PlayerCharacter) playerObject;
