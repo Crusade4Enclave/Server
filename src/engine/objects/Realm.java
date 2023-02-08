@@ -65,7 +65,7 @@ public class Realm {
 	private final int stretchY;
 	private final int locX;
 	private final int locY;
-	private final int realmID;
+	public final int realmID;
 	private final HashSet<Integer> cities = new HashSet<>();
 	private String hash;
 
@@ -204,7 +204,6 @@ public class Realm {
 	public static void configureAllRealms() {
 
 		for (Realm realm : Realm._realms.values()) {
-			RealmMap.addToColorMap(realm.mapColor, realm.realmID);
 			realm.configure();
 		}
 	}

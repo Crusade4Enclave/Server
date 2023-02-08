@@ -326,6 +326,9 @@ public class WorldServer {
 		Logger.info("Loading Realms");
 		Realm.loadAllRealms();
 
+		Logger.info("Loading RealmMap");
+		RealmMap.loadRealmImageMap();
+
 		Logger.info("Loading Kits");
 		DbManager.KitQueries.GET_ALL_KITS();
 		
@@ -334,10 +337,6 @@ public class WorldServer {
 		
 		Logger.info("Starting InterestManager.");
 		WorldGrid.startLoadJob();
-		
-		
-		Logger.info("Loading Spaital Hash");
-		RealmMap.loadRealmImageMap();
 
 		DbManager.MobBaseQueries.SET_AI_DEFAULTS();
 

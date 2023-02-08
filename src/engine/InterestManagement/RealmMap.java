@@ -52,8 +52,7 @@ public enum RealmMap {
 
         if (yBuckets < 0 || yBuckets >= MBServerStatics.SPATIAL_HASH_BUCKETSY
                 || xBuckets < 0 || xBuckets >= MBServerStatics.SPATIAL_HASH_BUCKETSX) {
-            Logger.error("WorldServerRealm.getRealmFromPosition",
-                    "Invalid range; Z: " + yBuckets + ", X: " + xBuckets);
+            Logger.error("Invalid range; Z: " + yBuckets + ", X: " + xBuckets);
             return 255;
         }
 
@@ -109,6 +108,12 @@ public enum RealmMap {
     }
 
     public static void loadRealmImageMap() {
+
+        // Build color lookup map for realms from database
+
+        for (Realm realm : Realm._realms.values()) {
+            RealmMap.addToColorMap(realm.mapColor, realm.realmID);
+        }
 
         RealmMap._realmImageMap = MapLoader.loadMap();
 

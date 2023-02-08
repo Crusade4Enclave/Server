@@ -26,8 +26,7 @@ public enum MapLoader {
         long timeToLoad = System.currentTimeMillis();
         long bytesRead = 0;
         long realmsWritten = 0;
-
-        Integer realmUUID = null;
+        int realmUUID;
         
         // Load image from disk
         
@@ -54,20 +53,14 @@ public enum MapLoader {
 				try {
 					int rgb = image.getRGB(j, i);
 					realmUUID = RealmMap.getRealmIDByRGB(rgb);
-
-                if (realmUUID == null) {
-                    Logger.error("Corrupted png: unknown color " + rgb);
-                    WorldServer.shutdown();
-                }
                 
-                realmMap[j][i] = realmUUID.intValue();
+                realmMap[j][i] = realmUUID;
                 bytesRead++;
 
-                if (realmUUID.intValue() != 0)
+                if (realmUUID != 0)
                     realmsWritten++;
 
 				}catch (Exception e){
-					//					Logger.error("REALMEDIT ERROR", e.getMessage());
 					continue;
 				}
 
@@ -76,9 +69,7 @@ public enum MapLoader {
         }
         timeToLoad = System.currentTimeMillis() - timeToLoad;
 
-        Logger.info( bytesRead + " pixels processed in " + timeToLoad / 1000 + " seconds");
-        Logger.info("Realm pixels written : " + realmsWritten);
-        image = null;
+        Logger.info( bytesRead + "Realm imageMNap pixels processed in " + timeToLoad / 1000 + " seconds");
         return realmMap;
     }
 
