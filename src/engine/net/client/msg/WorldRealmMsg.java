@@ -21,7 +21,6 @@
 
 package engine.net.client.msg;
 
-import engine.Enum.RealmType;
 import engine.net.AbstractConnection;
 import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
@@ -67,23 +66,12 @@ public class WorldRealmMsg extends ClientNetMsg {
 		Realm serverRealm;
 
 
-		realmCount = RealmType.values().length - 1;
-		// Realm count without seafloor
+		realmCount = Realm._realms.size();
 
 		writer.putInt(realmCount);
 
-		for (RealmType realmType : RealmType.values()) {
-
-			realmID = realmType.getRealmID();
-			// Don't serialize seafloor
-
-			if (realmID == 0)
-				continue;
-
-			serverRealm = Realm.getRealm(realmID);
-			serverRealm.serializeForClientMsg(writer);
-
-		}
+		for (Realm realm  :  Realm._realms.values())
+			realm.serializeForClientMsg(writer);
 
 		writer.putInt(0x0);
 			writer.putInt(3000000);

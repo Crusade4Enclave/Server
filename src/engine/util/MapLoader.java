@@ -4,7 +4,7 @@
 
 package engine.util;
 
-import engine.Enum.RealmType;
+import engine.InterestManagement.RealmMap;
 import engine.server.MBServerStatics;
 import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
@@ -46,12 +46,6 @@ public enum MapLoader {
         // Flip image on the y axis
         
         image = flipImage(image);
-        
-        // Initialize color lookup table
-
-        for (RealmType realm : RealmType.values()) {
-            realm.addToColorMap();
-        }
 
         // Load spatial imageMap with color data from file
 
@@ -59,7 +53,7 @@ public enum MapLoader {
             for (int j = 0; j < MBServerStatics.SPATIAL_HASH_BUCKETSX; j++) {
 				try {
 					int rgb = image.getRGB(j, i);
-					realmUUID = RealmType.getRealmIDByRGB(rgb);
+					realmUUID = RealmMap.getRealmIDByRGB(rgb);
 
                 if (realmUUID == null) {
                     Logger.error("Corrupted png: unknown color " + rgb);
