@@ -63,7 +63,6 @@ public class MobileFSM {
             case Idle:
                 if (mob.isAlive())
                     mob.updateLocation();
-
                 if (mob.isPlayerGuard()) {
                     guardAwake(mob);
                     break;
@@ -166,9 +165,6 @@ public class MobileFSM {
             return true;
         }
         return false;
-    }
-    public static Mob getMobile(int mobileID) {
-        return Mob.getFromCache(mobileID);
     }
     private static void idle(Mob mob) {
 
@@ -1070,31 +1066,6 @@ public class MobileFSM {
             return;
         }
 
-        HashMap<Integer, Integer> staticPowers = aiAgent.getMobBase().getStaticPowers();
-        if (staticPowers != null && !staticPowers.isEmpty()) {
-
-            int chance = ThreadLocalRandom.current().nextInt(100);
-
-            if (chance <= MBServerStatics.AI_POWER_DIVISOR) {
-
-                ArrayList<Integer> powerList = new ArrayList<>();
-
-                for (Integer key : staticPowers.keySet()) {
-                    powerList.add(key);
-                }
-
-                int randomPower = ThreadLocalRandom.current().nextInt(powerList.size());
-                int powerToken = powerList.get(randomPower);
-
-                PowersBase pb = PowersManager.getPowerByToken(powerToken);
-
-                if (pb != null)
-                    PowersManager.useMobPower(aiAgent, aggroTarget, pb, staticPowers.get(powerToken));
-
-                return;
-            }
-        }
-
         if (!MovementUtilities.inRangeOfBindLocation(aiAgent)) {
             aiAgent.setCombatTarget(null);
             aiAgent.setAggroTargetID(0);
@@ -1212,14 +1183,6 @@ public class MobileFSM {
             MovementUtilities.aiMove(aiAgent, Vector3fImmutable.getRandomPointInCircle(aiAgent.getBindLoc(), patrolRadius), true);
         }
         aiAgent.setState(STATE.Awake);
-    }
-    public static void goHome(Mob aiAgent, boolean walk) {
-
-        if (aiAgent.getState() != STATE.Dead) {
-            aiAgent.setWalkingHome(walk);
-            aiAgent.setAggroTargetID(0);
-            aiAgent.setState(STATE.Home);
-        }
     }
     private static void dead(Mob aiAgent) {
         //Despawn Timer with Loot currently in inventory.
@@ -1633,21 +1596,6 @@ public class MobileFSM {
         aiAgent.setCombatTarget(null);
         aiAgent.setState(STATE.Awake);
     }
-    private static void guardRespawn(Mob aiAgent) {
-
-        if (!aiAgent.canRespawn())
-            return;
-
-        if (aiAgent.isPlayerGuard() && aiAgent.getNpcOwner() != null && !aiAgent.getNpcOwner().isAlive())
-            return;
-
-        long spawnTime = aiAgent.getSpawnTime();
-
-        if (System.currentTimeMillis() > aiAgent.getDeathTime() + spawnTime) {
-            aiAgent.respawn();
-            aiAgent.setState(STATE.Idle);
-        }
-    }
     private static void respawn(Mob aiAgent) {
 
         if (!aiAgent.canRespawn())
@@ -1681,13 +1629,6 @@ public class MobileFSM {
             return;
 
         MovementUtilities.moveToLocation(aiAgent, aiAgent.getCombatTarget().getLoc(), aiAgent.getRange());
-    }
-    private static void moveToWorldObjectRegion(Mob mob, AbstractWorldObject regionObject) {
-
-        if (regionObject.getRegion() == null)
-            return;
-
-        MovementManager.translocate(mob, regionObject.getLoc(), null);
     }
     public static boolean canCast(Mob mob) {
         if(mob == null){

@@ -343,6 +343,7 @@ public class CombatUtilities {
 			float dex = agent.getStatDexCurrent();
 			double minDmg =  getMinDmg(min,str,dex,agent.getLevel());
 			double maxDmg =  getMaxDmg(max,str,dex,agent.getLevel());
+			dmgMultiplier += agent.getLevel() / 10;
 			range = (float) (maxDmg - minDmg);
 			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
 			if (AbstractWorldObject.IsAbstractCharacter(target))
