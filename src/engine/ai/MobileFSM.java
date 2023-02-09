@@ -1660,10 +1660,19 @@ public class MobileFSM {
                 PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
                 if (CombatUtilities.inRangeToCast2D(mob, mob.getCombatTarget(), mobPower)) {
                     //PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
-                    PerformActionMsg msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                    PerformActionMsg msg = new PerformActionMsg();
+                    if(mobPower.isHarmful() == false){
+                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
+                    } else {
+                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                    }
                     msg.setUnknown04(2);
                     PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                    mob.nextCastTime = System.currentTimeMillis() + (mobPower.getCooldown());
+                    if(mobPower.getCooldown() < 10000){
+                        mob.nextCastTime = System.currentTimeMillis() + 10000;
+                    } else {
+                        mob.nextCastTime = System.currentTimeMillis() + (mobPower.getCooldown());
+                    }
                     return true;
                 }
             }
