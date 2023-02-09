@@ -2227,7 +2227,7 @@ public class Mob extends AbstractIntelligenceAgent {
 			//load guards powers
 			ArrayList<MobBase> mobbases = DbManager.MobBaseQueries.GET_ALL_MOBBASES();
 			for(MobBase mb : mobbases){
-				if(this.getName() == mb.getFirstName()){
+				if(this.getName().contains(mb.getFirstName())){
 					mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mb.getObjectUUID());
 				}
 			}
