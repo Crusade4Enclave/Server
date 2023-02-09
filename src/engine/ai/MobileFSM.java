@@ -1680,7 +1680,7 @@ public class MobileFSM {
         return false;
     }
     public static void MobCallForHelp(Mob mob) {
-        if(mob.nextCallForHelp > System.currentTimeMillis()){
+        if(mob.nextCallForHelp < System.currentTimeMillis()){
             return;
         }
         Zone mobCamp = mob.getParentZone();

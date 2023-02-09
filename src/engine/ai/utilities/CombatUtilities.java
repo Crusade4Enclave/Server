@@ -334,6 +334,10 @@ public class CombatUtilities {
 		//set default values
 			float min = 40;
 			float max = 60;
+		if(agent.getLevel() == 85){
+			min = agent.getMinDamageHandOne();
+			max = agent.getMaxDamageHandOne();
+		}
 			float range;
 			float damage;
 			float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
@@ -376,10 +380,12 @@ public class CombatUtilities {
 			if (AbstractWorldObject.IsAbstractCharacter(target))
 				return ((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, damage, 0) * dmgMultiplier;
 		}
-		else {
+		else{
 			//damage calc for regular mob
-			min = agent.getMobBase().getDamageMin();
-			max = agent.getMobBase().getMaxDmg();
+			if(agent.getLevel() > 85) {
+				min = agent.getMobBase().getDamageMin();
+				max = agent.getMobBase().getMaxDmg();
+			}
 
 			DamageType dt = DamageType.Crush;
 			if(agent.getEquip().get(1) != null && agent.getEquip().get(2) == null){
