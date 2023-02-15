@@ -27,6 +27,10 @@ public class Runegate {
 		this._portals = new Portal[8];
 		this.gateBuilding = gateBuilding;
 
+		// Load portals for this runegate portals from the database
+
+		configurePortals();
+
 		// Chaos, Khar and Oblivion are on by default
 
 		_portals[Enum.PortalType.CHAOS.ordinal()].activate(false);
@@ -74,7 +78,6 @@ public class Runegate {
 		Building gateBuilding = (Building) DbManager.getObject(Enum.GameObjectType.Building, gateID);
 
 		Runegate runegate = new Runegate(gateBuilding);
-		runegate.configurePortals();
 		_runegates.put(gateID, runegate);
 	}
 
