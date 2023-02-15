@@ -57,7 +57,7 @@ public class dbRunegateHandler extends dbHandlerBase {
             ResultSet rs = executeQuery();
 
             while (rs.next()) {
-                int targetBuildingID = rs.getInt("sourceBuilding");
+                int targetBuildingID = rs.getInt("targetBuilding");
                 Building targetBuilding = (Building) DbManager.getObject(Enum.GameObjectType.Building, targetBuildingID);
                 Enum.PortalType portalType = Enum.PortalType.valueOf(rs.getString("portalType"));
                 Portal portal = new Portal(sourceBuilding, portalType, targetBuilding);
