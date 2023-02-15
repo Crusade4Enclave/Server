@@ -548,6 +548,29 @@ public class Enum {
 		}
 	}
 
+	public enum PortalType {
+
+		EARTH(6f, 19.5f, 128),
+		AIR(-6f, 19.5f, 256),
+		FIRE(15f, 7.5f, 512),
+		WATER(-15f, 8.5f, 1024),
+		SPIRIT(0, 10.5f, 2048),
+		CHAOS(22f, 3.5f, 8192),
+		OBLIV(0f, 42f, 16384),
+		MERCHANT(-22f, 4.5f, 4096),
+		FORBID(0.0f, 0.0f, 0);
+
+		public final Vector2f offset;
+		public final int bitFlag;
+
+		PortalType(float offsetX, float offsetY, int bitFlag) {
+
+			this.offset = new Vector2f(offsetX, offsetY);
+			this.bitFlag = bitFlag;
+
+		}
+
+	}
 	public enum RunegateType {
 
 		EARTH(6f, 19.5f, 128, 33213),
