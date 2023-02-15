@@ -35,7 +35,7 @@ public class dbRunegateHandler extends dbHandlerBase {
 
         try {
             ResultSet rs = executeQuery();
-            if (rs.next()) {
+            while (rs.next()) {
                 gateList.add(rs.getInt("sourceBuilding"));
             }
         } catch (SQLException e) {
@@ -56,7 +56,7 @@ public class dbRunegateHandler extends dbHandlerBase {
         try {
             ResultSet rs = executeQuery();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 int targetBuildingID = rs.getInt("sourceBuilding");
                 Building targetBuilding = (Building) DbManager.getObject(Enum.GameObjectType.Building, targetBuildingID);
                 Enum.PortalType portalType = Enum.PortalType.valueOf(rs.getString("portalType"));
