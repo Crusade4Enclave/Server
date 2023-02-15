@@ -9,7 +9,6 @@
 package engine;
 
 import ch.claude_martin.enumbitset.EnumBitSetHelper;
-import engine.gameManager.BuildingManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
@@ -18,7 +17,6 @@ import engine.objects.*;
 import engine.powers.EffectsBase;
 import org.pmw.tinylog.Logger;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -561,74 +559,16 @@ public class Enum {
 		FORBID(0.0f, 0.0f, 0);
 
 		public final Vector2f offset;
-		public final int bitFlag;
+		public final int effectFlag;
 
-		PortalType(float offsetX, float offsetY, int bitFlag) {
-
-			this.offset = new Vector2f(offsetX, offsetY);
-			this.bitFlag = bitFlag;
-
-		}
-
-	}
-	public enum RunegateType {
-
-		EARTH(6f, 19.5f, 128, 33213),
-		AIR(-6f, 19.5f, 256, 33170),
-		FIRE(15f, 7.5f, 512, 49612),
-		WATER(-15f, 8.5f, 1024, 53073),
-		SPIRIT(0, 10.5f, 2048, 33127),
-		CHAOS(22f, 3.5f, 8192, 58093),
-		OBLIV(0f, 42f, 16384, 60198),
-		MERCHANT(-22f, 4.5f, 4096, 60245),
-		FORBID(0.0f, 0.0f, 0, 54617);
-
-		private final Vector2f offset;
-		private final int bitFlag;
-		private final int buildingUUID;
-
-		RunegateType(float offsetX, float offsetY, int bitFlag,
-					 int buildingUUID) {
+		PortalType(float offsetX, float offsetY, int effectFlag) {
 
 			this.offset = new Vector2f(offsetX, offsetY);
-			this.bitFlag = bitFlag;
-			this.buildingUUID = buildingUUID;
+			this.effectFlag = effectFlag;
+
 		}
-
-		public Vector2f getOffset() {
-			return this.offset;
-		}
-
-		public int getEffectFlag() {
-			return this.bitFlag;
-		}
-
-		public int getGateUUID() {
-			return this.buildingUUID;
-		}
-
-		public Building getGateBuilding() {
-
-			return BuildingManager.getBuilding(this.buildingUUID);
-		}
-
-		public static RunegateType getGateTypeFromUUID(int uuid) {
-
-			RunegateType outType = RunegateType.AIR;
-
-			for (RunegateType gateType : RunegateType.values()) {
-
-				if (gateType.buildingUUID == uuid) {
-					outType = gateType;
-					return outType;
-				}
-
-			}
-
-			return outType;
-		}
-
 	}
+
 
 	// Enum for ItemBase flags
 

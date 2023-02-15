@@ -10,7 +10,6 @@
 package engine.net.client.msg;
 
 import engine.Enum;
-import engine.Enum.RunegateType;
 import engine.gameManager.DbManager;
 import engine.net.AbstractConnection;
 import engine.net.ByteBufferReader;
@@ -128,11 +127,10 @@ public class WorldObjectMsg extends ClientNetMsg {
 		if (this.updateRunegates) {
 
 			writer.put((byte) 0);
-			writer.putInt(RunegateType.values().length);
+			writer.putInt(Runegate._runegates.values().size());
 
-			for(RunegateType gateType : engine.Enum.RunegateType.values()) {
-
-				Runegate.getRunegates()[gateType.ordinal()]._serializeForEnterWorld(writer);
+			for(Runegate runegate  : Runegate._runegates.values()) {
+				runegate._serializeForEnterWorld(writer);
 			}
 		} else
 			writer.put((byte) 1);
@@ -210,11 +208,10 @@ public class WorldObjectMsg extends ClientNetMsg {
 
 		// Serialize runegates
 
-		temp.putInt(RunegateType.values().length);
+		temp.putInt(Runegate._runegates.values().size());
 
-		for(RunegateType gateType : engine.Enum.RunegateType.values()) {
-
-			Runegate.getRunegates()[gateType.ordinal()]._serializeForEnterWorld(temp);
+		for(Runegate runegate : Runegate._runegates.values()) {
+			runegate._serializeForEnterWorld(temp);
 		}
 
 		ArrayList<Mine> mineList = new ArrayList<>();

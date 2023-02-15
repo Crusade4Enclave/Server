@@ -2183,23 +2183,17 @@ boolean updateCity = false;
 				Building rg = null;
 				Vector3fImmutable rgLoc;
 
-				for (Runegate runegate : Runegate.getRunegates()) {
+				for (Runegate runegate : Runegate._runegates.values()) {
 
-					if ((runegate.getGateType() == RunegateType.OBLIV) ||
-							(runegate.getGateType() == RunegateType.CHAOS))
-						continue;
-
-					for (Runegate thisGate : Runegate.getRunegates()) {
-
-						rgLoc = thisGate.getGateType().getGateBuilding().getLoc();
+						rgLoc = runegate.gateBuilding.getLoc();
 
 						float distanceSquaredToRunegate = player.getLoc().distanceSquared2D(rgLoc);
 
 						if (distanceSquaredToRunegate < sqr(dist))
-							rg = thisGate.getGateType().getGateBuilding();
+							rg = runegate.gateBuilding;
 
 					}
-				}
+
 				//nearest runegate found. teleport characterTarget
 
 				if (rg != null) {

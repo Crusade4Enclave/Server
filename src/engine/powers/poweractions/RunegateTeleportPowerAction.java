@@ -10,7 +10,7 @@
 package engine.powers.poweractions;
 
 import engine.Enum;
-import engine.Enum.RunegateType;
+import engine.Enum.PortalType;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
@@ -45,24 +45,17 @@ public class RunegateTeleportPowerAction extends AbstractPowerAction {
 		Building rg = null;
 		Vector3fImmutable rgLoc;
 
-		for (Runegate runegate: Runegate.getRunegates()) {
+		for (Runegate runegate: Runegate._runegates.values()) {
 
-			if ((runegate.getGateType() == RunegateType.OBLIV) ||
-					(runegate.getGateType() == RunegateType.CHAOS))
-				continue;
-
-			for (Runegate thisGate : Runegate.getRunegates()) {
-
-				rgLoc = thisGate.getGateType().getGateBuilding().getLoc();
+				rgLoc = runegate.gateBuilding.getLoc();
 
 				float distanceToRunegateSquared = source.getLoc().distanceSquared2D(rgLoc);
 
 				if (distanceToRunegateSquared < sqr(dist)) {
 					dist = sqrt(distanceToRunegateSquared);
-					rg = thisGate.getGateType().getGateBuilding();
+					rg = runegate.gateBuilding;
 				}
 			}
-		}
 
 		if(source.getObjectUUID() != pc.getObjectUUID()) {
 			pc.setTimeStampNow("PromptRecall");

@@ -1,13 +1,13 @@
 package engine.objects;
 
-import engine.Enum.RunegateType;
+import engine.Enum;
+import engine.Enum.PortalType;
 import engine.InterestManagement.WorldGrid;
 import engine.gameManager.ConfigManager;
 import engine.job.JobScheduler;
 import engine.jobs.CloseGateJob;
 import engine.math.Vector3fImmutable;
 import engine.server.MBServerStatics;
-import org.pmw.tinylog.Logger;
 
 import java.util.HashSet;
 
@@ -19,28 +19,20 @@ import java.util.HashSet;
 public class Portal {
 
 	private boolean active;
-	private RunegateType sourceGateType;
-	private RunegateType portalType;
-	private RunegateType destinationGateType;
-	private final Vector3fImmutable portalLocation;
+	public Enum.PortalType portalType;
+	public Building  sourceGate;
+	public Building  targetGate;
+	public final Vector3fImmutable portalLocation;
 	private long lastActive = 0;
 
-	public Portal(RunegateType gateType, RunegateType portalType, RunegateType destinationGate) {
-
-		Building gateBuilding;
+	public Portal(Building sourceGate, PortalType portalType, Building targetGate) {
 
 		this.active = false;
-		this.sourceGateType = gateType;
-		this.destinationGateType = destinationGate;
+		this.sourceGate = sourceGate;
+		this.targetGate = targetGate;
 		this.portalType = portalType;
 
-		gateBuilding = this.sourceGateType.getGateBuilding();
-
-		if (gateBuilding == null) {
-			Logger.error("Gate building " + this.sourceGateType.getGateUUID() + " for " + this.sourceGateType.name() + " missing");
-		}
-
-		this.portalLocation = gateBuilding.getLoc().add(new Vector3fImmutable(portalType.getOffset().x, 6, portalType.getOffset().y));
+		this.portalLocation = sourceGate.getLoc().add(new Vector3fImmutable(portalType.offset.x, 6, portalType.offset.y));
 	}
 
 	public boolean isActive() {
@@ -51,15 +43,12 @@ public class Portal {
 
 	public void deactivate() {
 
-		Building sourceBuilding;
-
 		// Remove effect bit from the runegate building, which turns off this
 		// portal type's particle effect
 
-		sourceBuilding = this.sourceGateType.getGateBuilding();
-        sourceBuilding.removeEffectBit(portalType.getEffectFlag());
+		sourceGate.removeEffectBit(portalType.effectFlag);
 		this.active = false;
-		sourceBuilding.updateEffects();
+		sourceGate.updateEffects();
 	}
 
 	public void activate(boolean autoClose) {
@@ -70,8 +59,8 @@ public class Portal {
 		// Apply  effect bit to the runegate building, which turns on this
 		// portal type's particle effect
 
-		sourceBuilding = this.sourceGateType.getGateBuilding();
-        sourceBuilding.addEffectBit(portalType.getEffectFlag());
+
+		sourceGate.addEffectBit(portalType.effectFlag);
 		this.lastActive = System.currentTimeMillis();
 		this.active = true;
 
@@ -79,10 +68,10 @@ public class Portal {
 		// tries to send a dispatch.
 
 		if (ConfigManager.worldServer.isRunning == true)
-			sourceBuilding.updateEffects();
+			sourceGate.updateEffects();
 
 		if (autoClose == true) {
-            CloseGateJob cgj = new CloseGateJob(sourceBuilding, portalType);
+            CloseGateJob cgj = new CloseGateJob(sourceGate, portalType);
 			JobScheduler.getInstance().scheduleJob(cgj, MBServerStatics.RUNEGATE_CLOSE_TIME);
 		}
 	}
@@ -107,57 +96,10 @@ public class Portal {
 
 		if (player.getTimeStamp("lastMoveGate") < this.lastActive)
 			return;
-		Building gateBuilding;
 
-        gateBuilding = destinationGateType.getGateBuilding();
-
-        if (gateBuilding != null){
-        	player.teleport(gateBuilding.getLoc());
+        	player.teleport(targetGate.getLoc());
     		player.setSafeMode();
-        }
 		
-	}
-
-	/**
-	 * @return the sourceGateType
-	 */
-	public RunegateType getSourceGateType() {
-		return sourceGateType;
-	}
-
-	/**
-	 * @param sourceGateType the sourceGateType to set
-	 */
-	public void setSourceGateType(RunegateType sourceGateType) {
-		this.sourceGateType = sourceGateType;
-	}
-
-	/**
-	 * @return the portalType
-	 */
-	public RunegateType getPortalType() {
-		return portalType;
-	}
-
-	/**
-	 * @param portalType the portalType to set
-	 */
-	public void setPortalType(RunegateType portalType) {
-		this.portalType = portalType;
-	}
-
-	/**
-	 * @return the destinationGateType
-	 */
-	public RunegateType getDestinationGateType() {
-		return destinationGateType;
-	}
-
-	/**
-	 * @param destinationGateType the destinationGateType to set
-	 */
-	public void setDestinationGateType(RunegateType destinationGateType) {
-		this.destinationGateType = destinationGateType;
 	}
 
 	/**

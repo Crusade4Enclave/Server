@@ -206,7 +206,7 @@ public enum SimulationManager {
 	 */
 	private void pulseRunegates() {
 
-		for (Runegate runegate : Runegate.getRunegates()) {
+		for (Runegate runegate : Runegate._runegates.values()) {
 			runegate.collidePortals();
 		}
 

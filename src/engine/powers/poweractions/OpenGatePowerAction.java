@@ -12,7 +12,7 @@ package engine.powers.poweractions;
 import engine.Enum;
 import engine.Enum.BuildingGroup;
 import engine.Enum.GameObjectType;
-import engine.Enum.RunegateType;
+import engine.Enum.PortalType;
 import engine.math.Vector3fImmutable;
 import engine.objects.AbstractCharacter;
 import engine.objects.AbstractWorldObject;
@@ -44,11 +44,8 @@ public class OpenGatePowerAction extends AbstractPowerAction {
 		
 		if (awo.getObjectType().equals(GameObjectType.Building) == false)
 			return;
-		
+
 		Building targetBuilding = (Building) awo;
-		Runegate runeGate;
-		RunegateType runegateType;
-		RunegateType portalType;
 		int token;
 
 		// Sanity check.
@@ -69,39 +66,39 @@ public class OpenGatePowerAction extends AbstractPowerAction {
 		// Which portal was opened?
 
 		token = pb.getToken();
-		portalType = RunegateType.AIR;
+		PortalType portalType = PortalType.AIR;
 
 		switch (token) {
 		case 428937084: //Death Gate
-			portalType = RunegateType.OBLIV;
+			portalType = PortalType.OBLIV;
 			break;
 
 		case 429756284: //Chaos Gate
-			portalType = RunegateType.CHAOS;
+			portalType = PortalType.CHAOS;
 			break;
 
 		case 429723516: //Khar Gate
-			portalType = RunegateType.MERCHANT;
+			portalType = PortalType.MERCHANT;
 			break;
 
 		case 429559676: //Spirit Gate
-			portalType = RunegateType.SPIRIT;
+			portalType = PortalType.SPIRIT;
 			break;
 
 		case 429592444: //Water Gate
-			portalType = RunegateType.WATER;
+			portalType = PortalType.WATER;
 			break;
 
 		case 429428604: //Fire Gate
-			portalType = RunegateType.FIRE;
+			portalType = PortalType.FIRE;
 			break;
 
 		case 429526908: //Air Gate
-			portalType = RunegateType.AIR;
+			portalType = PortalType.AIR;
 			break;
 
 		case 429625212: //Earth Gate
-			portalType = RunegateType.EARTH;
+			portalType = PortalType.EARTH;
 			break;
 
 		default:
@@ -109,11 +106,8 @@ public class OpenGatePowerAction extends AbstractPowerAction {
 
 		// Which runegate was clicked on?
 
-		runegateType = RunegateType.getGateTypeFromUUID(targetBuilding.getObjectUUID());
-		runeGate = Runegate.getRunegates()[runegateType.ordinal()];
-
+		Runegate runeGate = Runegate._runegates.get(targetBuilding.getObjectUUID());
 		runeGate.activatePortal(portalType);
-
 
 	}
 

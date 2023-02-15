@@ -311,4 +311,6 @@ public enum DbManager {
 	public static final dbBoonHandler BoonQueries = new dbBoonHandler();
 	public static final dbShrineHandler ShrineQueries = new dbShrineHandler();
 	public static final dbHeightMapHandler HeightMapQueries = new dbHeightMapHandler();
+
+	public static final dbRunegateHandler RunegateQueries = new dbRunegateHandler();
 }
