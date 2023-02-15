@@ -74,9 +74,19 @@ public class Runegate {
 		Building gateBuilding = (Building) DbManager.getObject(Enum.GameObjectType.Building, gateID);
 
 		Runegate runegate = new Runegate(gateBuilding);
+		runegate.configurePortals();
 		_runegates.put(gateID, runegate);
 	}
 
+	}
+
+	public void configurePortals() {
+
+		ArrayList<Portal> portalList = DbManager.RunegateQueries.GET_PORTAL_LIST(this.gateBuilding.getObjectUUID());
+
+		for (Portal portal : portalList) {
+			this._portals[portal.portalType.ordinal()] = portal;
+		}
 	}
 
 	public void _serializeForEnterWorld(ByteBufferWriter writer) {

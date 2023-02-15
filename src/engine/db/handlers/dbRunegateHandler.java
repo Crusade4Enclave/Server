@@ -31,7 +31,7 @@ public class dbRunegateHandler extends dbHandlerBase {
 
         ArrayList<Integer> gateList = new ArrayList<>();
 
-        prepareCallable("SELECT DISTINCT `source_Building` FROM `static_runegate_portals`;");
+        prepareCallable("SELECT DISTINCT `sourceBuilding` FROM `static_runegate_portals`;");
 
         try {
             ResultSet rs = executeQuery();
