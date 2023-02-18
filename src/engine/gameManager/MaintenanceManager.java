@@ -13,9 +13,12 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.objects.*;
+import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 
 public enum MaintenanceManager {
@@ -50,12 +53,12 @@ public enum MaintenanceManager {
             if (chargeUpkeep(building) == false)
                 derankList.add(building);
         }
-
         // Reset maintenance dates for these buildings
 
-        for (Building building : maintList)
-            setMaintDateTime(building, building.maintDateTime.plusDays(7));
+        for (Building building : maintList) {
+            setMaintDateTime(building, LocalDateTime.now().plusDays(7));
 
+        }
         // Derak or destroy buildings that did not
         // have funds available.
 
@@ -120,6 +123,11 @@ public enum MaintenanceManager {
             if (building.maintDateTime.isAfter(LocalDateTime.now()))
                 continue;
 
+
+            //no maintenance if day of week doesnt match
+            if(LocalDateTime.now().getDayOfWeek().ordinal() != building.maintDateTime.getDayOfWeek().ordinal()){
+                continue;
+            }
             //  Add building to maintenance queue
 
             maintList.add(building);
