@@ -485,12 +485,12 @@ public class WorldServer {
 
 		//set rates from config file
 		Logger.info("Setting rates based on conf file...");
-		MBServerStatics.EXP_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_NORMALLY.getValue());
-		MBServerStatics.GOLD_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_NORMALLY.getValue());
-		MBServerStatics.DROP_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_NORMALLY.getValue());
-		MBServerStatics.HOT_EXP_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_FROM_HOTZONE.getValue());
-		MBServerStatics.HOT_GOLD_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_FROM_HOTZONE.getValue());
-		MBServerStatics.HOT_DROP_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_FROM_HOTZONE.getValue());
+		MBServerStatics.EXP_RATE_MOD = Float.parseFloat(ConfigManager.MB_NORMAL_RATE.getValue());
+		MBServerStatics.GOLD_RATE_MOD = Float.parseFloat(ConfigManager.MB_NORMAL_RATE.getValue());
+		MBServerStatics.DROP_RATE_MOD = Float.parseFloat(ConfigManager.MB_NORMAL_RATE.getValue());
+		MBServerStatics.HOT_EXP_RATE_MOD = Float.parseFloat(ConfigManager.MB_HOTZONE_RATE.getValue());
+		MBServerStatics.HOT_GOLD_RATE_MOD = Float.parseFloat(ConfigManager.MB_HOTZONE_RATE.getValue());
+		MBServerStatics.HOT_DROP_RATE_MOD = Float.parseFloat(ConfigManager.MB_HOTZONE_RATE.getValue());
 		return true;
 	}
 

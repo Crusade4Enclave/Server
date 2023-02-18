@@ -83,8 +83,8 @@ public enum ConfigManager {
     MB_MAGICBOT_BOTVERSION,
     MB_MAGICBOT_GAMEVERSION,
     //drop rates
-    MB_STUFF_ACQUIRED_NORMALLY,
-    MB_STUFF_ACQUIRED_FROM_HOTZONE;
+    MB_NORMAL_RATE,
+    MB_HOTZONE_RATE;
     // Map to hold our config pulled in from the environment
     // We also use the config to point to the current message pump
     // and determine the server type at runtime.
