@@ -14,6 +14,7 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.net.NetMsgHandler;
+import engine.server.MBServerStatics;
 import engine.server.login.LoginServer;
 import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
@@ -80,8 +81,10 @@ public enum ConfigManager {
     MB_MAGICBOT_RECRUIT,
     MB_MAGICBOT_ADMINLOG,
     MB_MAGICBOT_BOTVERSION,
-    MB_MAGICBOT_GAMEVERSION;
-    
+    MB_MAGICBOT_GAMEVERSION,
+    //drop rates
+    MB_STUFF_ACQUIRED_NORMALLY,
+    MB_STUFF_ACQUIRED_FROM_HOTZONE;
     // Map to hold our config pulled in from the environment
     // We also use the config to point to the current message pump
     // and determine the server type at runtime.
@@ -93,7 +96,12 @@ public enum ConfigManager {
     public static LoginServer loginServer;
     public static Map<ConfigManager, Pattern> regex = new HashMap<>();
 
+    //drop rates pulled form config file
+
+    public float amountOfStuffYouGetInHotzones;
+
     // Called at bootstrap: ensures that all config values are loaded.
+
 
     public static boolean init() {
 
@@ -112,7 +120,6 @@ public enum ConfigManager {
             // compile regex here
 
             regex.put(MB_LOGIN_FNAME_REGEX, Pattern.compile(MB_LOGIN_FNAME_REGEX.getValue()));
-
       return true;
     }
 

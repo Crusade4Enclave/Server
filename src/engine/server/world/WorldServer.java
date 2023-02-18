@@ -482,6 +482,15 @@ public class WorldServer {
 
 		Logger.info("Running garbage collection...");
 		System.gc();
+
+		//set rates from config file
+		Logger.info("Setting rates based on conf file...");
+		MBServerStatics.EXP_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_NORMALLY.getValue());
+		MBServerStatics.GOLD_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_NORMALLY.getValue());
+		MBServerStatics.DROP_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_NORMALLY.getValue());
+		MBServerStatics.HOT_EXP_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_FROM_HOTZONE.getValue());
+		MBServerStatics.HOT_GOLD_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_FROM_HOTZONE.getValue());
+		MBServerStatics.HOT_DROP_RATE_MOD = Float.parseFloat(ConfigManager.MB_STUFF_ACQUIRED_FROM_HOTZONE.getValue());
 		return true;
 	}
 
