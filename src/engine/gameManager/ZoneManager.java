@@ -20,6 +20,7 @@ import engine.server.MBServerStatics;
 import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -127,6 +128,7 @@ public enum ZoneManager {
 			return;
 		ZoneManager.hotzone = zone;
 		zone.hasBeenHotzone = true;
+		zone.becameHotzone = LocalDateTime.now();
 	}
 
 	public static boolean inHotZone(final Vector3fImmutable loc) {

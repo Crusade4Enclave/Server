@@ -42,17 +42,21 @@ public class HourlyJobThread implements Runnable {
         Logger.info("Hourly job is now running.");
 
         try {
-
-            ZoneManager.generateAndSetRandomHotzone();
             Zone hotzone = ZoneManager.getHotZone();
+            if(hotzone == null){
+                //no hotzone? set one.
+                ZoneManager.generateAndSetRandomHotzone();
+            }
+            int hotzoneDuration = Integer.valueOf(ConfigManager.MB_HOTZONE_DURATION.getValue());
+            if(((LocalDateTime.now().getHour()) - hotzone.becameHotzone.getHour()) >= hotzoneDuration) {
+                ZoneManager.generateAndSetRandomHotzone();
+                hotzone = ZoneManager.getHotZone();
+            }
             if (hotzone == null) {
                 Logger.error("Null hotzone returned from mapmanager");
             } else {
-                hotzone.hoursAsHotzone += 1;
-                if(hotzone.hoursAsHotzone >= Integer.valueOf(ConfigManager.MB_HOTZONE_DURATION.getValue())) {
                     Logger.info("new hotzone: " + hotzone.getName());
                     WorldServer.setLastHZChange(System.currentTimeMillis());
-                }
             }
 
         } catch (Exception e) {

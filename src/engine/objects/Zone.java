@@ -23,6 +23,7 @@ import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
@@ -60,7 +61,7 @@ public class Zone extends AbstractGameObject {
 	public final Set<NPC> zoneNPCSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	public final Set<Mob> zoneMobSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	public boolean hasBeenHotzone = false;
-	public int hoursAsHotzone = 0;
+	public LocalDateTime becameHotzone = null;
 	/**
 	 * ResultSet Constructor
 	 */
