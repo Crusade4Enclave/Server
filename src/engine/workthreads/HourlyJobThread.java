@@ -45,12 +45,14 @@ public class HourlyJobThread implements Runnable {
 
             ZoneManager.generateAndSetRandomHotzone();
             Zone hotzone = ZoneManager.getHotZone();
-
             if (hotzone == null) {
                 Logger.error("Null hotzone returned from mapmanager");
             } else {
-                Logger.info("new hotzone: " + hotzone.getName());
-                WorldServer.setLastHZChange(System.currentTimeMillis());
+                hotzone.hoursAsHotzone += 1;
+                if(hotzone.hoursAsHotzone >= Integer.valueOf(ConfigManager.MB_HOTZONE_DURATION.getValue())) {
+                    Logger.info("new hotzone: " + hotzone.getName());
+                    WorldServer.setLastHZChange(System.currentTimeMillis());
+                }
             }
 
         } catch (Exception e) {

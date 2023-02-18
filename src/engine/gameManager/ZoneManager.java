@@ -44,7 +44,6 @@ public enum ZoneManager {
 	private static  Set<Zone> macroZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	private static  Set<Zone> npcCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	private static Set<Zone> playerCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
 	// Find all zones coordinates fit into, starting with Sea Floor
 
 	public static ArrayList<Zone> getAllZonesIn(final Vector3fImmutable loc) {
@@ -127,6 +126,7 @@ public enum ZoneManager {
 		if (!zone.isMacroZone())
 			return;
 		ZoneManager.hotzone = zone;
+		zone.hasBeenHotzone = true;
 	}
 
 	public static boolean inHotZone(final Vector3fImmutable loc) {
@@ -224,7 +224,10 @@ public enum ZoneManager {
 
 		if (zone.equals(ZoneManager.seaFloor))
 			return false;
-
+		//no duplicate hotzones
+		if(zone.hasBeenHotzone == true){
+			return false;
+		}
 		// return false; //first time setting, accept it
 		// if (this.hotzone.getUUID() == zone.getUUID())
 		// return true; //no same hotzone

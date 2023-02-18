@@ -59,7 +59,8 @@ public class Zone extends AbstractGameObject {
 	public final Set<Building> zoneBuildingSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	public final Set<NPC> zoneNPCSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	public final Set<Mob> zoneMobSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
+	public boolean hasBeenHotzone = false;
+	public int hoursAsHotzone = 0;
 	/**
 	 * ResultSet Constructor
 	 */
