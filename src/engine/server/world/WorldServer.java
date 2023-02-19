@@ -483,10 +483,6 @@ public class WorldServer {
 		Logger.info("Running garbage collection...");
 		System.gc();
 
-		//set drop rates from config file
-
-		Logger.info("Setting drop rates...");
-		Enum.DropRateType.init();
 		return true;
 	}
 

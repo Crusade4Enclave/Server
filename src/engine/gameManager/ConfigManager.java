@@ -96,16 +96,12 @@ public enum ConfigManager {
     public static LoginServer loginServer;
     public static Map<ConfigManager, Pattern> regex = new HashMap<>();
 
-    //drop rates pulled form config file
-
-    public float amountOfStuffYouGetInHotzones;
-
     // Called at bootstrap: ensures that all config values are loaded.
 
 
     public static boolean init() {
 
-        Logger.info("ConfigManager: init()");
+        Logger.info("Loading config from environment...");
 
         for (ConfigManager configSetting : ConfigManager.values())
             if (configMap.containsKey(configSetting.name()))
@@ -117,10 +113,17 @@ public enum ConfigManager {
                 return false;
             }
 
-            // compile regex here
+        // Setting drop rates
 
-            regex.put(MB_LOGIN_FNAME_REGEX, Pattern.compile(MB_LOGIN_FNAME_REGEX.getValue()));
-      return true;
+        Logger.info("Setting drop rates...");
+        Enum.DropRateType.init();
+
+        // compile regex here
+
+        Logger.info("Compiling regex");
+
+        regex.put(MB_LOGIN_FNAME_REGEX, Pattern.compile(MB_LOGIN_FNAME_REGEX.getValue()));
+        return true;
     }
 
     // Get the value associated with this enumeration
