@@ -63,9 +63,13 @@ public enum ConfigManager {
     MB_WORLD_UUID,
     MB_WORLD_WAREHOUSE_PUSH,
     MB_WORLD_MAINTENANCE,
-    MB_WORLD_MAINTENANCE_HOUR,
     MB_WORLD_GREETING,
     MB_WORLD_KEYCLONE_MAX,
+
+    //drop rates
+    MB_NORMAL_RATE,
+    MB_HOTZONE_RATE,
+    MB_HOTZONE_DURATION,
 
     // MagicBot configuration.
 
@@ -79,13 +83,8 @@ public enum ConfigManager {
     MB_MAGICBOT_GENERAL,
     MB_MAGICBOT_FORTOFIX,
     MB_MAGICBOT_RECRUIT,
-    MB_MAGICBOT_ADMINLOG,
-    MB_MAGICBOT_BOTVERSION,
-    MB_MAGICBOT_GAMEVERSION,
-    //drop rates
-    MB_NORMAL_RATE,
-    MB_HOTZONE_RATE,
-    MB_HOTZONE_DURATION;
+    MB_MAGICBOT_ADMINLOG;
+
     // Map to hold our config pulled in from the environment
     // We also use the config to point to the current message pump
     // and determine the server type at runtime.

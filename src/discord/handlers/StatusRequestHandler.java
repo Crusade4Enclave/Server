@@ -20,12 +20,8 @@ public class StatusRequestHandler {
 
         String outString;
 
-        // Add version information
-        outString = "MagicBot: " + ConfigManager.MB_MAGICBOT_BOTVERSION.getValue() + "\n" +
-                "MagicBane: " + ConfigManager.MB_MAGICBOT_GAMEVERSION.getValue() + "\n";
-
         // Add server status info
-        outString += "\nServer Status: ";
+        outString = "Server Status: ";
 
         if (LoginServer.isPortInUse(Integer.parseInt(ConfigManager.MB_WORLD_PORT.getValue())))
         outString += "ONLINE\n";
