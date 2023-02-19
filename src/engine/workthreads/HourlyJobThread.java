@@ -187,7 +187,9 @@ public class HourlyJobThread implements Runnable {
             ArrayList<Mine> mines = Mine.getMines();
 
             for (Mine mine : mines) {
-
+                if(LocalDateTime.now().getHour() == 1400){
+                    mine.wasClaimed = false;
+                }
                 try {
 
                     // Open Errant Mines
