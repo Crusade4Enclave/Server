@@ -9,12 +9,14 @@
 
 package engine.objects;
 
+import engine.Enum;
 import engine.Enum.ItemContainerType;
 import engine.Enum.ItemType;
 import engine.Enum.OwnerType;
 import engine.gameManager.DbManager;
 import engine.gameManager.ZoneManager;
 import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -208,7 +210,7 @@ public class LootTable {
 
 				float chance = mlb.getChance() *.01f;
 
-				chance *= MBServerStatics.DROP_RATE_MOD;
+				chance *= Enum.DropRateType.DROP_RATE_MOD.rate;
 
 				calculatedLootTable = mlb.getLootTableID();
 

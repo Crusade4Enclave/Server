@@ -9,10 +9,12 @@
 
 package engine.objects;
 
+import engine.Enum;
 import engine.Enum.TargetColor;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
 import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -333,7 +335,7 @@ public class Experience  {
 		double xp = 0.0;
 
 		//Get the xp modifier for the world
-		float xpMod = MBServerStatics.EXP_RATE_MOD;
+		float xpMod = Enum.DropRateType.EXP_RATE_MOD.rate;
 
 
 
@@ -393,7 +395,7 @@ public class Experience  {
 				// Modify for hotzone
 				if (xp != 0)
 					if (ZoneManager.inHotZone(mob.getLoc()))
-						xp *= MBServerStatics.HOT_EXP_RATE_MOD;
+						xp *= Enum.DropRateType.HOT_EXP_RATE_MOD.rate;
 
 				// Check for 0 XP due to white mob, otherwise subtract penalty
 				// xp
@@ -427,7 +429,7 @@ public class Experience  {
 
 			// Modify for hotzone
 			if (ZoneManager.inHotZone(mob.getLoc()))
-				xp *= MBServerStatics.HOT_EXP_RATE_MOD;
+				xp *= Enum.DropRateType.HOT_EXP_RATE_MOD.rate;
 
 			// Errant penalty
 			if (xp != 1)

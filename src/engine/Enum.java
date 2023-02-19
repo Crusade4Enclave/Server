@@ -9,6 +9,7 @@
 package engine;
 
 import ch.claude_martin.enumbitset.EnumBitSetHelper;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
@@ -2641,7 +2642,37 @@ public class Enum {
 		ARCHER,
 		MAGE;
 	}
-	
+
+	public enum DropRateType {
+		EXP_RATE_MOD,
+		GOLD_RATE_MOD,
+		DROP_RATE_MOD,
+		HOT_EXP_RATE_MOD,
+		HOT_GOLD_RATE_MOD,
+		HOT_DROP_RATE_MOD;
+
+		public float rate;
+
+		public static void init() {
+
+			for (DropRateType rateType : DropRateType.values()) {
+
+				switch (rateType) {
+					case EXP_RATE_MOD:
+					case GOLD_RATE_MOD:
+					case DROP_RATE_MOD:
+						rateType.rate = Float.parseFloat(ConfigManager.MB_NORMAL_RATE.getValue());
+						break;
+					case HOT_EXP_RATE_MOD:
+					case HOT_GOLD_RATE_MOD:
+					case HOT_DROP_RATE_MOD:
+						rateType.rate = Float.parseFloat(ConfigManager.MB_HOTZONE_RATE.getValue());
+						break;
+				}
+			}
+		}
+	}
+
 	public enum MinionType {
 		AELFBORNGUARD(951,1637, MinionClass.MELEE, "Guard","Aelfborn"),
 		AELFBORNMAGE(952, 1635, MinionClass.MAGE,"Adept","Aelfborn"),

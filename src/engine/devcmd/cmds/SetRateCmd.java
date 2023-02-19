@@ -9,11 +9,12 @@
 
 package engine.devcmd.cmds;
 
+import engine.Enum.DropRateType;
 import engine.devcmd.AbstractDevCmd;
 import engine.objects.AbstractGameObject;
 import engine.objects.PlayerCharacter;
 import engine.server.MBServerStatics;
-
+import engine.server.world.WorldServer;
 
 /**
  *
@@ -46,32 +47,32 @@ public class SetRateCmd extends AbstractDevCmd {
 
 		if (args[0].equals("exp")){
 
-			MBServerStatics.EXP_RATE_MOD = mod;
+			DropRateType.EXP_RATE_MOD.rate = mod;
 			throwbackInfo(pc, "Experience Rate set to: " + mod);
 
 		} else if (args[0].equals("gold")){
 
-			MBServerStatics.GOLD_RATE_MOD = mod;
+			DropRateType.GOLD_RATE_MOD.rate = mod;
 			throwbackInfo(pc, "Gold Rate set to: " + mod);
 
 		} else if (args[0].equals("drop")){
 
-			MBServerStatics.DROP_RATE_MOD = mod;
+			DropRateType.DROP_RATE_MOD.rate = mod;
 			throwbackInfo(pc, "Drop Multiplier Rate set to: " + mod);
 
 		} else if (args[0].equals("hotexp")){
 
-			MBServerStatics.HOT_EXP_RATE_MOD = mod;
+			DropRateType.HOT_EXP_RATE_MOD.rate = mod;
 			throwbackInfo(pc, "HOTZONE Experience Rate set to: " + mod);
 
 		} else if (args[0].equals("hotgold")){
 
-			MBServerStatics.HOT_GOLD_RATE_MOD = mod;
+			DropRateType.HOT_GOLD_RATE_MOD.rate = mod;
 			throwbackInfo(pc, "HOTZONE Gold Rate set to: " + mod);
 
 		} else if (args[0].equals("hotdrop")){
 
-			MBServerStatics.HOT_DROP_RATE_MOD = mod;
+			DropRateType.HOT_DROP_RATE_MOD.rate = mod;
 			throwbackInfo(pc, "HOTZONE Drop Multiplier Rate set to: " + mod);
 
 		} else if (args[0].equals("production")){

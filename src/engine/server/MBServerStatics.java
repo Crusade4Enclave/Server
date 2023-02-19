@@ -406,26 +406,6 @@ public class MBServerStatics {
 	public static int SPATIAL_HASH_BUCKETSY = 12288;
 	public static float MAX_PLAYER_X_LOC = 129999;
 	public static float MAX_PLAYER_Y_LOC = -97000;
-	public static String NO_DELETE_COMBAT =  "Can't delete items when in Combat with another player.";
-
-	/*
-	 * Rates
-	 */
-
-	public static float EXP_RATE_MOD = 2f; // Probably don't want to declare
-	// as final.
-	public static float GOLD_RATE_MOD = 1.0f; // Probably don't want to declare
-	// as final.
-	public static float DROP_RATE_MOD = 1.0f; // Probably don't want to declare
-	// as final.
-
-	// Hotzones
-	public static float HOT_EXP_RATE_MOD = 2.0f; // Probably don't want to
-	// declare as final.
-	public static float HOT_GOLD_RATE_MOD = 1.5f; // Probably don't want to
-	// declare as final.
-	public static float HOT_DROP_RATE_MOD = 1.8f; // Probably don't want to
-	// declare as final.
 
 	/*
 	 * Ranges

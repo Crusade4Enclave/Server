@@ -483,14 +483,10 @@ public class WorldServer {
 		Logger.info("Running garbage collection...");
 		System.gc();
 
-		//set rates from config file
-		Logger.info("Setting rates based on conf file...");
-		MBServerStatics.EXP_RATE_MOD = Float.parseFloat(ConfigManager.MB_NORMAL_RATE.getValue());
-		MBServerStatics.GOLD_RATE_MOD = Float.parseFloat(ConfigManager.MB_NORMAL_RATE.getValue());
-		MBServerStatics.DROP_RATE_MOD = Float.parseFloat(ConfigManager.MB_NORMAL_RATE.getValue());
-		MBServerStatics.HOT_EXP_RATE_MOD = Float.parseFloat(ConfigManager.MB_HOTZONE_RATE.getValue());
-		MBServerStatics.HOT_GOLD_RATE_MOD = Float.parseFloat(ConfigManager.MB_HOTZONE_RATE.getValue());
-		MBServerStatics.HOT_DROP_RATE_MOD = Float.parseFloat(ConfigManager.MB_HOTZONE_RATE.getValue());
+		//set drop rates from config file
+
+		Logger.info("Setting drop rates...");
+		Enum.DropRateType.init();
 		return true;
 	}
 
