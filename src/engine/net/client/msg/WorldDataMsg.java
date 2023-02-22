@@ -80,7 +80,7 @@ public class WorldDataMsg extends ClientNetMsg {
 		writer.putInt(getTotalMapSize(root) + 1);
 		Zone.serializeForClientMsg(root,writer);
 
-		Zone hotzone = ZoneManager.getHotZone();
+		Zone hotzone = ZoneManager.hotZone;;
 
 		if (hotzone == null)
 			writer.putLong(0L);

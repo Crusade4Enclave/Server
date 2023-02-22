@@ -430,7 +430,7 @@ public class WorldServer {
 		Logger.info("Running Heraldry Audit for Deleted Players");
 		Heraldry.AuditHeraldry();
 
-		if (ZoneManager.getHotZone() != null)
+		if (ZoneManager.hotZone != null)
 			WorldServer.setLastHZChange(System.currentTimeMillis());
 
 		Logger.info("Starting Mobile AI FSM");

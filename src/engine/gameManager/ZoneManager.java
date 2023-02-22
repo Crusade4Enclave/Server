@@ -38,7 +38,8 @@ public enum ZoneManager {
 
     /* Instance variables */
     private static Zone seaFloor = null;
-    private static Zone hotzone = null;
+    public static Zone hotZone = null;
+    public static int hotZoneCycle = 0;  // Used with HOTZONE_DURATION from config.
     private static final ConcurrentHashMap<Integer, Zone> zonesByID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
     private static final ConcurrentHashMap<Integer, Zone> zonesByUUID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
     private static final ConcurrentHashMap<String, Zone> zonesByName = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
@@ -119,24 +120,25 @@ public enum ZoneManager {
         return ZoneManager.zonesByUUID.values();
     }
 
-    public static final Zone getHotZone() {
-        return ZoneManager.hotzone;
-    }
-
     public static final void setHotZone(final Zone zone) {
+
         if (!zone.isMacroZone())
             return;
-        ZoneManager.hotzone = zone;
+
+        ZoneManager.hotZone = zone;
+        ZoneManager.hotZoneCycle = 1;  // Used with HOTZONE_DURATION from config.
         zone.hasBeenHotzone = true;
         zone.becameHotzone = LocalDateTime.now();
+        WorldServer.setLastHZChange(System.currentTimeMillis());
+
     }
 
     public static boolean inHotZone(final Vector3fImmutable loc) {
 
-        if (ZoneManager.hotzone == null)
+        if (ZoneManager.hotZone == null)
             return false;
 
-        return (Bounds.collide(loc, ZoneManager.hotzone.getBounds()) == true);
+        return (Bounds.collide(loc, ZoneManager.hotZone.getBounds()) == true);
     }
 
     public static void setSeaFloor(final Zone value) {
@@ -204,15 +206,12 @@ public enum ZoneManager {
 
         hotzone = ZoneManager.getZoneByUUID(zoneArray.get(entryIndex));
 
-
         if (hotzone == null) {
             Logger.error("Hotzone is null");
             return;
         }
 
-
         ZoneManager.setHotZone(hotzone);
-        WorldServer.setLastHZChange(System.currentTimeMillis());
 
     }
 
@@ -234,8 +233,8 @@ public enum ZoneManager {
         // if (this.hotzone.getUUID() == zone.getUUID())
         // return true; //no same hotzone
 
-        if (ZoneManager.hotzone != null)
-            return ZoneManager.hotzone.getObjectUUID() != zone.getObjectUUID();
+        if (ZoneManager.hotZone != null)
+            return ZoneManager.hotZone.getObjectUUID() != zone.getObjectUUID();
 
         return true;
     }

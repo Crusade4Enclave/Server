@@ -29,8 +29,6 @@ import static engine.server.MBServerStatics.MINE_LATE_WINDOW;
 
 public class HourlyJobThread implements Runnable {
 
-    private static final int hotzoneCount = 0;
-
     public HourlyJobThread() {
 
     }
@@ -42,21 +40,22 @@ public class HourlyJobThread implements Runnable {
         Logger.info("Hourly job is now running.");
 
         try {
-            Zone hotzone = ZoneManager.getHotZone();
-            if (hotzone == null) {
-                //no hotzone? set one.
+
+            //no hotzone? set one.
+
+            if (ZoneManager.hotZone == null)
                 ZoneManager.generateAndSetRandomHotzone();
-            }
-            int hotzoneDuration = Integer.valueOf(ConfigManager.MB_HOTZONE_DURATION.getValue());
-            if (((LocalDateTime.now().getHour()) - hotzone.becameHotzone.getHour()) >= hotzoneDuration) {
+
+            ZoneManager.hotZoneCycle = ZoneManager.hotZoneCycle + 1;
+
+            if (ZoneManager.hotZoneCycle > Integer.valueOf(ConfigManager.MB_HOTZONE_DURATION.getValue()))
                 ZoneManager.generateAndSetRandomHotzone();
-                hotzone = ZoneManager.getHotZone();
-            }
-            if (hotzone == null) {
-                Logger.error("Null hotzone returned from mapmanager");
+
+
+            if (ZoneManager.hotZone == null) {
+                Logger.error("Null HotZone returned from ZoneManager");
             } else {
-                Logger.info("new hotzone: " + hotzone.getName());
-                WorldServer.setLastHZChange(System.currentTimeMillis());
+                Logger.info("HotZone switched to: " + ZoneManager.hotZone.getName());
             }
 
         } catch (Exception e) {

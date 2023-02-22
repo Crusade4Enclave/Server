@@ -50,10 +50,6 @@ public class CityDataHandler extends AbstractClientMsgHandler {
         if (playerSession == null)
             return true;
 
-        // Cache current hotZone
-
-        hotZone = ZoneManager.getHotZone();
-
         // No reason to serialize cities and mines everytime map is
         // opened.  Wait until something has changed.
 
@@ -76,8 +72,8 @@ public class CityDataHandler extends AbstractClientMsgHandler {
 
         // If the hotZone has changed then update the client's map accordingly.
 
-        if (playerCharacter.getTimeStamp("hotzoneupdate") <= WorldServer.getLastHZChange() && hotZone != null) {
-                HotzoneChangeMsg hotzoneChangeMsg = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), hotZone.getObjectUUID());
+        if (playerCharacter.getTimeStamp("hotzoneupdate") <= WorldServer.getLastHZChange() && ZoneManager.hotZone != null) {
+                HotzoneChangeMsg hotzoneChangeMsg = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), ZoneManager.hotZone.getObjectUUID());
                 dispatch = Dispatch.borrow(playerCharacter, hotzoneChangeMsg);
                 DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
                 playerCharacter.setTimeStamp("hotzoneupdate", System.currentTimeMillis() - 100);

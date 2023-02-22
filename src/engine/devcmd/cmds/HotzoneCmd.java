@@ -52,7 +52,7 @@ public class HotzoneCmd extends AbstractDevCmd {
         if (input.equalsIgnoreCase("random")) {
             throwbackInfo(pc, "Previous hotzone: " + hotzoneInfo());
             ZoneManager.generateAndSetRandomHotzone();
-            zone = ZoneManager.getHotZone();
+            zone = ZoneManager.hotZone;
         } else {
             zone = ZoneManager.findMacroZoneByName(input);
 
@@ -61,7 +61,7 @@ public class HotzoneCmd extends AbstractDevCmd {
                 return;
             }
 
-            if (zone == ZoneManager.getHotZone()) {
+            if (zone == ZoneManager.hotZone) {
                 throwbackInfo(pc, "That macrozone is already the Hotzone.");
                 return;
             }
@@ -92,7 +92,7 @@ public class HotzoneCmd extends AbstractDevCmd {
 
     private static String hotzoneInfo() {
         final int hotzoneTimeLeft = FastMath.secondsUntilNextHour();
-        final Zone hotzone = ZoneManager.getHotZone();
+        final Zone hotzone = ZoneManager.hotZone;
         String hotzoneInfo;
 
         if (hotzone == null) {

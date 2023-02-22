@@ -1,5 +1,6 @@
 package engine.net.client.handlers;
 
+import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.exception.MsgSendException;
 import engine.gameManager.*;
@@ -125,10 +126,9 @@ public class ArcLoginNotifyMsgHandler extends AbstractClientMsgHandler {
 		}
 
 		//Send current hotzone
-		Zone hotzone = ZoneManager.getHotZone();
 
-		if (hotzone != null) {
-			HotzoneChangeMsg hcm = new HotzoneChangeMsg(hotzone.getObjectType().ordinal(), hotzone.getObjectUUID());
+		if (ZoneManager.hotZone != null) {
+			HotzoneChangeMsg hcm = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), ZoneManager.hotZone.getObjectUUID());
 			Dispatch dispatch = Dispatch.borrow(player, hcm);
 			DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
 		}
