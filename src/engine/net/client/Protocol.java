@@ -74,7 +74,7 @@ public enum Protocol {
     CHECKUNIQUEGUILD(0x689097D7, GuildCreationOptionsMsg.class, GuildCreationOptionsHandler.class), // Set Guild Name/Motto in Use Guild Charter
     CITYASSET(0x7cae1678, CityAssetMsg.class, null),
     CITYCHOICE(0x406610BB, CityChoiceMsg.class, CityChoiceMsgHandler.class),
-    CITYDATA(0xB8A947D4, WorldObjectMsg.class, null),			//Realm Data - Optional(?)
+    CITYDATA(0xB8A947D4, cityDataMsg.class, CityDataHandler.class),
     CITYZONE(0x254947F2, CityZoneMsg.class, null), //For Creating City Object Clientside(Terraform)/Rename City.
     CLAIMASSET(0x948C62CC, ClaimAssetMsg.class, ClaimAssetMsgHandler.class), // ClaimAsset
     CLAIMGUILDTREE(0xFD1C6442, ClaimGuildTreeMsg.class, ClaimGuildTreeMsgHandler.class),

@@ -97,9 +97,6 @@ public class ClientMessagePump implements NetMsgHandler {
 				case SETSELECTEDOBECT:
 				ClientMessagePump.targetObject((TargetObjectMsg) msg, origin);
 				break;
-				case CITYDATA:
-				ClientMessagePump.MapData(s, origin);
-				break;
 
 				/*
 				 * Chat
@@ -349,62 +346,6 @@ public class ClientMessagePump implements NetMsgHandler {
 	//TODO what is this used for?
 	private void ManageNPCCmd(ManageNPCMsg msg, ClientConnection origin) {
 
-	}
-
-	private static void MapData(Session s, ClientConnection origin) {
-
-		Dispatch dispatch;
-try{
-	
-
-		if (s == null || origin == null)
-			return;
-
-		PlayerCharacter pc = s.getPlayerCharacter();
-
-		if (pc == null)
-			return;
-boolean updateMine = false;
-boolean updateCity = false;
-
-//do not update Cities and mines everytime you open map. only update them to client when something's changed.
-		long lastRefresh = pc.getTimeStamp("mineupdate");
-		if (lastRefresh <= Mine.getLastChange()){
-			pc.setTimeStamp("mineupdate", System.currentTimeMillis());
-			updateMine = true;
-		}
-				long lastCityRefresh = pc.getTimeStamp("cityUpdate");
-				if (lastCityRefresh <= City.lastCityUpdate){
-					pc.setTimeStamp("cityUpdate", System.currentTimeMillis());
-					updateCity = true;
-				}
-					
-				
-		
-		WorldObjectMsg wom = new WorldObjectMsg(s, false);
-		wom.updateMines(true);
-		wom.updateCities(updateCity);
-		dispatch = Dispatch.borrow(pc, wom);
-		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-		//	}
-
-		lastRefresh = pc.getTimeStamp("hotzoneupdate");
-		if (lastRefresh <= WorldServer.getLastHZChange()) {
-			Zone hotzone = ZoneManager.getHotZone();
-			if (hotzone != null) {
-				HotzoneChangeMsg hcm = new HotzoneChangeMsg(hotzone.getObjectType().ordinal(), hotzone.getObjectUUID());
-				dispatch = Dispatch.borrow(pc, hcm);
-				DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-				pc.setTimeStamp("hotzoneupdate", System.currentTimeMillis() - 100);
-			}
-		}
-
-		WorldRealmMsg wrm = new WorldRealmMsg();
-		dispatch = Dispatch.borrow(pc, wrm);
-		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-}catch(Exception e){
-	e.printStackTrace();
-}
 	}
 
 	private static void WhoRequest(WhoRequestMsg msg, ClientConnection origin) {

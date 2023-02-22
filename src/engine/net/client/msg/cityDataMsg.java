@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class WorldObjectMsg extends ClientNetMsg {
+public class cityDataMsg extends ClientNetMsg {
 
 	private Session s;
 	private boolean forEnterWorld;
@@ -49,13 +49,13 @@ public class WorldObjectMsg extends ClientNetMsg {
 	 * @param forEnterWorld
 	 *            boolean flag
 	 */
-	public WorldObjectMsg(Session s, boolean forEnterWorld) {
+	public cityDataMsg(Session s, boolean forEnterWorld) {
 		super(Protocol.CITYDATA);
 		this.s = s;
 		this.forEnterWorld = forEnterWorld;
 	}
 
-	public WorldObjectMsg(boolean updateCities, boolean updateRunegates, boolean updateMines) {
+	public cityDataMsg(boolean updateCities, boolean updateRunegates, boolean updateMines) {
 		super(Protocol.CITYDATA);
 		this.s = null;
 		this.forEnterWorld = false;
@@ -70,7 +70,7 @@ public class WorldObjectMsg extends ClientNetMsg {
 	 * past the limit) then this constructor Throws that Exception to the
 	 * caller.
 	 */
-	public WorldObjectMsg(AbstractConnection origin, ByteBufferReader reader)
+	public cityDataMsg(AbstractConnection origin, ByteBufferReader reader)
 			 {
 		super(Protocol.CITYDATA, origin, reader);
 		this.forEnterWorld = false;
@@ -178,7 +178,7 @@ public class WorldObjectMsg extends ClientNetMsg {
 		//Check to see if its time to renew cache.
 		if (cachedExpireTime < System.currentTimeMillis()) {
 			synchronized (cachedEnterWorld) {
-				WorldObjectMsg.attemptSerializeForEnterWorld(cachedEnterWorld);
+				cityDataMsg.attemptSerializeForEnterWorld(cachedEnterWorld);
 			}
 			cachedExpireTime = startT + 60000;
 		}

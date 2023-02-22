@@ -1,0 +1,95 @@
+package engine.net.client.handlers;
+
+import engine.Enum;
+import engine.Enum.DispatchChannel;
+import engine.exception.MsgSendException;
+import engine.gameManager.SessionManager;
+import engine.gameManager.ZoneManager;
+import engine.net.Dispatch;
+import engine.net.DispatchMessage;
+import engine.net.client.ClientConnection;
+import engine.net.client.msg.*;
+import engine.objects.City;
+import engine.objects.Mine;
+import engine.objects.PlayerCharacter;
+import engine.objects.Zone;
+import engine.server.world.WorldServer;
+import engine.session.Session;
+
+/*
+ * @Author:
+ * @Summary: Processes application protocol message which displays
+ * the map interface.  (Zones, Cities, Realms, Hotzones)
+ */
+
+public class CityDataHandler extends AbstractClientMsgHandler {
+
+	public CityDataHandler() {
+		super(KeepAliveServerClientMsg.class);
+	}
+
+	@Override
+	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+
+		boolean updateMine = false;
+		boolean updateCity = false;
+		Session playerSession;
+		PlayerCharacter playerCharacter;
+		Zone hotZone;
+
+		playerCharacter = origin.getPlayerCharacter();
+
+		if (playerCharacter == null)
+			return true;
+
+		// Session is needed as param for worldObjectMsg.
+
+		playerSession = SessionManager.getSession(playerCharacter);
+
+		if (playerSession == null)
+			return true;
+
+		// Cache current hotZone
+
+		hotZone = ZoneManager.getHotZone();
+
+		// No reason to serialize cities and mines everytime map is
+		// opened.  Wait until something has changed.
+
+		if (playerCharacter.getTimeStamp("mineupdate") <= Mine.getLastChange()){
+			playerCharacter.setTimeStamp("mineupdate", System.currentTimeMillis());
+			updateMine = true;
+		}
+
+		if (playerCharacter.getTimeStamp("cityUpdate") <= City.lastCityUpdate){
+			playerCharacter.setTimeStamp("cityUpdate", System.currentTimeMillis());
+			updateCity = true;
+		}
+
+		cityDataMsg cityDataMsg = new cityDataMsg(SessionManager.getSession(playerCharacter), false);
+		cityDataMsg.updateMines(updateMine);
+		cityDataMsg.updateCities(updateCity);
+
+		Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
+		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+
+		if (playerCharacter.getTimeStamp("hotzoneupdate") <= WorldServer.getLastHZChange()) {
+
+			if (hotZone != null) {
+				HotzoneChangeMsg hotzoneChangeMsg = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), hotZone.getObjectUUID());
+				dispatch = Dispatch.borrow(playerCharacter, hotzoneChangeMsg);
+				DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+				playerCharacter.setTimeStamp("hotzoneupdate", System.currentTimeMillis() - 100);
+			}
+		}
+
+		// Serialize the realms for this map
+
+		WorldRealmMsg worldRealmMsg = new WorldRealmMsg();
+		dispatch = Dispatch.borrow(playerCharacter, worldRealmMsg);
+		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+
+		return true;
+	}
+
+}
