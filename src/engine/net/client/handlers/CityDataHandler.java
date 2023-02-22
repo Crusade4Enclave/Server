@@ -36,6 +36,7 @@ public class CityDataHandler extends AbstractClientMsgHandler {
         Session playerSession;
         PlayerCharacter playerCharacter;
         Zone hotZone;
+        Dispatch dispatch;
 
         playerCharacter = origin.getPlayerCharacter();
 
@@ -70,17 +71,16 @@ public class CityDataHandler extends AbstractClientMsgHandler {
         cityDataMsg.updateMines(updateMine);
         cityDataMsg.updateCities(updateCity);
 
-        Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
+        dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
         DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
 
-        if (playerCharacter.getTimeStamp("hotzoneupdate") <= WorldServer.getLastHZChange()) {
+        // If the hotZone has changed then update the client's map accordingly.
 
-            if (hotZone != null) {
+        if (playerCharacter.getTimeStamp("hotzoneupdate") <= WorldServer.getLastHZChange() && hotZone != null) {
                 HotzoneChangeMsg hotzoneChangeMsg = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), hotZone.getObjectUUID());
                 dispatch = Dispatch.borrow(playerCharacter, hotzoneChangeMsg);
                 DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
                 playerCharacter.setTimeStamp("hotzoneupdate", System.currentTimeMillis() - 100);
-            }
         }
 
         // Serialize the realms for this map
