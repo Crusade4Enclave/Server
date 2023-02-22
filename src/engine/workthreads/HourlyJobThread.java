@@ -41,13 +41,13 @@ public class HourlyJobThread implements Runnable {
 
         try {
 
-            if (ZoneManager.hotZone == null)
-                ZoneManager.generateAndSetRandomHotzone();
-
             // Use the same hotZone this hour up and until
             // the HotZone_Duration from the ConfigManager
 
-            ZoneManager.hotZoneCycle = ZoneManager.hotZoneCycle + 1;
+            if (ZoneManager.hotZone == null)
+                ZoneManager.generateAndSetRandomHotzone();
+            else
+                ZoneManager.hotZoneCycle = ZoneManager.hotZoneCycle + 1;
 
             if (ZoneManager.hotZoneCycle > Integer.parseInt(ConfigManager.MB_HOTZONE_DURATION.getValue()))
                 ZoneManager.generateAndSetRandomHotzone();
