@@ -43,20 +43,20 @@ public class HourlyJobThread implements Runnable {
 
         try {
             Zone hotzone = ZoneManager.getHotZone();
-            if(hotzone == null){
+            if (hotzone == null) {
                 //no hotzone? set one.
                 ZoneManager.generateAndSetRandomHotzone();
             }
             int hotzoneDuration = Integer.valueOf(ConfigManager.MB_HOTZONE_DURATION.getValue());
-            if(((LocalDateTime.now().getHour()) - hotzone.becameHotzone.getHour()) >= hotzoneDuration) {
+            if (((LocalDateTime.now().getHour()) - hotzone.becameHotzone.getHour()) >= hotzoneDuration) {
                 ZoneManager.generateAndSetRandomHotzone();
                 hotzone = ZoneManager.getHotZone();
             }
             if (hotzone == null) {
                 Logger.error("Null hotzone returned from mapmanager");
             } else {
-                    Logger.info("new hotzone: " + hotzone.getName());
-                    WorldServer.setLastHZChange(System.currentTimeMillis());
+                Logger.info("new hotzone: " + hotzone.getName());
+                WorldServer.setLastHZChange(System.currentTimeMillis());
             }
 
         } catch (Exception e) {
@@ -187,7 +187,7 @@ public class HourlyJobThread implements Runnable {
             ArrayList<Mine> mines = Mine.getMines();
 
             for (Mine mine : mines) {
-                if(LocalDateTime.now().getHour() == 1400){
+                if (LocalDateTime.now().getHour() == 1400) {
                     mine.wasClaimed = false;
                 }
                 try {

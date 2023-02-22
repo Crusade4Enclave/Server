@@ -34,409 +34,405 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public enum ZoneManager {
 
-	ZONEMANAGER;
+    ZONEMANAGER;
 
-	/* Instance variables */
-	private static Zone seaFloor = null;
-	private static Zone hotzone = null;
-	private static  ConcurrentHashMap<Integer, Zone> zonesByID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
-	private static  ConcurrentHashMap<Integer, Zone> zonesByUUID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
-	private static  ConcurrentHashMap<String, Zone> zonesByName = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
-	private static  Set<Zone> macroZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
-	private static  Set<Zone> npcCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
-	private static Set<Zone> playerCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
-	// Find all zones coordinates fit into, starting with Sea Floor
+    /* Instance variables */
+    private static Zone seaFloor = null;
+    private static Zone hotzone = null;
+    private static final ConcurrentHashMap<Integer, Zone> zonesByID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
+    private static final ConcurrentHashMap<Integer, Zone> zonesByUUID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
+    private static final ConcurrentHashMap<String, Zone> zonesByName = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
+    private static final Set<Zone> macroZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private static final Set<Zone> npcCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private static final Set<Zone> playerCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    // Find all zones coordinates fit into, starting with Sea Floor
 
-	public static ArrayList<Zone> getAllZonesIn(final Vector3fImmutable loc) {
+    public static ArrayList<Zone> getAllZonesIn(final Vector3fImmutable loc) {
 
-		ArrayList<Zone> allIn = new ArrayList<>();
-		Zone zone;
+        ArrayList<Zone> allIn = new ArrayList<>();
+        Zone zone;
 
-		zone = ZoneManager.findSmallestZone(loc);
+        zone = ZoneManager.findSmallestZone(loc);
 
-		if (zone != null) {
-			allIn.add(zone);
-			while (zone.getParent() != null) {
-				zone = zone.getParent();
-				allIn.add(zone);
-			}
-		}
-		return allIn;
-	}
+        if (zone != null) {
+            allIn.add(zone);
+            while (zone.getParent() != null) {
+                zone = zone.getParent();
+                allIn.add(zone);
+            }
+        }
+        return allIn;
+    }
 
-	// Find smallest zone coordinates fit into.
+    // Find smallest zone coordinates fit into.
 
-	public static final Zone findSmallestZone(final Vector3fImmutable loc) {
+    public static final Zone findSmallestZone(final Vector3fImmutable loc) {
 
-		Zone zone = ZoneManager.seaFloor;
+        Zone zone = ZoneManager.seaFloor;
 
-		if (zone == null)
-			return null;
+        if (zone == null)
+            return null;
 
-		boolean childFound = true;
+        boolean childFound = true;
 
-		while (childFound) {
+        while (childFound) {
 
-			childFound = false;
+            childFound = false;
 
-			ArrayList<Zone> nodes = zone.getNodes();
+            ArrayList<Zone> nodes = zone.getNodes();
 
-			// Logger.info("soze", "" + nodes.size());
-			if (nodes != null)
-				for (Zone child : nodes) {
+            // Logger.info("soze", "" + nodes.size());
+            if (nodes != null)
+                for (Zone child : nodes) {
 
-					if (Bounds.collide(loc, child.getBounds()) == true) {
-						zone = child;
-						childFound = true;
-						break;
-					}
-				}
-		}
-		return zone;
-	}
+                    if (Bounds.collide(loc, child.getBounds()) == true) {
+                        zone = child;
+                        childFound = true;
+                        break;
+                    }
+                }
+        }
+        return zone;
+    }
 
-	public static void addZone(final int zoneID, final Zone zone) {
+    public static void addZone(final int zoneID, final Zone zone) {
 
-		ZoneManager.zonesByID.put(zoneID, zone);
+        ZoneManager.zonesByID.put(zoneID, zone);
 
-		if (zone != null)
-			ZoneManager.zonesByUUID.put(zone.getObjectUUID(), zone);
+        if (zone != null)
+            ZoneManager.zonesByUUID.put(zone.getObjectUUID(), zone);
 
-		ZoneManager.zonesByName.put(zone.getName().toLowerCase(), zone);
+        ZoneManager.zonesByName.put(zone.getName().toLowerCase(), zone);
 
-	}
+    }
 
-	public static  Zone getZoneByUUID(final int zoneUUID) {
-		return ZoneManager.zonesByUUID.get(zoneUUID);
-	}
+    public static Zone getZoneByUUID(final int zoneUUID) {
+        return ZoneManager.zonesByUUID.get(zoneUUID);
+    }
 
-	public static  Zone getZoneByZoneID(final int zoneID) {
+    public static Zone getZoneByZoneID(final int zoneID) {
 
-		return ZoneManager.zonesByID.get(zoneID);
-	}
+        return ZoneManager.zonesByID.get(zoneID);
+    }
 
-	public static final Collection<Zone> getAllZones() {
-		return ZoneManager.zonesByUUID.values();
-	}
+    public static final Collection<Zone> getAllZones() {
+        return ZoneManager.zonesByUUID.values();
+    }
 
-	public static final Zone getHotZone() {
-		return ZoneManager.hotzone;
-	}
+    public static final Zone getHotZone() {
+        return ZoneManager.hotzone;
+    }
 
-	public static final void setHotZone(final Zone zone) {
-		if (!zone.isMacroZone())
-			return;
-		ZoneManager.hotzone = zone;
-		zone.hasBeenHotzone = true;
-		zone.becameHotzone = LocalDateTime.now();
-	}
+    public static final void setHotZone(final Zone zone) {
+        if (!zone.isMacroZone())
+            return;
+        ZoneManager.hotzone = zone;
+        zone.hasBeenHotzone = true;
+        zone.becameHotzone = LocalDateTime.now();
+    }
 
-	public static boolean inHotZone(final Vector3fImmutable loc) {
+    public static boolean inHotZone(final Vector3fImmutable loc) {
 
-		if (ZoneManager.hotzone == null)
-			return false;
+        if (ZoneManager.hotzone == null)
+            return false;
 
-		return (Bounds.collide(loc, ZoneManager.hotzone.getBounds()) == true);
-	}
+        return (Bounds.collide(loc, ZoneManager.hotzone.getBounds()) == true);
+    }
 
-	public static void setSeaFloor(final Zone value) {
-		ZoneManager.seaFloor = value;
-	}
+    public static void setSeaFloor(final Zone value) {
+        ZoneManager.seaFloor = value;
+    }
 
-	public static Zone getSeaFloor() {
-		return ZoneManager.seaFloor;
-	}
+    public static Zone getSeaFloor() {
+        return ZoneManager.seaFloor;
+    }
 
-	public static final void populateWorldZones(final Zone zone) {
+    public static final void populateWorldZones(final Zone zone) {
 
-		int loadNum = zone.getLoadNum();
+        int loadNum = zone.getLoadNum();
 
-		// Zones are added to separate
-		// collections for quick access
-		// based upon their type.
+        // Zones are added to separate
+        // collections for quick access
+        // based upon their type.
 
-		if (zone.isMacroZone()) {
-			addMacroZone(zone);
-			return;
-		}
+        if (zone.isMacroZone()) {
+            addMacroZone(zone);
+            return;
+        }
 
 
-		if (zone.isPlayerCity()) {
-			addPlayerCityZone(zone);
-			return;
-		}
+        if (zone.isPlayerCity()) {
+            addPlayerCityZone(zone);
+            return;
+        }
 
-		if (zone.isNPCCity())
-			addNPCCityZone(zone);
+        if (zone.isNPCCity())
+            addNPCCityZone(zone);
 
-	}
+    }
 
-	private static void addMacroZone(final Zone zone) {
-		ZoneManager.macroZones.add(zone);
-	}
+    private static void addMacroZone(final Zone zone) {
+        ZoneManager.macroZones.add(zone);
+    }
 
-	private static void addNPCCityZone(final Zone zone) {
-		zone.setNPCCity(true);
-		ZoneManager.npcCityZones.add(zone);
-	}
+    private static void addNPCCityZone(final Zone zone) {
+        zone.setNPCCity(true);
+        ZoneManager.npcCityZones.add(zone);
+    }
 
-	public static final void addPlayerCityZone(final Zone zone) {
-		zone.setPlayerCity(true);
-		ZoneManager.playerCityZones.add(zone);
-	}
+    public static final void addPlayerCityZone(final Zone zone) {
+        zone.setPlayerCity(true);
+        ZoneManager.playerCityZones.add(zone);
+    }
 
-	public static final void generateAndSetRandomHotzone() {
+    public static final void generateAndSetRandomHotzone() {
 
-		Zone hotzone;
-		ArrayList<Integer> zoneArray = new ArrayList<>();
+        Zone hotzone;
+        ArrayList<Integer> zoneArray = new ArrayList<>();
 
-		if (ZoneManager.macroZones.isEmpty())
-			return;
+        if (ZoneManager.macroZones.isEmpty())
+            return;
 
-		for (Zone zone : ZoneManager.macroZones) {
+        for (Zone zone : ZoneManager.macroZones) {
 
-			if (validHotZone(zone))
-				zoneArray.add(zone.getObjectUUID());
+            if (validHotZone(zone))
+                zoneArray.add(zone.getObjectUUID());
 
-		}
+        }
 
-		int entryIndex = ThreadLocalRandom.current().nextInt(zoneArray.size());
+        int entryIndex = ThreadLocalRandom.current().nextInt(zoneArray.size());
 
-		hotzone = ZoneManager.getZoneByUUID(zoneArray.get(entryIndex));
+        hotzone = ZoneManager.getZoneByUUID(zoneArray.get(entryIndex));
 
 
-		if (hotzone == null){
-			Logger.error( "Hotzone is null");
-			return;
-		}
+        if (hotzone == null) {
+            Logger.error("Hotzone is null");
+            return;
+        }
 
 
-		ZoneManager.setHotZone(hotzone);
-		WorldServer.setLastHZChange(System.currentTimeMillis());
+        ZoneManager.setHotZone(hotzone);
+        WorldServer.setLastHZChange(System.currentTimeMillis());
 
-	}
+    }
 
-	public static final boolean validHotZone(Zone zone) {
+    public static final boolean validHotZone(Zone zone) {
 
-		if (zone.getSafeZone() == (byte) 1)
-			return false; // no safe zone hotzones// if (this.hotzone == null)
+        if (zone.getSafeZone() == (byte) 1)
+            return false; // no safe zone hotzones// if (this.hotzone == null)
 
-		if (zone.getNodes().isEmpty())
-			return false;
+        if (zone.getNodes().isEmpty())
+            return false;
 
-		if (zone.equals(ZoneManager.seaFloor))
-			return false;
-		//no duplicate hotzones
-		if(zone.hasBeenHotzone == true){
-			return false;
-		}
-		// return false; //first time setting, accept it
-		// if (this.hotzone.getUUID() == zone.getUUID())
-		// return true; //no same hotzone
+        if (zone.equals(ZoneManager.seaFloor))
+            return false;
+        //no duplicate hotzones
+        if (zone.hasBeenHotzone == true) {
+            return false;
+        }
+        // return false; //first time setting, accept it
+        // if (this.hotzone.getUUID() == zone.getUUID())
+        // return true; //no same hotzone
 
-		if (ZoneManager.hotzone != null)
-			return ZoneManager.hotzone.getObjectUUID() != zone.getObjectUUID();
+        if (ZoneManager.hotzone != null)
+            return ZoneManager.hotzone.getObjectUUID() != zone.getObjectUUID();
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * Gets a MacroZone by name.
-	 *
-	 * @param inputName
-	 *            MacroZone name to search for
-	 * @return Zone of the MacroZone, or Null
-	 */
+    /**
+     * Gets a MacroZone by name.
+     *
+     * @param inputName MacroZone name to search for
+     * @return Zone of the MacroZone, or Null
+     */
 
-	public static Zone findMacroZoneByName(String inputName) {
-		synchronized (ZoneManager.macroZones) {
-			for (Zone zone : ZoneManager.macroZones) {
-				String zoneName = zone.getName();
-				if (zoneName.equalsIgnoreCase(inputName))
-					return zone;
-			}
-		}
-		return null;
-	}
+    public static Zone findMacroZoneByName(String inputName) {
+        synchronized (ZoneManager.macroZones) {
+            for (Zone zone : ZoneManager.macroZones) {
+                String zoneName = zone.getName();
+                if (zoneName.equalsIgnoreCase(inputName))
+                    return zone;
+            }
+        }
+        return null;
+    }
 
-	// Converts world coordinates to coordinates local to a given zone.
+    // Converts world coordinates to coordinates local to a given zone.
 
-	public static Vector3fImmutable worldToLocal(Vector3fImmutable worldVector,
-			Zone serverZone) {
+    public static Vector3fImmutable worldToLocal(Vector3fImmutable worldVector,
+                                                 Zone serverZone) {
 
-		Vector3fImmutable localCoords;
+        Vector3fImmutable localCoords;
 
-		localCoords = new Vector3fImmutable(worldVector.x - serverZone.absX,
-				worldVector.y - serverZone.absY, worldVector.z
-				- serverZone.absZ);
+        localCoords = new Vector3fImmutable(worldVector.x - serverZone.absX,
+                worldVector.y - serverZone.absY, worldVector.z
+                - serverZone.absZ);
 
-		return localCoords;
-	}
+        return localCoords;
+    }
 
-	public static Vector2f worldToZoneSpace(Vector3fImmutable worldVector,
-			Zone serverZone) {
+    public static Vector2f worldToZoneSpace(Vector3fImmutable worldVector,
+                                            Zone serverZone) {
 
-		Vector2f localCoords;
-		Vector2f zoneOrigin;
+        Vector2f localCoords;
+        Vector2f zoneOrigin;
 
-		// Top left corner of zone is calculated in world space by the center and it's extents.
+        // Top left corner of zone is calculated in world space by the center and it's extents.
 
-		zoneOrigin = new Vector2f(serverZone.getLoc().x, serverZone.getLoc().z);
-		zoneOrigin = zoneOrigin.subtract(new Vector2f(serverZone.getBounds().getHalfExtents().x, serverZone.getBounds().getHalfExtents().y));
+        zoneOrigin = new Vector2f(serverZone.getLoc().x, serverZone.getLoc().z);
+        zoneOrigin = zoneOrigin.subtract(new Vector2f(serverZone.getBounds().getHalfExtents().x, serverZone.getBounds().getHalfExtents().y));
 
-		// Local coordinate in world space translated to an offset from the calculated zone origin.
+        // Local coordinate in world space translated to an offset from the calculated zone origin.
 
-		localCoords = new Vector2f(worldVector.x, worldVector.z);
-		localCoords = localCoords.subtract(zoneOrigin);
+        localCoords = new Vector2f(worldVector.x, worldVector.z);
+        localCoords = localCoords.subtract(zoneOrigin);
 
-		localCoords.setY((serverZone.getBounds().getHalfExtents().y * 2) - localCoords.y);
+        localCoords.setY((serverZone.getBounds().getHalfExtents().y * 2) - localCoords.y);
 
 
+        // TODO : Make sure this value does not go outside the zone's bounds.
 
+        return localCoords;
+    }
 
-		// TODO : Make sure this value does not go outside the zone's bounds.
+    // Converts local zone coordinates to world coordinates
 
-		return localCoords;
-	}
+    public static Vector3fImmutable localToWorld(Vector3fImmutable worldVector,
+                                                 Zone serverZone) {
 
-	// Converts local zone coordinates to world coordinates
+        Vector3fImmutable worldCoords;
 
-	public static Vector3fImmutable localToWorld(Vector3fImmutable worldVector,
-			Zone serverZone) {
+        worldCoords = new Vector3fImmutable(worldVector.x + serverZone.absX,
+                worldVector.y + serverZone.absY, worldVector.z
+                + serverZone.absZ);
 
-		Vector3fImmutable worldCoords;
+        return worldCoords;
+    }
 
-		worldCoords = new Vector3fImmutable(worldVector.x + serverZone.absX,
-				worldVector.y + serverZone.absY, worldVector.z
-				+ serverZone.absZ);
 
-		return worldCoords;
-	}
+    /**
+     * Converts from local (relative to this building) to world.
+     *
+     * @param localPos position in local reference (relative to this building)
+     * @return position relative to world
+     */
 
+    public static Vector3fImmutable convertLocalToWorld(Building building, Vector3fImmutable localPos) {
 
-	/**
-	 * Converts from local (relative to this building) to world.
-	 *
-	 * @param localPos position in local reference (relative to this building)
-	 * @return position relative to world
-	 */
+        // convert from SB rotation value to radians
 
-	public static Vector3fImmutable convertLocalToWorld(Building building, Vector3fImmutable localPos) {
 
-		// convert from SB rotation value to radians
-		
-		
-		if (building.getBounds().getQuaternion() == null)
-			return building.getLoc();
-		Vector3fImmutable rotatedLocal = Vector3fImmutable.rotateAroundPoint(Vector3fImmutable.ZERO, localPos, building.getBounds().getQuaternion());
-		// handle building rotation
-		// handle building translation
+        if (building.getBounds().getQuaternion() == null)
+            return building.getLoc();
+        Vector3fImmutable rotatedLocal = Vector3fImmutable.rotateAroundPoint(Vector3fImmutable.ZERO, localPos, building.getBounds().getQuaternion());
+        // handle building rotation
+        // handle building translation
 
-		return building.getLoc().add(rotatedLocal.x, rotatedLocal.y,rotatedLocal.z);
-	}
-	
-	
-	//used for regions, Building bounds not set yet.
-	public static Vector3f convertLocalToWorld(Building building, Vector3f localPos, Bounds bounds) {
+        return building.getLoc().add(rotatedLocal.x, rotatedLocal.y, rotatedLocal.z);
+    }
 
-		// convert from SB rotation value to radians
-		
-		
-		Vector3f rotatedLocal = Vector3f.rotateAroundPoint(Vector3f.ZERO, localPos, bounds.getQuaternion());
-		// handle building rotation
-		// handle building translation
 
-		return new Vector3f(building.getLoc().add(rotatedLocal.x, rotatedLocal.y,rotatedLocal.z));
-	}
+    //used for regions, Building bounds not set yet.
+    public static Vector3f convertLocalToWorld(Building building, Vector3f localPos, Bounds bounds) {
 
-	public static Vector3fImmutable convertWorldToLocal(Building building, Vector3fImmutable WorldPos) {
-		Vector3fImmutable convertLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(),WorldPos,-building.getBounds().getQuaternion().angleY);
-	
-		
-		convertLoc = convertLoc.subtract(building.getLoc());
+        // convert from SB rotation value to radians
 
-		// convert from SB rotation value to radians
-		
-		return convertLoc;
 
-	}
+        Vector3f rotatedLocal = Vector3f.rotateAroundPoint(Vector3f.ZERO, localPos, bounds.getQuaternion());
+        // handle building rotation
+        // handle building translation
 
-	public static Vector3fImmutable convertNPCLoc(Building building, Vector3fImmutable npcLoc) {
+        return new Vector3f(building.getLoc().add(rotatedLocal.x, rotatedLocal.y, rotatedLocal.z));
+    }
 
-		return Vector3fImmutable.rotateAroundPoint(Vector3fImmutable.ZERO, npcLoc, -building.getBounds().getQuaternion().angleY);
+    public static Vector3fImmutable convertWorldToLocal(Building building, Vector3fImmutable WorldPos) {
+        Vector3fImmutable convertLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(), WorldPos, -building.getBounds().getQuaternion().angleY);
 
-	}
 
-	 // Method returns a city if the given location is within
-	// a city siege radius.
+        convertLoc = convertLoc.subtract(building.getLoc());
 
-	public static City getCityAtLocation(Vector3fImmutable worldLoc) {
+        // convert from SB rotation value to radians
 
-		Zone currentZone;
-		ArrayList<Zone> zoneList;
-		City city;
+        return convertLoc;
 
-		currentZone = ZoneManager.findSmallestZone(worldLoc);
+    }
 
-		if (currentZone.isPlayerCity())
-			return City.getCity(currentZone.getPlayerCityUUID());
+    public static Vector3fImmutable convertNPCLoc(Building building, Vector3fImmutable npcLoc) {
 
-		// Not currently on a city grid.  Test nearby cities
-		// to see if we are on one of their seige bounds.
+        return Vector3fImmutable.rotateAroundPoint(Vector3fImmutable.ZERO, npcLoc, -building.getBounds().getQuaternion().angleY);
 
-		zoneList = currentZone.getNodes();
+    }
 
-		for (Zone zone : zoneList) {
+    // Method returns a city if the given location is within
+    // a city siege radius.
 
-			if (zone == currentZone)
-				continue;
+    public static City getCityAtLocation(Vector3fImmutable worldLoc) {
 
-			if (zone.isPlayerCity() == false)
-				continue;
+        Zone currentZone;
+        ArrayList<Zone> zoneList;
+        City city;
 
-			city = City.getCity(zone.getPlayerCityUUID());
+        currentZone = ZoneManager.findSmallestZone(worldLoc);
 
-			if (worldLoc.isInsideCircle(city.getLoc(), Enum.CityBoundsType.SIEGE.extents))
-				return city;
-		}
+        if (currentZone.isPlayerCity())
+            return City.getCity(currentZone.getPlayerCityUUID());
 
-		return null;
-	}
+        // Not currently on a city grid.  Test nearby cities
+        // to see if we are on one of their seige bounds.
 
-	/* Method is called when creating a new player city to
-	 * validate that the new zone does not overlap any other
-	 * zone that might currently exist
-	 */
+        zoneList = currentZone.getNodes();
 
-	public static boolean validTreePlacementLoc(Zone currentZone, float positionX, float positionZ) {
+        for (Zone zone : zoneList) {
 
-		// Member Variable declaration
+            if (zone == currentZone)
+                continue;
 
-		ArrayList<Zone> zoneList;
-		boolean validLocation = true;
-		Bounds treeBounds;
-		
-		if (currentZone.isContininent() == false)
-			return false;
-		
-		
-		treeBounds = Bounds.borrow();
-		treeBounds.setBounds(new Vector2f(positionX, positionZ), new Vector2f(Enum.CityBoundsType.SIEGE.extents, Enum.CityBoundsType.SIEGE.extents), 0.0f);
+            if (zone.isPlayerCity() == false)
+                continue;
 
-		zoneList = currentZone.getNodes();
+            city = City.getCity(zone.getPlayerCityUUID());
 
-	
-		
-		for (Zone zone : zoneList) {
+            if (worldLoc.isInsideCircle(city.getLoc(), Enum.CityBoundsType.SIEGE.extents))
+                return city;
+        }
 
-			if (zone.isContininent())
-				continue;
+        return null;
+    }
 
-			if (Bounds.collide(treeBounds, zone.getBounds(), 0.0f))
-				validLocation = false;
-		}
+    /* Method is called when creating a new player city to
+     * validate that the new zone does not overlap any other
+     * zone that might currently exist
+     */
 
-		treeBounds.release();
-		return validLocation;
+    public static boolean validTreePlacementLoc(Zone currentZone, float positionX, float positionZ) {
+
+        // Member Variable declaration
+
+        ArrayList<Zone> zoneList;
+        boolean validLocation = true;
+        Bounds treeBounds;
+
+        if (currentZone.isContininent() == false)
+            return false;
+
+
+        treeBounds = Bounds.borrow();
+        treeBounds.setBounds(new Vector2f(positionX, positionZ), new Vector2f(Enum.CityBoundsType.SIEGE.extents, Enum.CityBoundsType.SIEGE.extents), 0.0f);
+
+        zoneList = currentZone.getNodes();
+
+
+        for (Zone zone : zoneList) {
+
+            if (zone.isContininent())
+                continue;
+
+            if (Bounds.collide(treeBounds, zone.getBounds(), 0.0f))
+                validLocation = false;
+        }
+
+        treeBounds.release();
+        return validLocation;
     }
 }
