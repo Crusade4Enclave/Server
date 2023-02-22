@@ -58,7 +58,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +72,7 @@ import static java.lang.System.exit;
 public class WorldServer {
 
 	private static LocalDateTime bootTime = LocalDateTime.now();
-	private static long lastHZChange = System.currentTimeMillis();
+	public static Instant hotZoneLastUpdate;
 	public boolean isRunning = false;
 
 	// Member variable declaration
@@ -119,14 +121,6 @@ public class WorldServer {
 			Logger.error(e.getMessage());
 			exit(1);
 		}
-	}
-
-	public static long getLastHZChange() {
-		return lastHZChange;
-	}
-
-	public static void setLastHZChange(long lastChange) {
-		lastHZChange = lastChange;
 	}
 
 	public static void trainerInfo(TrainerInfoMsg msg, ClientConnection origin) {
@@ -430,12 +424,8 @@ public class WorldServer {
 		Logger.info("Running Heraldry Audit for Deleted Players");
 		Heraldry.AuditHeraldry();
 
-		if (ZoneManager.hotZone != null)
-			WorldServer.setLastHZChange(System.currentTimeMillis());
-
 		Logger.info("Starting Mobile AI FSM");
 		MobileFSMManager.getInstance();
-
 
 		for (Zone zone : ZoneManager.getAllZones()) {
 			if (zone.getHeightMap() != null) {

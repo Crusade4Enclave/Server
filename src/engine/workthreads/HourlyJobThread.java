@@ -41,16 +41,16 @@ public class HourlyJobThread implements Runnable {
 
         try {
 
-            //no hotzone? set one.
-
             if (ZoneManager.hotZone == null)
                 ZoneManager.generateAndSetRandomHotzone();
 
+            // Use the same hotZone this hour up and until
+            // the HotZone_Duration from the ConfigManager
+
             ZoneManager.hotZoneCycle = ZoneManager.hotZoneCycle + 1;
 
-            if (ZoneManager.hotZoneCycle > Integer.valueOf(ConfigManager.MB_HOTZONE_DURATION.getValue()))
+            if (ZoneManager.hotZoneCycle > Integer.parseInt(ConfigManager.MB_HOTZONE_DURATION.getValue()))
                 ZoneManager.generateAndSetRandomHotzone();
-
 
             if (ZoneManager.hotZone == null) {
                 Logger.error("Null HotZone returned from ZoneManager");
@@ -90,7 +90,6 @@ public class HourlyJobThread implements Runnable {
                     guild.wooWasModified = false;
             }
         }
-
 
         // Mines can only be claimed once per cycle.
         // This will reset at 1am after the last mine

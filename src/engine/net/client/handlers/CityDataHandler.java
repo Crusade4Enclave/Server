@@ -12,9 +12,10 @@ import engine.net.client.msg.*;
 import engine.objects.City;
 import engine.objects.Mine;
 import engine.objects.PlayerCharacter;
-import engine.objects.Zone;
 import engine.server.world.WorldServer;
 import engine.session.Session;
+
+import java.time.ZoneId;
 
 /*
  * @Author:
@@ -35,7 +36,6 @@ public class CityDataHandler extends AbstractClientMsgHandler {
         boolean updateCity = false;
         Session playerSession;
         PlayerCharacter playerCharacter;
-        Zone hotZone;
         Dispatch dispatch;
 
         playerCharacter = origin.getPlayerCharacter();
@@ -72,7 +72,7 @@ public class CityDataHandler extends AbstractClientMsgHandler {
 
         // If the hotZone has changed then update the client's map accordingly.
 
-        if (playerCharacter.getTimeStamp("hotzoneupdate") <= WorldServer.getLastHZChange() && ZoneManager.hotZone != null) {
+        if (playerCharacter.getTimeStamp("hotzoneupdate") <= WorldServer.hotZoneLastUpdate.toEpochMilli() && ZoneManager.hotZone != null) {
                 HotzoneChangeMsg hotzoneChangeMsg = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), ZoneManager.hotZone.getObjectUUID());
                 dispatch = Dispatch.borrow(playerCharacter, hotzoneChangeMsg);
                 DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);

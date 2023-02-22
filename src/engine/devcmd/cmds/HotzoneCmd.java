@@ -77,7 +77,6 @@ public class HotzoneCmd extends AbstractDevCmd {
 
         throwbackInfo(pc, "New hotzone: " + hotzoneInfo());
         HotzoneChangeMsg hcm = new HotzoneChangeMsg(zone.getObjectType().ordinal(), zone.getObjectUUID());
-        WorldServer.setLastHZChange(System.currentTimeMillis());
     }
 
     @Override

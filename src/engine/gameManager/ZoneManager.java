@@ -21,6 +21,7 @@ import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -129,7 +130,7 @@ public enum ZoneManager {
         ZoneManager.hotZoneCycle = 1;  // Used with HOTZONE_DURATION from config.
         zone.hasBeenHotzone = true;
         zone.becameHotzone = LocalDateTime.now();
-        WorldServer.setLastHZChange(System.currentTimeMillis());
+        WorldServer.hotZoneLastUpdate = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
 
     }
 

@@ -10,17 +10,23 @@
 package engine.net.client.msg;
 
 
+import engine.gameManager.ConfigManager;
 import engine.math.FastMath;
 import engine.net.AbstractConnection;
 import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
+import engine.server.world.WorldServer;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 
 public class HotzoneChangeMsg extends ClientNetMsg {
 
     private int zoneType;
     private int zoneID;
+    private Duration endOfCycle;
 
     /**
      * This is the general purpose constructor.
@@ -29,6 +35,11 @@ public class HotzoneChangeMsg extends ClientNetMsg {
         super(Protocol.ARCHOTZONECHANGE);
         this.zoneType = zoneType;
         this.zoneID = zoneID;
+
+        int hotZoneDuration = Integer.parseInt(ConfigManager.MB_HOTZONE_DURATION.getValue());
+
+        endOfCycle = Duration.between(WorldServer.hotZoneLastUpdate, WorldServer.hotZoneLastUpdate.plusSeconds(hotZoneDuration * 3600));
+
     }
 
     /**
@@ -49,7 +60,7 @@ public class HotzoneChangeMsg extends ClientNetMsg {
     protected void _serialize(ByteBufferWriter writer) {
         writer.putInt(this.zoneType);
         writer.putInt(this.zoneID);
-        writer.putInt(FastMath.secondsUntilNextHour());
+        writer.putInt((int) endOfCycle.getSeconds());
     }
 
     /**
