@@ -71,6 +71,8 @@ public enum ConfigManager {
     MB_HOTZONE_RATE,
     MB_HOTZONE_DURATION,
 
+    MB_HOTZONE_MIN_LEVEL,
+
     // MagicBot configuration.
 
     MB_MAGICBOT_SERVERID,
