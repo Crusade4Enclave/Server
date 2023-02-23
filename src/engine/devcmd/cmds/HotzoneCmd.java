@@ -49,10 +49,13 @@ public class HotzoneCmd extends AbstractDevCmd {
         }
 
         if (input.equalsIgnoreCase("random")) {
-            throwbackInfo(pc, "Previous hotZone: " + ZoneManager.hotZone.getName());
             ZoneManager.generateAndSetRandomHotzone();
             throwbackInfo(pc, "New hotZone: " + ZoneManager.hotZone.getName());
         }
+
+        if (input.equalsIgnoreCase("reset"))
+            for (Zone zone: ZoneManager.getAllZones())
+                zone.hasBeenHotzone = false;
 
         return;
     }
