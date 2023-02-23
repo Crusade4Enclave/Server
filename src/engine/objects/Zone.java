@@ -51,8 +51,8 @@ public class Zone extends AbstractGameObject {
 	private boolean isNPCCity = false;
 	private boolean isPlayerCity = false;
 	private String hash;
-	private int minLvl;
-	private int maxLvl;
+	public int minLvl;
+	public int maxLvl;
 
 	private float worldAltitude = 0;
 

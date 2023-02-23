@@ -226,13 +226,16 @@ public enum ZoneManager {
 
         if (zone.equals(ZoneManager.seaFloor))
             return false;
-        //no duplicate hotzones
-        if (zone.hasBeenHotzone == true) {
+
+        //no duplicate hotZones
+
+        if (zone.hasBeenHotzone == true)
             return false;
-        }
-        // return false; //first time setting, accept it
-        // if (this.hotzone.getUUID() == zone.getUUID())
-        // return true; //no same hotzone
+
+        // Enforce min level
+
+        if (zone.minLvl < Integer.parseInt(ConfigManager.MB_HOTZONE_MIN_LEVEL.getValue()))
+            return false;
 
         if (ZoneManager.hotZone != null)
             return ZoneManager.hotZone.getObjectUUID() != zone.getObjectUUID();
