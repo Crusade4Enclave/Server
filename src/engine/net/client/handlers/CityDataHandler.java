@@ -50,13 +50,9 @@ public class CityDataHandler extends AbstractClientMsgHandler {
         if (playerSession == null)
             return true;
 
-        // No reason to serialize cities and mines everytime map is
+        // No reason to serialize cities everytime map is
         // opened.  Wait until something has changed.
-
-        if (playerCharacter.getTimeStamp("mineupdate") <= Mine.getLastChange()) {
-            playerCharacter.setTimeStamp("mineupdate", System.currentTimeMillis());
-            updateMine = true;
-        }
+        // This does not work for mines.
 
         if (playerCharacter.getTimeStamp("cityUpdate") <= City.lastCityUpdate) {
             playerCharacter.setTimeStamp("cityUpdate", System.currentTimeMillis());
@@ -64,7 +60,7 @@ public class CityDataHandler extends AbstractClientMsgHandler {
         }
 
         cityDataMsg cityDataMsg = new cityDataMsg(SessionManager.getSession(playerCharacter), false);
-        cityDataMsg.updateMines(updateMine);
+        cityDataMsg.updateMines(true);
         cityDataMsg.updateCities(updateCity);
 
         dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
