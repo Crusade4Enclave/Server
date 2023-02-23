@@ -22,9 +22,8 @@ import engine.server.world.WorldServer;
 /**
  * ./hotzone                      <- display the current hotzone & time remaining
  * ./hotzone random               <- change hotzone to random new zone
- * ./hotzone name of a macrozone  <- change hotzone to the zone name provided
- *
  */
+
 public class HotzoneCmd extends AbstractDevCmd {
 
     public HotzoneCmd() {
@@ -36,78 +35,36 @@ public class HotzoneCmd extends AbstractDevCmd {
                           AbstractGameObject target) {
 
         StringBuilder data = new StringBuilder();
+
         for (String s : words) {
             data.append(s);
             data.append(' ');
         }
+
         String input = data.toString().trim();
 
         if (input.length() == 0) {
-            throwbackInfo(pc, "Current hotzone: " + hotzoneInfo());
+            throwbackInfo(pc, "Current hotZone: " + ZoneManager.hotZone.getName());
             return;
         }
 
-        Zone zone;
-
         if (input.equalsIgnoreCase("random")) {
-            throwbackInfo(pc, "Previous hotzone: " + hotzoneInfo());
+            throwbackInfo(pc, "Previous hotZone: " + ZoneManager.hotZone.getName());
             ZoneManager.generateAndSetRandomHotzone();
-            zone = ZoneManager.hotZone;
-        } else {
-            zone = ZoneManager.findMacroZoneByName(input);
-
-            if (zone == null) {
-                throwbackError(pc, "Cannot find a macrozone with that name.");
-                return;
-            }
-
-            if (zone == ZoneManager.hotZone) {
-                throwbackInfo(pc, "That macrozone is already the Hotzone.");
-                return;
-            }
-
-            if (ZoneManager.validHotZone(zone) == false) {
-                throwbackError(pc, "That macrozone cannot be set as the Hotzone.");
-                return;
-            }
-
-            throwbackInfo(pc, "Previous hotzone: " + hotzoneInfo());
-            ZoneManager.setHotZone(zone);
+            throwbackInfo(pc, "New hotZone: " + ZoneManager.hotZone.getName());
         }
 
-        throwbackInfo(pc, "New hotzone: " + hotzoneInfo());
-        HotzoneChangeMsg hcm = new HotzoneChangeMsg(zone.getObjectType().ordinal(), zone.getObjectUUID());
+        return;
     }
-
     @Override
     protected String _getHelpString() {
-        return "Use no arguments to see the current hotzone.  Specify a macrozone name to change the hotzone, or \"random\" to change it randomly.";
+        return "Use no arguments to see the current hotzone or \"random\" to change it randomly.";
     }
 
     @Override
     protected String _getUsageString() {
-        return "'./hotzone [random | <macroZoneName>]";
+        return "'./hotzone [random]";
     }
 
-    private static String hotzoneInfo() {
-        final int hotzoneTimeLeft = FastMath.secondsUntilNextHour();
-        final Zone hotzone = ZoneManager.hotZone;
-        String hotzoneInfo;
-
-        if (hotzone == null) {
-            hotzoneInfo = "none";
-        } else {
-            int hr = hotzoneTimeLeft/3600;
-            int rem = hotzoneTimeLeft%3600;
-            int mn = rem/60;
-            int sec = rem%60;
-            hotzoneInfo = hotzone.getName() +
-                    " (" + (hr<10 ? "0" : "") + hr + ':' +
-                    (mn<10 ? "0" : "") + mn + ':' +
-                    (sec<10 ? "0" : "") + sec +
-                    " remaining)";
-        }
-        return hotzoneInfo;
-    }
 
 }
