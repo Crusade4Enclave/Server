@@ -28,8 +28,7 @@ public class CityDataHandler extends AbstractClientMsgHandler {
     @Override
     protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-        boolean updateMine = false;
-        boolean updateCity = false;
+        boolean updateCities = false;
         Session playerSession;
         PlayerCharacter playerCharacter;
         Dispatch dispatch;
@@ -52,12 +51,12 @@ public class CityDataHandler extends AbstractClientMsgHandler {
 
         if (playerCharacter.getTimeStamp("cityUpdate") <= City.lastCityUpdate) {
             playerCharacter.setTimeStamp("cityUpdate", System.currentTimeMillis());
-            updateCity = true;
+            updateCities = true;
         }
 
         cityDataMsg cityDataMsg = new cityDataMsg(SessionManager.getSession(playerCharacter), false);
         cityDataMsg.updateMines(true);
-        cityDataMsg.updateCities(updateCity);
+        cityDataMsg.updateCities(updateCities);
 
         dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
         DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
