@@ -156,7 +156,7 @@ public enum ZoneManager {
         ZoneManager.hotZone = zone;
         ZoneManager.hotZoneCycle = 1;  // Used with HOTZONE_DURATION from config.
         zone.hasBeenHotzone = true;
-        hotZoneLastUpdate = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
+        ZoneManager.hotZoneLastUpdate = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
 
     }
 
