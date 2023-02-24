@@ -54,7 +54,7 @@ public class CityDataHandler extends AbstractClientMsgHandler {
             updateCities = true;
         }
 
-        cityDataMsg cityDataMsg = new cityDataMsg(SessionManager.getSession(playerCharacter), false);
+        CityDataMsg cityDataMsg = new CityDataMsg(SessionManager.getSession(playerCharacter), false);
         cityDataMsg.updateMines(true);
         cityDataMsg.updateCities(updateCities);
 
