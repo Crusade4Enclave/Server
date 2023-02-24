@@ -111,12 +111,13 @@ public enum ZoneManager {
 
     // Returns the number of available hotZones
     // remaining in this cycle (1am)
+
     public static int availableHotZones() {
 
         int count = 0;
 
         for (Zone zone : ZoneManager.macroZones)
-            if (zone.hasBeenHotzone == false)
+            if (ZoneManager.validHotZone(zone))
                 count = count + 1;
 
         return count;
