@@ -116,7 +116,7 @@ public enum ZoneManager {
         int count = 0;
 
         for (Zone zone : ZoneManager.macroZones)
-            if (zone.hasBeenHotzone)
+            if (zone.hasBeenHotzone == false)
                 count = count + 1;
 
         return count;
