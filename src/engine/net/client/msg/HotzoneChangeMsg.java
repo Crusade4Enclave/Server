@@ -11,15 +11,13 @@ package engine.net.client.msg;
 
 
 import engine.gameManager.ConfigManager;
-import engine.math.FastMath;
+import engine.gameManager.ZoneManager;
 import engine.net.AbstractConnection;
 import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
-import engine.server.world.WorldServer;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 
 
 public class HotzoneChangeMsg extends ClientNetMsg {
@@ -38,7 +36,7 @@ public class HotzoneChangeMsg extends ClientNetMsg {
 
         int hotZoneDuration = Integer.parseInt(ConfigManager.MB_HOTZONE_DURATION.getValue());
 
-        endOfCycle = Duration.between(WorldServer.hotZoneLastUpdate, WorldServer.hotZoneLastUpdate.plusSeconds(hotZoneDuration * 3600));
+        endOfCycle = Duration.between(ZoneManager.hotZoneLastUpdate, ZoneManager.hotZoneLastUpdate.plusSeconds(hotZoneDuration * 3600));
 
     }
 

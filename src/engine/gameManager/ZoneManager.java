@@ -17,9 +17,9 @@ import engine.objects.Building;
 import engine.objects.City;
 import engine.objects.Zone;
 import engine.server.MBServerStatics;
-import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -37,6 +37,7 @@ public enum ZoneManager {
 
     ZONEMANAGER;
 
+    public static Instant hotZoneLastUpdate;
     /* Instance variables */
     private static Zone seaFloor = null;
     public static Zone hotZone = null;
@@ -155,7 +156,7 @@ public enum ZoneManager {
         ZoneManager.hotZone = zone;
         ZoneManager.hotZoneCycle = 1;  // Used with HOTZONE_DURATION from config.
         zone.hasBeenHotzone = true;
-        WorldServer.hotZoneLastUpdate = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
+        hotZoneLastUpdate = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
 
     }
 

@@ -58,9 +58,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +70,6 @@ import static java.lang.System.exit;
 public class WorldServer {
 
 	private static LocalDateTime bootTime = LocalDateTime.now();
-	public static Instant hotZoneLastUpdate;
 	public boolean isRunning = false;
 
 	// Member variable declaration
