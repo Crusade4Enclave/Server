@@ -54,8 +54,7 @@ public class HotzoneCmd extends AbstractDevCmd {
         }
 
         if (input.equalsIgnoreCase("reset"))
-            for (Zone zone: ZoneManager.getAllZones())
-                zone.hasBeenHotzone = false;
+            ZoneManager.resetHotZones();
 
         return;
     }

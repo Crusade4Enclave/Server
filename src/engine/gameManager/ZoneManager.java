@@ -44,9 +44,10 @@ public enum ZoneManager {
     private static final ConcurrentHashMap<Integer, Zone> zonesByID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
     private static final ConcurrentHashMap<Integer, Zone> zonesByUUID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
     private static final ConcurrentHashMap<String, Zone> zonesByName = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
-    private static final Set<Zone> macroZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    public static final Set<Zone> macroZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final Set<Zone> npcCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final Set<Zone> playerCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
     // Find all zones coordinates fit into, starting with Sea Floor
 
     public static ArrayList<Zone> getAllZonesIn(final Vector3fImmutable loc) {
@@ -108,6 +109,30 @@ public enum ZoneManager {
 
     }
 
+    // Returns the number of available hotZones
+    // remaining in this cycle (1am)
+    public static int availableHotZones() {
+
+        int count = 0;
+
+        for (Zone zone : ZoneManager.macroZones)
+            if (zone.hasBeenHotzone)
+                count = count + 1;
+
+        return count;
+    }
+
+    // Resets the  availability of hotZones
+    // for this cycle
+
+    public static void resetHotZones() {
+
+        for (Zone zone : ZoneManager.macroZones)
+            if (zone.hasBeenHotzone)
+                zone.hasBeenHotzone = false;
+
+    }
+
     public static Zone getZoneByUUID(final int zoneUUID) {
         return ZoneManager.zonesByUUID.get(zoneUUID);
     }
@@ -129,7 +154,6 @@ public enum ZoneManager {
         ZoneManager.hotZone = zone;
         ZoneManager.hotZoneCycle = 1;  // Used with HOTZONE_DURATION from config.
         zone.hasBeenHotzone = true;
-        zone.becameHotzone = LocalDateTime.now();
         WorldServer.hotZoneLastUpdate = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
 
     }
