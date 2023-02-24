@@ -31,10 +31,11 @@ public class HotzoneCmd extends AbstractDevCmd {
     }
 
     @Override
-    protected void _doCmd(PlayerCharacter pc, String[] words,
+    protected void _doCmd(PlayerCharacter playerCharacter, String[] words,
                           AbstractGameObject target) {
 
         StringBuilder data = new StringBuilder();
+        String outString;
 
         for (String s : words) {
             data.append(s);
@@ -44,17 +45,25 @@ public class HotzoneCmd extends AbstractDevCmd {
         String input = data.toString().trim();
 
         if (input.length() == 0) {
-            throwbackInfo(pc, "Current hotZone: " + ZoneManager.hotZone.getName());
+            outString = "Current hotZone: " + ZoneManager.hotZone.getName() + "\r\n";
+            outString += "Available hotZones: " + ZoneManager.availableHotZones();
+            throwbackInfo(playerCharacter, outString);
             return;
         }
 
         if (input.equalsIgnoreCase("random")) {
             ZoneManager.generateAndSetRandomHotzone();
-            throwbackInfo(pc, "New hotZone: " + ZoneManager.hotZone.getName());
+            outString = "New hotZone: " + ZoneManager.hotZone.getName() + "\r\n";
+            outString += "Available hotZones: " + ZoneManager.availableHotZones();
+            throwbackInfo(playerCharacter, outString);
+            return;
         }
 
-        if (input.equalsIgnoreCase("reset"))
+        if (input.equalsIgnoreCase("reset")) {
             ZoneManager.resetHotZones();
+            throwbackInfo(playerCharacter, "Available hotZones: " + ZoneManager.availableHotZones());
+            return;
+        }
 
         return;
     }
