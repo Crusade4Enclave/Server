@@ -18,6 +18,7 @@ import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 
 import java.time.Duration;
+import java.time.Instant;
 
 
 public class HotzoneChangeMsg extends ClientNetMsg {
@@ -36,7 +37,7 @@ public class HotzoneChangeMsg extends ClientNetMsg {
 
         int hotZoneDuration = Integer.parseInt(ConfigManager.MB_HOTZONE_DURATION.getValue());
 
-        endOfCycle = Duration.between(ZoneManager.hotZoneLastUpdate, ZoneManager.hotZoneLastUpdate.plusSeconds(hotZoneDuration * 3600));
+        endOfCycle = Duration.between(Instant.now(), ZoneManager.hotZoneLastUpdate.plusSeconds(hotZoneDuration * 3600));
 
     }
 
