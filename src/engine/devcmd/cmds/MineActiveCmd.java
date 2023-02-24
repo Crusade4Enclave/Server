@@ -23,46 +23,44 @@ import engine.workthreads.HourlyJobThread;
  */
 public class MineActiveCmd extends AbstractDevCmd {
 
-	public MineActiveCmd() {
+    public MineActiveCmd() {
         super("mineactive");
     }
 
-	@Override
-	protected void _doCmd(PlayerCharacter pcSender, String[] args,
-			AbstractGameObject target) {
-		Building mineBuilding = BuildingManager.getBuilding(target.getObjectUUID());
-		if (mineBuilding == null)
-			return;
+    @Override
+    protected void _doCmd(PlayerCharacter pcSender, String[] args,
+                          AbstractGameObject target) {
+        Building mineBuilding = BuildingManager.getBuilding(target.getObjectUUID());
+        if (mineBuilding == null)
+            return;
 
-		Mine mine = Mine.getMineFromTower(mineBuilding.getObjectUUID());
-		if (mine == null)
-			return;
+        Mine mine = Mine.getMineFromTower(mineBuilding.getObjectUUID());
+        if (mine == null)
+            return;
 
-		String trigger = args[0];
-		switch (trigger){
-		case "true":
-			HourlyJobThread.mineWindowOpen(mine);
-			Mine.setLastChange(System.currentTimeMillis());
-			break;
-		case "false":
-			HourlyJobThread.mineWindowClose(mine);
-			Mine.setLastChange(System.currentTimeMillis());
-			break;
-		default:
-			this.sendUsage(pcSender);
-			break;
+        String trigger = args[0];
+        switch (trigger) {
+            case "true":
+                HourlyJobThread.mineWindowOpen(mine);
+                break;
+            case "false":
+                HourlyJobThread.mineWindowClose(mine);
+                break;
+            default:
+                this.sendUsage(pcSender);
+                break;
 
-		}
-	}
+        }
+    }
 
-	@Override
-	protected String _getUsageString() {
+    @Override
+    protected String _getUsageString() {
         return "' /mineactive true|false";
-	}
+    }
 
-	@Override
-	protected String _getHelpString() {
+    @Override
+    protected String _getHelpString() {
         return "Temporarily add visual effects to Character";
-	}
+    }
 
 }

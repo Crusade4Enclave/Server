@@ -7,7 +7,6 @@ import engine.net.DispatchMessage;
 import engine.net.client.ClientConnection;
 import engine.net.client.msg.ArcMineChangeProductionMsg;
 import engine.net.client.msg.ClientNetMsg;
-import engine.net.client.msg.KeepAliveServerClientMsg;
 import engine.objects.GuildStatusController;
 import engine.objects.Mine;
 import engine.objects.PlayerCharacter;
@@ -21,49 +20,48 @@ import engine.objects.Resource;
 
 public class ArcMineChangeProductionMsgHandler extends AbstractClientMsgHandler {
 
-	public ArcMineChangeProductionMsgHandler() {
-		super(ArcMineChangeProductionMsg.class);
-	}
+    public ArcMineChangeProductionMsgHandler() {
+        super(ArcMineChangeProductionMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-		
-		PlayerCharacter playerCharacter = origin.getPlayerCharacter();
-		ArcMineChangeProductionMsg changeProductionMsg = (ArcMineChangeProductionMsg) baseMsg;
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		if (playerCharacter == null)
-			return true;
+        PlayerCharacter playerCharacter = origin.getPlayerCharacter();
+        ArcMineChangeProductionMsg changeProductionMsg = (ArcMineChangeProductionMsg) baseMsg;
 
-		//TODO verify this against the warehouse?
+        if (playerCharacter == null)
+            return true;
 
-		if (GuildStatusController.isInnerCouncil(playerCharacter.getGuildStatus()) == false) // is this only GL?
-			return true;
+        //TODO verify this against the warehouse?
 
-		Mine mine = Mine.getMine(changeProductionMsg.getMineID());
+        if (GuildStatusController.isInnerCouncil(playerCharacter.getGuildStatus()) == false) // is this only GL?
+            return true;
 
-		if (mine == null)
-			return true;
+        Mine mine = Mine.getMine(changeProductionMsg.getMineID());
 
-		//make sure mine belongs to guild
+        if (mine == null)
+            return true;
 
-		if (mine.getOwningGuild().isEmptyGuild() ||
-			mine.getOwningGuild().getObjectUUID() != playerCharacter.getGuild().getObjectUUID())
-			return true;
+        //make sure mine belongs to guild
 
-		//make sure valid resource
+        if (mine.getOwningGuild().isEmptyGuild() ||
+                mine.getOwningGuild().getObjectUUID() != playerCharacter.getGuild().getObjectUUID())
+            return true;
 
-		Resource resource = Resource.resourceByHash.get(changeProductionMsg.getResourceHash());
+        //make sure valid resource
 
-		if (resource == null)
-			return true;
+        Resource resource = Resource.resourceByHash.get(changeProductionMsg.getResourceHash());
 
-		//update resource
+        if (resource == null)
+            return true;
 
-		mine.changeProductionType(resource);
-		Mine.setLastChange(System.currentTimeMillis());
-		Dispatch dispatch = Dispatch.borrow(playerCharacter, changeProductionMsg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-		return true;
-	}
+        //update resource
+
+        mine.changeProductionType(resource);
+        Dispatch dispatch = Dispatch.borrow(playerCharacter, changeProductionMsg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+        return true;
+    }
 
 }
