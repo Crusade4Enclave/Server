@@ -683,7 +683,6 @@ public class MBServerStatics {
 	public static final int DESPAWN_TIMER_ONCE_LOOTED = 5 * 1000;
 	public static final int MAX_COMBAT_HITBOX_RADIUS = 80;
 	public static final int PROC_CHANCE = 5; // %chance to proc
-	public static float PRODUCTION_TIME_MULTIPLIER = .5f;
 
 	/*
 	 * Mob loot -- gold calculations
