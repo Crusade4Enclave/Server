@@ -222,12 +222,14 @@ public enum ZoneManager {
         if (ZoneManager.macroZones.isEmpty())
             return;
 
-        for (Zone zone : ZoneManager.macroZones) {
+        // Reset hotZone availability if none are left.
 
+        if (ZoneManager.availableHotZones() == 0)
+            ZoneManager.resetHotZones();
+
+        for (Zone zone : ZoneManager.macroZones)
             if (validHotZone(zone))
                 zoneArray.add(zone.getObjectUUID());
-
-        }
 
         int entryIndex = ThreadLocalRandom.current().nextInt(zoneArray.size());
 
