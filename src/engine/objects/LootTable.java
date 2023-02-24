@@ -13,6 +13,7 @@ import engine.Enum;
 import engine.Enum.ItemContainerType;
 import engine.Enum.ItemType;
 import engine.Enum.OwnerType;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
 import engine.gameManager.ZoneManager;
 import engine.server.MBServerStatics;
@@ -210,7 +211,7 @@ public class LootTable {
 
 				float chance = mlb.getChance() *.01f;
 
-				chance *= Enum.DropRateType.DROP_RATE_MOD.rate;
+				chance *= Float.parseFloat(ConfigManager.MB_NORMAL_DROP_RATE.getValue());
 
 				calculatedLootTable = mlb.getLootTableID();
 

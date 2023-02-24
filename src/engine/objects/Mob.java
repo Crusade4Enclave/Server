@@ -1506,17 +1506,14 @@ public class Mob extends AbstractIntelligenceAgent {
 
 		double gold = (ThreadLocalRandom.current().nextDouble() * (maxGold - minGold) + minGold);
 
-
 		//server specific gold multiplier
-		double goldMod = DropRateType.GOLD_RATE_MOD.rate;
-		gold *= goldMod;
+
+		gold *= Float.parseFloat(ConfigManager.MB_NORMAL_DROP_RATE.getValue());
 
 		//modify for hotzone
 
 		if (ZoneManager.inHotZone(mob.getLoc()))
-			gold *= DropRateType.HOT_GOLD_RATE_MOD.rate;
-
-		gold *= DropRateType.GOLD_RATE_MOD.rate;
+			gold *= Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
 
 		return (int) gold;
 	}

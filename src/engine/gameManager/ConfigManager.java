@@ -14,7 +14,6 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.net.NetMsgHandler;
-import engine.server.MBServerStatics;
 import engine.server.login.LoginServer;
 import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
@@ -67,8 +66,10 @@ public enum ConfigManager {
     MB_WORLD_KEYCLONE_MAX,
 
     //drop rates
-    MB_NORMAL_RATE,
-    MB_HOTZONE_RATE,
+    MB_NORMAL_EXP_RATE,
+    MB_NORMAL_DROP_RATE,
+    MB_HOTZONE_EXP_RATE,
+    MB_HOTZONE_DROP_RATE,
     MB_HOTZONE_DURATION,
 
     MB_HOTZONE_MIN_LEVEL,
@@ -116,11 +117,6 @@ public enum ConfigManager {
                 Logger.error("docker pull magicbane/magicbox:latest");
                 return false;
             }
-
-        // Setting drop rates
-
-        Logger.info("Setting drop rates...");
-        Enum.DropRateType.init();
 
         // compile regex here
 
