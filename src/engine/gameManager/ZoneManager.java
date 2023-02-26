@@ -216,7 +216,7 @@ public enum ZoneManager {
 
     public static final void generateAndSetRandomHotzone() {
 
-        Zone hotzone;
+        Zone hotZone;
         ArrayList<Integer> zoneArray = new ArrayList<>();
 
         if (ZoneManager.macroZones.isEmpty())
@@ -233,14 +233,14 @@ public enum ZoneManager {
 
         int entryIndex = ThreadLocalRandom.current().nextInt(zoneArray.size());
 
-        hotzone = ZoneManager.getZoneByUUID(zoneArray.get(entryIndex));
+        hotZone = ZoneManager.getZoneByUUID(zoneArray.get(entryIndex));
 
-        if (hotzone == null) {
+        if (hotZone == null) {
             Logger.error("Hotzone is null");
             return;
         }
 
-        ZoneManager.setHotZone(hotzone);
+        ZoneManager.setHotZone(hotZone);
 
     }
 

@@ -191,11 +191,6 @@ public class HourlyJobThread implements Runnable {
 
         try {
 
-            // Reset zone availability at 1am
-
-            if (LocalDateTime.now().getHour() == 01)
-                ZoneManager.resetHotZones();
-
             // Use the same hotZone this hour up and until
             // the HotZone_Duration from the ConfigManager
 
