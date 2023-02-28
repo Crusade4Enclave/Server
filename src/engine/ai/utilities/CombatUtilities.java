@@ -398,6 +398,10 @@ public class CombatUtilities {
 				min = agent.getEquip().get(1).getItemBase().getMinDamage() + agent.getEquip().get(2).getItemBase().getMinDamage();
 				max = agent.getEquip().get(1).getItemBase().getMaxDamage() + agent.getEquip().get(2).getItemBase().getMaxDamage();
 			}
+			if(agent.getLevel() > 80){
+				min = agent.getMobBase().getMinDmg();
+				max = agent.getMobBase().getDamageMax();
+			}
 			range = max - min;
 			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
 			if (AbstractWorldObject.IsAbstractCharacter(target))

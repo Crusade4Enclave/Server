@@ -23,6 +23,9 @@ import engine.net.client.msg.PerformActionMsg;
 import engine.net.client.msg.PowerProjectileMsg;
 import engine.net.client.msg.UpdateStateMsg;
 import engine.objects.*;
+import engine.powers.ActionsBase;
+import engine.powers.EffectsBase;
+import engine.powers.PowerPrereq;
 import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
@@ -1647,10 +1650,22 @@ public class MobileFSM {
             MobCallForHelp(mob);
         }
         PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
-        int random = ThreadLocalRandom.current().nextInt(mob.mobPowers.size() * 2);
+        HashMap<Integer,Integer> eligiblePowers = mob.mobPowers;
+        for(Map.Entry<Integer,Integer> power : mob.mobPowers.entrySet()) {
+            ConcurrentHashMap<String, Effect> effects = target.getEffects();
+            PowersBase pwr= PowersManager.getPowerByToken(power.getKey());
+            for(ActionsBase act : pwr.getActions()){
+                String des = act.stackType;
+                if(target.getEffects().containsKey(des)){
+                    eligiblePowers.remove(power.getKey());
+                }
+            }
+
+        }
+        int random = ThreadLocalRandom.current().nextInt(eligiblePowers.size() + 1);
         int powerToken = 0;
         int powerRank = 0;
-        Map<Integer, Integer> entries = mob.mobPowers;
+        Map<Integer, Integer> entries = eligiblePowers;
         int count = -1;
         for (Map.Entry<Integer, Integer> entry : entries.entrySet()) {
             count += 1;
@@ -1669,10 +1684,11 @@ public class MobileFSM {
                     msg.setUnknown04(2);
                     PowersManager.finishUseMobPower(msg, mob, 0, 0);
                     //default minimum seconds between cast = 10
-                    if(mobPower.getCooldown() < 10000){
-                        mob.nextCastTime = System.currentTimeMillis() + 10000;
+                    long cooldown = mobPower.getCooldown();
+                    if(cooldown < 10000){
+                        mob.nextCastTime = System.currentTimeMillis() + 10000 + cooldown;
                     } else {
-                        mob.nextCastTime = System.currentTimeMillis() + (mobPower.getCooldown());
+                        mob.nextCastTime = System.currentTimeMillis() + cooldown;
                     }
                     return true;
                 }
