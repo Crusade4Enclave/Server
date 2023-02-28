@@ -1662,7 +1662,7 @@ public class MobileFSM {
             }
 
         }
-        int random = ThreadLocalRandom.current().nextInt(eligiblePowers.size() + 1);
+        int random = ThreadLocalRandom.current().nextInt(eligiblePowers.size() *2);
         int powerToken = 0;
         int powerRank = 0;
         Map<Integer, Integer> entries = eligiblePowers;
@@ -1676,7 +1676,7 @@ public class MobileFSM {
                 if (CombatUtilities.inRangeToCast2D(mob, mob.getCombatTarget(), mobPower)) {
                     //PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
                     PerformActionMsg msg = new PerformActionMsg();
-                    if(mobPower.isHarmful() == false){
+                    if(mobPower.isHarmful() == false || mobPower.targetSelf == true){
                         msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
                     } else {
                         msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
