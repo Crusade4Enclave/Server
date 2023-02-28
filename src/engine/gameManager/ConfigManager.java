@@ -62,9 +62,19 @@ public enum ConfigManager {
     MB_WORLD_UUID,
     MB_WORLD_WAREHOUSE_PUSH,
     MB_WORLD_MAINTENANCE,
-    MB_WORLD_MAINTENANCE_HOUR,
     MB_WORLD_GREETING,
     MB_WORLD_KEYCLONE_MAX,
+
+    //drop rates
+    MB_NORMAL_EXP_RATE,
+    MB_NORMAL_DROP_RATE,
+    MB_HOTZONE_EXP_RATE,
+    MB_HOTZONE_DROP_RATE,
+    MB_HOTZONE_DURATION,
+
+    MB_HOTZONE_MIN_LEVEL,
+
+    MB_PRODUCTION_RATE,
 
     // MagicBot configuration.
 
@@ -78,10 +88,8 @@ public enum ConfigManager {
     MB_MAGICBOT_GENERAL,
     MB_MAGICBOT_FORTOFIX,
     MB_MAGICBOT_RECRUIT,
-    MB_MAGICBOT_ADMINLOG,
-    MB_MAGICBOT_BOTVERSION,
-    MB_MAGICBOT_GAMEVERSION;
-    
+    MB_MAGICBOT_ADMINLOG;
+
     // Map to hold our config pulled in from the environment
     // We also use the config to point to the current message pump
     // and determine the server type at runtime.
@@ -95,9 +103,10 @@ public enum ConfigManager {
 
     // Called at bootstrap: ensures that all config values are loaded.
 
+
     public static boolean init() {
 
-        Logger.info("ConfigManager: init()");
+        Logger.info("Loading config from environment...");
 
         for (ConfigManager configSetting : ConfigManager.values())
             if (configMap.containsKey(configSetting.name()))
@@ -109,11 +118,12 @@ public enum ConfigManager {
                 return false;
             }
 
-            // compile regex here
+        // compile regex here
 
-            regex.put(MB_LOGIN_FNAME_REGEX, Pattern.compile(MB_LOGIN_FNAME_REGEX.getValue()));
+        Logger.info("Compiling regex");
 
-      return true;
+        regex.put(MB_LOGIN_FNAME_REGEX, Pattern.compile(MB_LOGIN_FNAME_REGEX.getValue()));
+        return true;
     }
 
     // Get the value associated with this enumeration

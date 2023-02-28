@@ -99,7 +99,7 @@ public class RequestEnterWorldHandler extends AbstractClientMsgHandler {
 		}
 
 		// Object Data
-		WorldObjectMsg wom = new WorldObjectMsg(session, true);
+		CityDataMsg wom = new CityDataMsg(session, true);
 		dispatch = Dispatch.borrow(player, wom);
 		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
 

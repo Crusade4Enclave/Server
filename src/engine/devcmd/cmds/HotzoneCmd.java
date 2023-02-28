@@ -22,9 +22,8 @@ import engine.server.world.WorldServer;
 /**
  * ./hotzone                      <- display the current hotzone & time remaining
  * ./hotzone random               <- change hotzone to random new zone
- * ./hotzone name of a macrozone  <- change hotzone to the zone name provided
- *
  */
+
 public class HotzoneCmd extends AbstractDevCmd {
 
     public HotzoneCmd() {
@@ -32,83 +31,51 @@ public class HotzoneCmd extends AbstractDevCmd {
     }
 
     @Override
-    protected void _doCmd(PlayerCharacter pc, String[] words,
+    protected void _doCmd(PlayerCharacter playerCharacter, String[] words,
                           AbstractGameObject target) {
 
         StringBuilder data = new StringBuilder();
+        String outString;
+
         for (String s : words) {
             data.append(s);
             data.append(' ');
         }
+
         String input = data.toString().trim();
 
         if (input.length() == 0) {
-            throwbackInfo(pc, "Current hotzone: " + hotzoneInfo());
+            outString = "Current hotZone: " + ZoneManager.hotZone.getName() + "\r\n";
+            outString += "Available hotZones: " + ZoneManager.availableHotZones();
+            throwbackInfo(playerCharacter, outString);
             return;
         }
 
-        Zone zone;
-
         if (input.equalsIgnoreCase("random")) {
-            throwbackInfo(pc, "Previous hotzone: " + hotzoneInfo());
             ZoneManager.generateAndSetRandomHotzone();
-            zone = ZoneManager.getHotZone();
-        } else {
-            zone = ZoneManager.findMacroZoneByName(input);
-
-            if (zone == null) {
-                throwbackError(pc, "Cannot find a macrozone with that name.");
-                return;
-            }
-
-            if (zone == ZoneManager.getHotZone()) {
-                throwbackInfo(pc, "That macrozone is already the Hotzone.");
-                return;
-            }
-
-            if (ZoneManager.validHotZone(zone) == false) {
-                throwbackError(pc, "That macrozone cannot be set as the Hotzone.");
-                return;
-            }
-
-            throwbackInfo(pc, "Previous hotzone: " + hotzoneInfo());
-            ZoneManager.setHotZone(zone);
+            outString = "New hotZone: " + ZoneManager.hotZone.getName() + "\r\n";
+            outString += "Available hotZones: " + ZoneManager.availableHotZones();
+            throwbackInfo(playerCharacter, outString);
+            return;
         }
 
-        throwbackInfo(pc, "New hotzone: " + hotzoneInfo());
-        HotzoneChangeMsg hcm = new HotzoneChangeMsg(zone.getObjectType().ordinal(), zone.getObjectUUID());
-        WorldServer.setLastHZChange(System.currentTimeMillis());
-    }
+        if (input.equalsIgnoreCase("reset")) {
+            ZoneManager.resetHotZones();
+            throwbackInfo(playerCharacter, "Available hotZones: " + ZoneManager.availableHotZones());
+            return;
+        }
 
+        return;
+    }
     @Override
     protected String _getHelpString() {
-        return "Use no arguments to see the current hotzone.  Specify a macrozone name to change the hotzone, or \"random\" to change it randomly.";
+        return "Use no arguments to see the current hotzone or \"random\" to change it randomly.";
     }
 
     @Override
     protected String _getUsageString() {
-        return "'./hotzone [random | <macroZoneName>]";
+        return "'./hotzone [random]";
     }
 
-    private static String hotzoneInfo() {
-        final int hotzoneTimeLeft = FastMath.secondsUntilNextHour();
-        final Zone hotzone = ZoneManager.getHotZone();
-        String hotzoneInfo;
-
-        if (hotzone == null) {
-            hotzoneInfo = "none";
-        } else {
-            int hr = hotzoneTimeLeft/3600;
-            int rem = hotzoneTimeLeft%3600;
-            int mn = rem/60;
-            int sec = rem%60;
-            hotzoneInfo = hotzone.getName() +
-                    " (" + (hr<10 ? "0" : "") + hr + ':' +
-                    (mn<10 ? "0" : "") + mn + ':' +
-                    (sec<10 ? "0" : "") + sec +
-                    " remaining)";
-        }
-        return hotzoneInfo;
-    }
 
 }

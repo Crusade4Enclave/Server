@@ -436,7 +436,9 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
 			if (!building.getGuild().equals(serverCity.getGuild()) && !building.getGuild().equals(serverCity.getBane().getOwner().getGuild()))
 				continue;
-
+			if (building.getRank() < 0) {
+				continue;
+			}
 			if (building.getGuild().equals(serverCity.getGuild()))
 				defenderBuildings.add(building);
 
@@ -982,11 +984,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 			return false;
 		}
 
-		RealmType realmType = RealmType.getRealmTypeByUUID(serverRealm.getRealmID());
-
-		if (
-				(realmType.equals(RealmType.MAELSTROM)) ||
-						(realmType.equals(RealmType.OBLIVION))) {
+		if (serverRealm == null || serverRealm.getCanPlaceCities() == false) {
 			PlaceAssetMsg.sendPlaceAssetError(origin, 57, playerCharacter.getName()); // No building may be placed within this territory
 			return false;
 		}
@@ -1238,8 +1236,6 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
 	private static boolean validateBuildingPlacement(Zone serverZone, PlaceAssetMsg msg, ClientConnection origin, PlayerCharacter player, PlacementInfo placementInfo) {
 
-		RealmType currentRealm;
-
 			if (serverZone.isPlayerCity() == false) {
 				PlaceAssetMsg.sendPlaceAssetError(origin, 52, player.getName());
 				return false;
@@ -1293,11 +1289,11 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 			return false;
 		}
 
-		currentRealm = RealmType.getRealmTypeByUUID(RealmMap.getRealmIDAtLocation(player.getLoc()));
+		Realm serverRealm = RealmMap.getRealmAtLocation(player.getLoc());
 
-		if (
-				(currentRealm.equals(RealmType.MAELSTROM)) ||
-						(currentRealm.equals(RealmType.OBLIVION))) {
+		// Cannot place buildings on seafloor or other restricted realms
+
+		if (serverRealm == null || serverRealm.getCanPlaceCities() == false) {
 			PlaceAssetMsg.sendPlaceAssetError(origin, 57, player.getName()); // No building may be placed within this territory
 			return false;
 		}

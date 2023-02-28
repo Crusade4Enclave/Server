@@ -13,10 +13,7 @@ import engine.Enum;
 import engine.Enum.ItemContainerType;
 import engine.Enum.ItemType;
 import engine.Enum.OwnerType;
-import engine.gameManager.BuildingManager;
-import engine.gameManager.ChatManager;
-import engine.gameManager.DbManager;
-import engine.gameManager.PowersManager;
+import engine.gameManager.*;
 import engine.net.ItemProductionManager;
 import engine.net.ItemQueue;
 import engine.net.client.ClientConnection;
@@ -202,7 +199,7 @@ public class ItemFactory {
 			// is used to determin whether or not an object has
 			// compelted rolling.  The game object exists previously
 			// to this, not when 'compelte' is pressed.
-			long upgradeTime =   System.currentTimeMillis() + (long)(time * MBServerStatics.PRODUCTION_TIME_MULTIPLIER) ;
+			long upgradeTime =   System.currentTimeMillis() + (long)(time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue()));
 
 			DateTime dateTime = new DateTime();
 			dateTime = dateTime.withMillis(upgradeTime);
@@ -220,7 +217,7 @@ public class ItemFactory {
 			pi.setAmount(itemsToRoll);
 			pi.setRandom(false);
 
-				ItemQueue produced = ItemQueue.borrow(pi, (long) (time * MBServerStatics.PRODUCTION_TIME_MULTIPLIER));
+				ItemQueue produced = ItemQueue.borrow(pi, (long) (time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue())));
 				ItemProductionManager.send(produced);
 
 			return ml;
@@ -620,7 +617,7 @@ public class ItemFactory {
 		// is used to determin whether or not an object has
 		// compelted rolling.  The game object exists previously
 		// to this, not when 'compelte' is pressed.
-		long upgradeTime =  System.currentTimeMillis() + (long)(time * MBServerStatics.PRODUCTION_TIME_MULTIPLIER) ;
+		long upgradeTime =  System.currentTimeMillis() + (long)(time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue())) ;
 
 		DateTime dateTime = new DateTime();
 		dateTime = dateTime.withMillis(upgradeTime);
@@ -637,7 +634,7 @@ public class ItemFactory {
 		pi.setProducedItemID(ml.getObjectUUID());
 		pi.setAmount(itemsToRoll);
 	
-			ItemQueue produced = ItemQueue.borrow(pi, (long) (time * MBServerStatics.PRODUCTION_TIME_MULTIPLIER));
+			ItemQueue produced = ItemQueue.borrow(pi, (long) (time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue())));
 			ItemProductionManager.send(produced);
 		}catch(Exception e){
 			Logger.error(e);
@@ -906,7 +903,7 @@ public class ItemFactory {
 		// is used to determin whether or not an object has
 		// compelted rolling.  The game object exists previously
 		// to this, not when 'compelte' is pressed.
-		long upgradeTime =   System.currentTimeMillis() + (long)(time * MBServerStatics.PRODUCTION_TIME_MULTIPLIER) ;
+		long upgradeTime =   System.currentTimeMillis() + (long)(time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue())) ;
 
 		DateTime dateTime = new DateTime();
 		dateTime = dateTime.withMillis(upgradeTime);
@@ -920,7 +917,7 @@ public class ItemFactory {
 		ProducedItem pi = new ProducedItem(toRoll.getObjectUUID(),vendor.getObjectUUID(),toRoll.getItemBaseID(),dateTime,true,prefix, suffix, toRoll.getCustomName(),playerID);
 		pi.setProducedItemID(toRoll.getObjectUUID());
 		pi.setAmount(itemsToRoll);
-		ItemQueue produced = ItemQueue.borrow(pi, (long) (time * MBServerStatics.PRODUCTION_TIME_MULTIPLIER));
+		ItemQueue produced = ItemQueue.borrow(pi, (long) (time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue())));
 		ItemProductionManager.send(produced);
 		return toRoll;
 	}

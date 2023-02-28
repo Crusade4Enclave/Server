@@ -20,7 +20,10 @@ package engine.objects;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
-import engine.gameManager.*;
+import engine.gameManager.BuildingManager;
+import engine.gameManager.ChatManager;
+import engine.gameManager.DbManager;
+import engine.gameManager.ZoneManager;
 import engine.net.ByteBufferWriter;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.server.MBServerStatics;
@@ -33,38 +36,34 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static engine.gameManager.DbManager.*;
+import static engine.gameManager.DbManager.MineQueries;
+import static engine.gameManager.DbManager.getObject;
 import static engine.math.FastMath.sqr;
 
 public class Mine extends AbstractGameObject {
 
-    private String zoneName;
-    private Resource production;
+    public static ConcurrentHashMap<Mine, Integer> mineMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    public static ConcurrentHashMap<Integer, Mine> towerMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     public boolean isActive = false;
-
-    private float latitude;
-    private float longitude;
-    private float altitude;
-    private Guild owningGuild;
     public PlayerCharacter lastClaimer;
     public boolean wasClaimed = false;
-    private int flags;
-    private int buildingID;
-    private Zone parentZone;
-    private MineProduction mineType;
-
-    //flags 1: never been claimed (make active).
-
-
     // Not persisted to DB
     public String guildName;
     public GuildTag guildTag;
     public String nationName;
     public GuildTag nationTag;
-    public static ConcurrentHashMap<Mine, Integer> mineMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-    public static ConcurrentHashMap<Integer, Mine> towerMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private final String zoneName;
+    private Resource production;
+    private final float latitude;
+    private final float longitude;
 
-    private static long lastChange = System.currentTimeMillis();
+    //flags 1: never been claimed (make active).
+    private final float altitude;
+    private Guild owningGuild;
+    private int flags;
+    private int buildingID;
+    private final Zone parentZone;
+    private MineProduction mineType;
 
     /**
      * ResultSet Constructor
@@ -139,6 +138,7 @@ public class Mine extends AbstractGameObject {
 
         }
     }
+
     public static void SendMineAttackMessage(Building mine) {
 
         if (mine.getBlueprint() == null)
@@ -186,89 +186,9 @@ public class Mine extends AbstractGameObject {
      * Getters
      */
 
-    public boolean changeProductionType(Resource resource) {
-        if (!this.validForMine(resource))
-            return false;
-        //update resource in database;
-        if (!MineQueries.CHANGE_RESOURCE(this, resource))
-            return false;
-
-        this.production = resource;
-        return true;
-    }
-
-    public MineProduction getMineType() {
-        return this.mineType;
-    }
-
-    public String getZoneName() {
-        return this.zoneName;
-    }
-
-    public Resource getProduction() {
-        return this.production;
-    }
-
-    public boolean getIsActive() {
-        return this.isActive;
-    }
-
-    public float getAltitude() {
-        return this.altitude;
-    }
-
-    public Guild getOwningGuild() {
-        if (this.owningGuild == null)
-            return Guild.getErrantGuild();
-        else
-            return this.owningGuild;
-    }
-
-    public int getFlags() {
-        return flags;
-    }
-
-    public void setFlags(int flags) {
-        this.flags = flags;
-    }
-
-    public Zone getParentZone() {
-        return parentZone;
-    }
-
-    public GuildTag getGuildTag() {
-        return guildTag;
-    }
-
-    public void setMineType(String type) {
-        this.mineType = MineProduction.getByName(type);
-    }
-
-    public void setActive(boolean isAc) {
-
-        this.isActive = isAc;
-        Building building = BuildingManager.getBuildingFromCache(this.buildingID);
-        if (building != null && !this.isActive)
-            building.isDeranking.compareAndSet(true, false);
-    }
-
-    public void setOwningGuild(Guild owningGuild) {
-        this.owningGuild = owningGuild;
-    }
-
     public static Mine getMineFromTower(int towerID) {
         return Mine.towerMap.get(towerID);
     }
-
-    public boolean validForMine(Resource r) {
-        if (this.mineType == null)
-            return false;
-        return this.mineType.validForMine(r, this.isExpansion());
-    }
-
-    /*
-     * Serialization
-     */
 
     public static void serializeForClientMsg(Mine mine, ByteBufferWriter writer) {
         writer.putInt(mine.getObjectType().ordinal());
@@ -284,15 +204,15 @@ public class Mine extends AbstractGameObject {
         // Errant mines are currently open.  Set time to now.
 
         LocalDateTime mineOpenTime = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
-        
+
         // Mine times are those of the nation not individual guild.
-        
+
         Guild mineNatonGuild = mine.getOwningGuild().getNation();
 
         // Adjust the serialized mine time based upon whether
         // the Guild's mine window has passed or not and if it was claimed.
-		// If a mine is active serialize current datetime irrespective
-		// of any claim.
+        // If a mine is active serialize current datetime irrespective
+        // of any claim.
 
         if (mineNatonGuild.isEmptyGuild() == false && mine.isActive == false) {
 
@@ -321,20 +241,6 @@ public class Mine extends AbstractGameObject {
         GuildTag._serializeForDisplay(mine.nationTag, writer);
     }
 
-    public void serializeForMineProduction(ByteBufferWriter writer) {
-        writer.putInt(this.getObjectType().ordinal());
-        writer.putInt(this.getObjectUUID());
-        writer.putInt(this.getObjectUUID()); //actually a hash of mine
-        //		writer.putInt(0x215C92BB); //this.unknown1);
-        writer.putString(this.mineType.name);
-        writer.putString(this.zoneName);
-        writer.putInt(this.production.hash);
-        writer.putInt(this.production.baseProduction);
-        writer.putInt(this.getModifiedProductionAmount()); //TODO calculate range penalty here
-        writer.putInt(3600); //window in seconds
-        writer.putInt(this.isExpansion() ? this.mineType.xpacHash : this.mineType.hash);
-    }
-
     public static ArrayList<Mine> getMinesForGuild(int guildID) {
 
         ArrayList<Mine> mineList = new ArrayList<>();
@@ -343,18 +249,10 @@ public class Mine extends AbstractGameObject {
 
         for (Mine mine : Mine.mineMap.keySet()) {
             if (mine.owningGuild.getObjectUUID() == guildID &&
-                mine.isActive == false)
+                    mine.isActive == false)
                 mineList.add(mine);
         }
         return mineList;
-    }
-
-    public static long getLastChange() {
-        return lastChange;
-    }
-
-    public static void setLastChange(long lastChange) {
-        Mine.lastChange = lastChange;
     }
 
     /*
@@ -367,19 +265,6 @@ public class Mine extends AbstractGameObject {
 
     public static ArrayList<Mine> getMines() {
         return new ArrayList<>(mineMap.keySet());
-    }
-
-    @Override
-    public void updateDatabase() {
-        // TODO Create update logic.
-    }
-
-    public int getBuildingID() {
-        return buildingID;
-    }
-
-    public void setBuildingID(int buildingID) {
-        this.buildingID = buildingID;
     }
 
     public static boolean validateClaimer(PlayerCharacter playerCharacter) {
@@ -407,7 +292,7 @@ public class Mine extends AbstractGameObject {
         if (playerGuild.getNation().isEmptyGuild())
             return false;
 
-       // Guild must own a city to hold a mine.
+        // Guild must own a city to hold a mine.
 
         City guildCity = playerGuild.getOwnedCity();
 
@@ -433,7 +318,7 @@ public class Mine extends AbstractGameObject {
         if (treeRank < 1)
             return false;
 
-        if (guildUnderMineLimit(playerGuild.getNation(), treeRank) == false){
+        if (guildUnderMineLimit(playerGuild.getNation(), treeRank) == false) {
             ErrorPopupMsg.sendErrorMsg(playerCharacter, "Your nation cannot support another mine.");
             return false;
         }
@@ -450,11 +335,116 @@ public class Mine extends AbstractGameObject {
         for (Guild guild : playerGuild.getSubGuildList())
             mineCnt += Mine.getMinesForGuild(guild.getObjectUUID()).size();
 
-        if (mineCnt > tolRank)
+        return mineCnt <= tolRank;
+    }
+
+    public boolean changeProductionType(Resource resource) {
+        if (!this.validForMine(resource))
+            return false;
+        //update resource in database;
+        if (!MineQueries.CHANGE_RESOURCE(this, resource))
             return false;
 
+        this.production = resource;
         return true;
     }
+
+    public MineProduction getMineType() {
+        return this.mineType;
+    }
+
+    public void setMineType(String type) {
+        this.mineType = MineProduction.getByName(type);
+    }
+
+    public String getZoneName() {
+        return this.zoneName;
+    }
+
+    public Resource getProduction() {
+        return this.production;
+    }
+
+    public boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public float getAltitude() {
+        return this.altitude;
+    }
+
+    public Guild getOwningGuild() {
+        if (this.owningGuild == null)
+            return Guild.getErrantGuild();
+        else
+            return this.owningGuild;
+    }
+
+    public void setOwningGuild(Guild owningGuild) {
+        this.owningGuild = owningGuild;
+    }
+
+    /*
+     * Serialization
+     */
+
+    public int getFlags() {
+        return flags;
+    }
+
+    public void setFlags(int flags) {
+        this.flags = flags;
+    }
+
+    public Zone getParentZone() {
+        return parentZone;
+    }
+
+    public GuildTag getGuildTag() {
+        return guildTag;
+    }
+
+    public void setActive(boolean isAc) {
+
+        this.isActive = isAc;
+        Building building = BuildingManager.getBuildingFromCache(this.buildingID);
+        if (building != null && !this.isActive)
+            building.isDeranking.compareAndSet(true, false);
+    }
+
+    public boolean validForMine(Resource r) {
+        if (this.mineType == null)
+            return false;
+        return this.mineType.validForMine(r, this.isExpansion());
+    }
+
+    public void serializeForMineProduction(ByteBufferWriter writer) {
+        writer.putInt(this.getObjectType().ordinal());
+        writer.putInt(this.getObjectUUID());
+        writer.putInt(this.getObjectUUID()); //actually a hash of mine
+        //		writer.putInt(0x215C92BB); //this.unknown1);
+        writer.putString(this.mineType.name);
+        writer.putString(this.zoneName);
+        writer.putInt(this.production.hash);
+        writer.putInt(this.production.baseProduction);
+        writer.putInt(this.getModifiedProductionAmount()); //TODO calculate range penalty here
+        writer.putInt(3600); //window in seconds
+        writer.putInt(this.isExpansion() ? this.mineType.xpacHash : this.mineType.hash);
+    }
+
+    @Override
+    public void updateDatabase() {
+        // TODO Create update logic.
+    }
+
+    public int getBuildingID() {
+        return buildingID;
+    }
+
+    public void setBuildingID(int buildingID) {
+        this.buildingID = buildingID;
+    }
+
     public void handleDestroyMine() {
 
         if (!this.isActive)
@@ -465,7 +455,6 @@ public class Mine extends AbstractGameObject {
         this.guildName = "";
         this.nationName = "";
         this.owningGuild = Guild.getErrantGuild();
-        Mine.setLastChange(System.currentTimeMillis());
         this.lastClaimer = null;
         this.wasClaimed = false;
 
@@ -513,6 +502,7 @@ public class Mine extends AbstractGameObject {
 
         return true;
     }
+
     public boolean depositMineResources() {
 
         if (this.owningGuild.isEmptyGuild())

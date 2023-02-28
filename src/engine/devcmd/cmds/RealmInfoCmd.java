@@ -26,43 +26,39 @@ public class RealmInfoCmd extends AbstractDevCmd {
     }
 
 	@Override
-	protected void _doCmd(PlayerCharacter pc, String[] words,
+	protected void _doCmd(PlayerCharacter playerCharacter, String[] words,
 			AbstractGameObject target) {
 
 		Zone serverZone;
-		Zone parentZone;
 		Realm serverRealm;
 		int realmID;
 		String outString = "";
 
-		if (pc == null) {
-			throwbackError(pc, "Unable to find the pc making the request.");
+		if (playerCharacter == null)
 			return;
-		}
 
-		serverZone = ZoneManager.findSmallestZone(pc.getLoc());
+		serverZone = ZoneManager.findSmallestZone(playerCharacter.getLoc());
 
 		if (serverZone == null) {
-			throwbackError(pc, "Zone not found");
+			throwbackError(playerCharacter, "Zone not found");
 			return;
 		}
 
-		parentZone = serverZone.getParent();
-
-		realmID = RealmMap.getRealmIDAtLocation(pc.getLoc());
+		realmID = RealmMap.getRealmIDAtLocation(playerCharacter.getLoc());
 
 		String newline = "\r\n ";
 
 		outString = newline;
-		outString += "RealmID: " + realmID;
+		outString += "Realm: " + realmID + "(";
 
 		serverRealm = Realm.getRealm(realmID);
 
 		if (serverRealm == null)
-			outString += " Name: SeaFloor";
+			outString += "SeaFloor";
 		else
 			outString += serverRealm.getRealmName();
 
+		outString += ")";
 		outString += newline;
 
 		outString += " Zone: " + serverZone.getName();
@@ -76,7 +72,7 @@ public class RealmInfoCmd extends AbstractDevCmd {
 
 		outString += newline;
 
-		throwbackInfo(pc, outString);
+		throwbackInfo(playerCharacter, outString);
 	}
 
 	@Override

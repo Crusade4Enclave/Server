@@ -9,8 +9,8 @@
 package engine.InterestManagement;
 
 /* This class is the main interface for Magicbane's
-*  Interest management facilities.
-*/
+ *  Interest management facilities.
+ */
 
 import engine.Enum;
 import engine.math.Vector3fImmutable;
@@ -24,15 +24,26 @@ import engine.server.MBServerStatics;
 import engine.util.MapLoader;
 import org.pmw.tinylog.Logger;
 
+import java.awt.*;
+import java.util.HashMap;
+
 import static engine.objects.Realm.getRealm;
 
-public class RealmMap {
+public enum RealmMap {
 
-    // Spatial hashmap.  Used for detecting which Realm
-    // a player is currently in..
-    
+    REALM_MAP;
+
+    // Spatial hashmap.  Used for determining which Realm
+    // a player is currently located within.
+
     public static int[][] _realmImageMap;
+    private static final HashMap<Integer, Integer> _rgbToIDMap = new HashMap<>();
 
+    public static int getRealmIDByRGB(int realmRGB) {
+
+        return _rgbToIDMap.get(realmRGB);
+
+    }
 
     public static int getRealmIDAtLocation(Vector3fImmutable pos) {
 
@@ -41,12 +52,15 @@ public class RealmMap {
 
         if (yBuckets < 0 || yBuckets >= MBServerStatics.SPATIAL_HASH_BUCKETSY
                 || xBuckets < 0 || xBuckets >= MBServerStatics.SPATIAL_HASH_BUCKETSX) {
-            Logger.error("WorldServerRealm.getRealmFromPosition",
-                    "Invalid range; Z: " + yBuckets + ", X: " + xBuckets);
+            Logger.error("Invalid range; Z: " + yBuckets + ", X: " + xBuckets);
             return 255;
         }
 
         return RealmMap._realmImageMap[xBuckets][yBuckets];
+    }
+
+    public static void addToColorMap(Color color, int realmID) {
+        _rgbToIDMap.put(color.getRGB(), realmID);
     }
 
     public static Realm getRealmForCity(City city) {
@@ -61,28 +75,28 @@ public class RealmMap {
 
     }
 
-    public static void updateRealm(PlayerCharacter player){
+    public static void updateRealm(PlayerCharacter player) {
 
         int realmID = RealmMap.getRealmIDAtLocation(player.getLoc());
 
-        if (realmID != player.getLastRealmID()){
+        if (realmID != player.getLastRealmID()) {
             player.setLastRealmID(realmID);
             Realm realm = Realm.getRealm(realmID);
-            if (realm != null){
-                if (realm.isRuled()){
+            if (realm != null) {
+                if (realm.isRuled()) {
                     City city = realm.getRulingCity();
-                    if (city != null){
-                        TerritoryChangeMessage tcm = new TerritoryChangeMessage((PlayerCharacter)realm.getRulingCity().getOwner(),realm);
+                    if (city != null) {
+                        TerritoryChangeMessage tcm = new TerritoryChangeMessage((PlayerCharacter) realm.getRulingCity().getOwner(), realm);
                         Dispatch dispatch = Dispatch.borrow(player, tcm);
                         DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.PRIMARY);
-                    }else{
-                        TerritoryChangeMessage tcm = new TerritoryChangeMessage(null,realm);
+                    } else {
+                        TerritoryChangeMessage tcm = new TerritoryChangeMessage(null, realm);
                         Dispatch dispatch = Dispatch.borrow(player, tcm);
                         DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.PRIMARY);
                     }
 
-                }else{
-                    TerritoryChangeMessage tcm = new TerritoryChangeMessage(null,realm);
+                } else {
+                    TerritoryChangeMessage tcm = new TerritoryChangeMessage(null, realm);
                     Dispatch dispatch = Dispatch.borrow(player, tcm);
                     DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.PRIMARY);
                 }
@@ -94,6 +108,12 @@ public class RealmMap {
     }
 
     public static void loadRealmImageMap() {
+
+        // Build color lookup map for realms from database
+
+        for (Realm realm : Realm._realms.values()) {
+            RealmMap.addToColorMap(realm.mapColor, realm.realmID);
+        }
 
         RealmMap._realmImageMap = MapLoader.loadMap();
 

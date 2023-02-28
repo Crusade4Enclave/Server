@@ -9,10 +9,13 @@
 
 package engine.objects;
 
+import engine.Enum;
 import engine.Enum.TargetColor;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
 import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -330,12 +333,7 @@ public class Experience  {
 		if (killer == null || mob == null)
 			return;
 
-		double xp = 0.0;
-
-		//Get the xp modifier for the world
-		float xpMod = MBServerStatics.EXP_RATE_MOD;
-
-
+		double grantedExperience = 0.0;
 
 		if (g != null) { // Do group EXP stuff
 
@@ -372,18 +370,18 @@ public class Experience  {
 			}
 
 			// Process every player in the group getting XP
-			for (PlayerCharacter pc : giveEXPTo) {
-				if (pc.getLevel() >= MBServerStatics.LEVELCAP)
+			for (PlayerCharacter playerCharacter : giveEXPTo) {
+				if (playerCharacter.getLevel() >= MBServerStatics.LEVELCAP)
 					continue;
 
 				// Sets Max XP with server exp mod taken into account.
-				xp = (double) xpMod * maxXPPerKill(pc.getLevel());
+				grantedExperience = (double) Float.parseFloat(ConfigManager.MB_NORMAL_EXP_RATE.getValue()) * maxXPPerKill(playerCharacter.getLevel());
 
 				// Adjust XP for Mob Level
-				xp *= getConMod(pc, mob);
+				grantedExperience *= getConMod(playerCharacter, mob);
 
 				// Process XP for this member
-				penalty = getGroupMemberPenalty(leadership, pc, giveEXPTo,
+				penalty = getGroupMemberPenalty(leadership, playerCharacter, giveEXPTo,
 						highestLevel);
 
 				// Leadership Penalty Reduction
@@ -391,27 +389,27 @@ public class Experience  {
 					penalty -= ((leadership) * 0.01) * penalty;
 
 				// Modify for hotzone
-				if (xp != 0)
+				if (grantedExperience != 0)
 					if (ZoneManager.inHotZone(mob.getLoc()))
-						xp *= MBServerStatics.HOT_EXP_RATE_MOD;
+						grantedExperience *= Float.parseFloat(ConfigManager.MB_HOTZONE_EXP_RATE.getValue());
 
 				// Check for 0 XP due to white mob, otherwise subtract penalty
 				// xp
-				if (xp == 0) {
-					xp = 1;
+				if (grantedExperience == 0) {
+					grantedExperience = 1;
 				} else {
-					xp -= (penalty * 0.01) * xp;
+					grantedExperience -= (penalty * 0.01) * grantedExperience;
 
 					// Errant Penalty Calculation
-					if (pc.getGuild().isEmptyGuild())
-						xp *= 0.6;
+					if (playerCharacter.getGuild().isEmptyGuild())
+						grantedExperience *= 0.6;
 				}
 
-				if (xp == 0)
-					xp = 1;
+				if (grantedExperience == 0)
+					grantedExperience = 1;
 
 				// Grant the player the EXP
-				pc.grantXP((int) Math.floor(xp));
+				playerCharacter.grantXP((int) Math.floor(grantedExperience));
 			}
 
 		} else { // Give EXP to a single character
@@ -422,20 +420,20 @@ public class Experience  {
 				return;
 
 			// Get XP and adjust for Mob Level with world xp modifier taken into account
-			xp = (double) xpMod * maxXPPerKill(killer.getLevel());
-			xp *= getConMod(killer, mob);
+			grantedExperience = (double) Float.parseFloat(ConfigManager.MB_NORMAL_EXP_RATE.getValue()) * maxXPPerKill(killer.getLevel());
+			grantedExperience *= getConMod(killer, mob);
 
 			// Modify for hotzone
 			if (ZoneManager.inHotZone(mob.getLoc()))
-				xp *= MBServerStatics.HOT_EXP_RATE_MOD;
+				grantedExperience *= Float.parseFloat(ConfigManager.MB_HOTZONE_EXP_RATE.getValue());
 
 			// Errant penalty
-			if (xp != 1)
+			if (grantedExperience != 1)
 				if (killer.getGuild().isEmptyGuild())
-					xp *= .6;
+					grantedExperience *= .6;
 
 			// Grant XP
-			killer.grantXP((int) Math.floor(xp));
+			killer.grantXP((int) Math.floor(grantedExperience));
 		}
 	}
 }

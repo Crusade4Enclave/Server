@@ -9,7 +9,7 @@
 package engine;
 
 import ch.claude_martin.enumbitset.EnumBitSetHelper;
-import engine.gameManager.BuildingManager;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
@@ -18,7 +18,6 @@ import engine.objects.*;
 import engine.powers.EffectsBase;
 import org.pmw.tinylog.Logger;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -441,77 +440,6 @@ public class Enum {
 		CAPTURE;
 	}
 
-	public enum RealmType {
-
-		SEAFLOOR(0, 0x000000),
-		JOTUNHEIM(131, 0x006cff),
-		BOGLANDS(184, 0x00b4ff),
-		ESTRAGOTH(213, 0x00ff90),
-		RENNONVALE(232, 0X00ffea),
-		VOLGAARD(56, 0x1e00ff),
-		VOSTRAGOTH(108, 0x245fae),
-		NARROWS(61, 0x2f20a0),
-		FENMARCH(170, 0x3fb5ab),
-		MAELSTROM(63, 0x503e3e),
-		FARRICH(185, 0x52cd98),
-		TYRRANTHMINOR(96, 0x606060),
-		GREYSWATHE(88, 0x6c419d),
-		SUNSANVIL(64, 0x7800ff),
-		THERRONMARCH(206, 0x7bcdef),
-		DYVRENGISLE(119, 0x826b9c),
-		KINGSLUND(60, 0x871a94),
-		OUTERISLES(29, 0xa01313),
-		KAELENSFJORD(165, 0xa0c04a),
-		VARMADAI(95, 0xa16d1b),
-		WESTERMOORE(73, 0xaa3374),
-		OBLIVION(171, 0xababab),
-		SUDRAGOTH(196, 0xbaff00),
-		SKAARTHOL(183, 0xcfc57f),
-		KHALURAM(71, 0xe400ff),
-		VARSHADDUR(132, 0xf2845d),
-		FORBIDDENISLE(18, 0xff0000),
-		PIRATEISLES(48, 0xff008a),
-		SWATHMOORE(66, 0xff4200),
-		ESSENGLUND(130, 0xff9c00),
-		RELGOTH(177, 0xffde00);
-
-		private final int realmID;
-		private final Color color;
-		private static final HashMap<Integer, Integer> _rgbToIDMap = new HashMap<>();
-
-		RealmType(int realmID, int colorRGB) {
-
-			this.realmID = realmID;
-			this.color = new Color(colorRGB);
-
-		}
-
-		public void addToColorMap() {
-			_rgbToIDMap.put(this.color.getRGB(), this.realmID);
-		}
-
-		public static int getRealmIDByRGB(int realmRGB) {
-
-			return _rgbToIDMap.get(realmRGB);
-
-		}
-
-		public int getRealmID() {
-			return realmID;
-		}
-
-		public static RealmType getRealmTypeByUUID(int realmUUID) {
-			RealmType returnType = RealmType.SEAFLOOR;
-
-			for (RealmType realmType : RealmType.values()) {
-
-				if (realmType.realmID == realmUUID)
-					returnType = realmType;
-			}
-			return returnType;
-		}
-	}
-
 	public enum TaxType {
 		PROFIT,
 		WEEKLY,
@@ -619,64 +547,29 @@ public class Enum {
 		}
 	}
 
-	public enum RunegateType {
+	public enum PortalType {
 
-		EARTH(6f, 19.5f, 128, 33213),
-		AIR(-6f, 19.5f, 256, 33170),
-		FIRE(15f, 7.5f, 512, 49612),
-		WATER(-15f, 8.5f, 1024, 53073),
-		SPIRIT(0, 10.5f, 2048, 33127),
-		CHAOS(22f, 3.5f, 8192, 58093),
-		OBLIV(0f, 42f, 16384, 60198),
-		MERCHANT(-22f, 4.5f, 4096, 60245),
-		FORBID(0.0f, 0.0f, 0, 54617);
+		EARTH(6f, 19.5f, 128),
+		AIR(-6f, 19.5f, 256),
+		FIRE(15f, 7.5f, 512),
+		WATER(-15f, 8.5f, 1024),
+		SPIRIT(0, 10.5f, 2048),
+		CHAOS(22f, 3.5f, 8192),
+		OBLIV(0f, 42f, 16384),
+		MERCHANT(-22f, 4.5f, 4096),
+		FORBID(0.0f, 0.0f, 0);
 
-		private final Vector2f offset;
-		private final int bitFlag;
-		private final int buildingUUID;
+		public final Vector2f offset;
+		public final int effectFlag;
 
-		RunegateType(float offsetX, float offsetY, int bitFlag,
-					 int buildingUUID) {
+		PortalType(float offsetX, float offsetY, int effectFlag) {
 
 			this.offset = new Vector2f(offsetX, offsetY);
-			this.bitFlag = bitFlag;
-			this.buildingUUID = buildingUUID;
+			this.effectFlag = effectFlag;
+
 		}
-
-		public Vector2f getOffset() {
-			return this.offset;
-		}
-
-		public int getEffectFlag() {
-			return this.bitFlag;
-		}
-
-		public int getGateUUID() {
-			return this.buildingUUID;
-		}
-
-		public Building getGateBuilding() {
-
-			return BuildingManager.getBuilding(this.buildingUUID);
-		}
-
-		public static RunegateType getGateTypeFromUUID(int uuid) {
-
-			RunegateType outType = RunegateType.AIR;
-
-			for (RunegateType gateType : RunegateType.values()) {
-
-				if (gateType.buildingUUID == uuid) {
-					outType = gateType;
-					return outType;
-				}
-
-			}
-
-			return outType;
-		}
-
 	}
+
 
 	// Enum for ItemBase flags
 
@@ -2749,7 +2642,7 @@ public class Enum {
 		ARCHER,
 		MAGE;
 	}
-	
+
 	public enum MinionType {
 		AELFBORNGUARD(951,1637, MinionClass.MELEE, "Guard","Aelfborn"),
 		AELFBORNMAGE(952, 1635, MinionClass.MAGE,"Adept","Aelfborn"),

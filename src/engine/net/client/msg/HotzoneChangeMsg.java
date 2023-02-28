@@ -10,17 +10,24 @@
 package engine.net.client.msg;
 
 
-import engine.math.FastMath;
+import engine.gameManager.ConfigManager;
+import engine.gameManager.ZoneManager;
 import engine.net.AbstractConnection;
 import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 
 public class HotzoneChangeMsg extends ClientNetMsg {
 
     private int zoneType;
     private int zoneID;
+    private int secondsRemaining;
 
     /**
      * This is the general purpose constructor.
@@ -29,6 +36,11 @@ public class HotzoneChangeMsg extends ClientNetMsg {
         super(Protocol.ARCHOTZONECHANGE);
         this.zoneType = zoneType;
         this.zoneID = zoneID;
+
+        int hotZoneDuration = Integer.parseInt(ConfigManager.MB_HOTZONE_DURATION.getValue());
+        Instant currentInstant = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
+        secondsRemaining = (int) Duration.between(currentInstant, ZoneManager.hotZoneLastUpdate.plusSeconds(hotZoneDuration * 3600)).getSeconds();
+
     }
 
     /**
@@ -49,7 +61,7 @@ public class HotzoneChangeMsg extends ClientNetMsg {
     protected void _serialize(ByteBufferWriter writer) {
         writer.putInt(this.zoneType);
         writer.putInt(this.zoneID);
-        writer.putInt(FastMath.secondsUntilNextHour());
+        writer.putInt(secondsRemaining);
     }
 
     /**

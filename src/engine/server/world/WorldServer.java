@@ -70,7 +70,6 @@ import static java.lang.System.exit;
 public class WorldServer {
 
 	private static LocalDateTime bootTime = LocalDateTime.now();
-	private static long lastHZChange = System.currentTimeMillis();
 	public boolean isRunning = false;
 
 	// Member variable declaration
@@ -119,14 +118,6 @@ public class WorldServer {
 			Logger.error(e.getMessage());
 			exit(1);
 		}
-	}
-
-	public static long getLastHZChange() {
-		return lastHZChange;
-	}
-
-	public static void setLastHZChange(long lastChange) {
-		lastHZChange = lastChange;
 	}
 
 	public static void trainerInfo(TrainerInfoMsg msg, ClientConnection origin) {
@@ -326,6 +317,9 @@ public class WorldServer {
 		Logger.info("Loading Realms");
 		Realm.loadAllRealms();
 
+		Logger.info("Loading RealmMap");
+		RealmMap.loadRealmImageMap();
+
 		Logger.info("Loading Kits");
 		DbManager.KitQueries.GET_ALL_KITS();
 		
@@ -334,10 +328,6 @@ public class WorldServer {
 		
 		Logger.info("Starting InterestManager.");
 		WorldGrid.startLoadJob();
-		
-		
-		Logger.info("Loading Spaital Hash");
-		RealmMap.loadRealmImageMap();
 
 		DbManager.MobBaseQueries.SET_AI_DEFAULTS();
 
@@ -431,12 +421,8 @@ public class WorldServer {
 		Logger.info("Running Heraldry Audit for Deleted Players");
 		Heraldry.AuditHeraldry();
 
-		if (ZoneManager.getHotZone() != null)
-			WorldServer.setLastHZChange(System.currentTimeMillis());
-
 		Logger.info("Starting Mobile AI FSM");
 		MobileFSMManager.getInstance();
-
 
 		for (Zone zone : ZoneManager.getAllZones()) {
 			if (zone.getHeightMap() != null) {
@@ -483,6 +469,7 @@ public class WorldServer {
 
 		Logger.info("Running garbage collection...");
 		System.gc();
+
 		return true;
 	}
 

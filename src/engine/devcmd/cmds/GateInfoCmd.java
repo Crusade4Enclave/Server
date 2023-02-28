@@ -2,7 +2,6 @@ package engine.devcmd.cmds;
 
 import engine.Enum.BuildingGroup;
 import engine.Enum.GameObjectType;
-import engine.Enum.RunegateType;
 import engine.devcmd.AbstractDevCmd;
 import engine.math.Vector3fImmutable;
 import engine.objects.*;
@@ -21,7 +20,6 @@ public class GateInfoCmd extends AbstractDevCmd {
        
           Building targetBuilding;
           String outString;
-          RunegateType runegateType;
           Runegate runeGate;
           Blueprint blueprint;
           String newline = "\r\n ";
@@ -41,10 +39,10 @@ public class GateInfoCmd extends AbstractDevCmd {
                 return;
             }
            
-           runegateType = RunegateType.getGateTypeFromUUID(targetBuilding.getObjectUUID());
-           runeGate = Runegate.getRunegates()[runegateType.ordinal()];
+
+           runeGate = Runegate._runegates.get(targetBuilding.getObjectUUID());
                
-           outString = "RungateType: " + runegateType.name();
+           outString = "RungateType: " + runeGate.gateBuilding.getName();
            outString += newline;
            
            outString += "Portal State:";
@@ -52,9 +50,9 @@ public class GateInfoCmd extends AbstractDevCmd {
            
            for (Portal portal : runeGate.getPortals()) {
                
-               outString += "Portal: " + portal.getPortalType().name();
+               outString += "Portal: " + portal.portalType.name();
                outString += " Active: " + portal.isActive();
-               outString += " Dest: " + portal.getDestinationGateType().name();
+               outString += " Dest: " + portal.targetGate.getName();
                outString += newline;
                outString += " Origin: " + portal.getPortalLocation().x + 'x';
                outString += " " + portal.getPortalLocation().y + 'y';

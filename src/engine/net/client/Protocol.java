@@ -26,14 +26,14 @@ public enum Protocol {
     ACTIVATECHARTER(0x296C0B22, UseCharterMsg.class, null),// Use Guild Charter
     ACTIVATENPC(0xC9AAE81E, ActivateNPCMessage.class, ActivateNPCMsgHandler.class),
     ACTIVATEPLEDGE(0x5A694DC0, SwearInMsg.class, SwearInHandler.class), // Swear In
-    ADDFRIEND(0xCFA1C787,AddFriendMessage.class,null),
-    ALLIANCECHANGE(0x0E7D0B57,  AllianceChangeMsg.class, AllianceChangeMsgHandler.class), // Remove From Allies/Enemies List
+    ADDFRIEND(0xCFA1C787, AddFriendMessage.class, null),
+    ALLIANCECHANGE(0x0E7D0B57, AllianceChangeMsg.class, AllianceChangeMsgHandler.class), // Remove From Allies/Enemies List
     ALLYENEMYLIST(0xAEA443FD, AllyEnemyListMsg.class, AllyEnemyListMsgHandler.class),
-    ARCCOMBATMODEATTACKING(0xD8B10579,  SetCombatModeMsg.class, null), // Attack From Outside Combat Mode
+    ARCCOMBATMODEATTACKING(0xD8B10579, SetCombatModeMsg.class, null), // Attack From Outside Combat Mode
     ARCHOTZONECHANGE(0xDCFF196F, null, null), //change hotzone
     ARCIGNORELISTUPDATE(0x4B1B17C2, IgnoreListMsg.class, null), //req/show ignore list
     ARCLOGINNOTIFY(0x010FED87, ArcLoginNotifyMsg.class, ArcLoginNotifyMsgHandler.class), //Client Confirms entering world
-    ARCMINECHANGEPRODUCTION(0x1EAA993F,  ArcMineChangeProductionMsg.class, ArcMineChangeProductionMsgHandler.class),
+    ARCMINECHANGEPRODUCTION(0x1EAA993F, ArcMineChangeProductionMsg.class, ArcMineChangeProductionMsgHandler.class),
     ARCMINETOWERCRESTUPDATE(0x34164D0D, null, null),
     ARCMINEWINDOWAVAILABLETIME(0x6C909DE7, ArcMineWindowAvailableTimeMsg.class, ArcMineWindowAvailableTimeHandler.class),
     ARCMINEWINDOWCHANGE(0x92B2148A, ArcMineWindowChangeMsg.class, MineWindowChangeHandler.class),
@@ -62,7 +62,7 @@ public enum Protocol {
     CHANNELMUTE(0xC1BDC53A, ChatFilterMsg.class, ChannelMuteMsgHandler.class), //Chat Channels that are turned on
     CHARSELECTSCREEN(0x682C935D, null, null), // Character Selection Screen
     CHATCITY(0x9D402901, ChatCityMsg.class, null), // Chat Channel: /City
-    CHATCSR(0x14EBA1C3, ChatCSRMsg.class, null),	//Chat Channel: CSR
+    CHATCSR(0x14EBA1C3, ChatCSRMsg.class, null),    //Chat Channel: CSR
     CHATGROUP(0xA895B634, ChatGroupMsg.class, null), // Chat Channel: /group
     CHATGUILD(0xA9D92ED4, ChatGuildMsg.class, null), // Chat Channel: /guild
     CHATIC(0x00A75F35, ChatICMsg.class, null), // Chat Channel: /IC
@@ -74,17 +74,17 @@ public enum Protocol {
     CHECKUNIQUEGUILD(0x689097D7, GuildCreationOptionsMsg.class, GuildCreationOptionsHandler.class), // Set Guild Name/Motto in Use Guild Charter
     CITYASSET(0x7cae1678, CityAssetMsg.class, null),
     CITYCHOICE(0x406610BB, CityChoiceMsg.class, CityChoiceMsgHandler.class),
-    CITYDATA(0xB8A947D4, WorldObjectMsg.class, null),			//Realm Data - Optional(?)
+    CITYDATA(0xB8A947D4, CityDataMsg.class, CityDataHandler.class),
     CITYZONE(0x254947F2, CityZoneMsg.class, null), //For Creating City Object Clientside(Terraform)/Rename City.
     CLAIMASSET(0x948C62CC, ClaimAssetMsg.class, ClaimAssetMsgHandler.class), // ClaimAsset
     CLAIMGUILDTREE(0xFD1C6442, ClaimGuildTreeMsg.class, ClaimGuildTreeMsgHandler.class),
-    CLIENTADMINCOMMAND(0x624EAB5F, ClientAdminCommandMsg.class, null),	//Admin Command
-    CLIENTUPDATEVAULT( 0x66EDBECD, UpdateVaultMsg.class, null),
+    CLIENTADMINCOMMAND(0x624EAB5F, ClientAdminCommandMsg.class, null),    //Admin Command
+    CLIENTUPDATEVAULT(0x66EDBECD, UpdateVaultMsg.class, null),
     COMBATMODE(0xFE4BF353, ToggleCombatMsg.class, null), //Toggle Combat mode
     CONFIRMPROMOTE(0x153BB5F9, ConfirmPromoteMsg.class, null),
     COSTTOOPENBANK(0x135BE5E8, AckBankWindowOpenedMsg.class, null), // ACK Bank Window Opened
     CREATECHAR(0x5D18B5C8, CommitNewCharacterMsg.class, null), // Commit New Character,
-    CREATEPETITION(0xD489CFED, GuildCreationFinalizeMsg.class, GuildCreationFinalizeHandler.class),	//Confirm guild creation
+    CREATEPETITION(0xD489CFED, GuildCreationFinalizeMsg.class, GuildCreationFinalizeHandler.class),    //Confirm guild creation
     CUSTOMERPETITION(0x7F9D7D6D, PetitionReceivedMsg.class, null),
     DELETEOBJECT(0x57F069D8, DeleteItemMsg.class, null), //Delete Item from Inventory
     DESTROYBUILDING(0x3CB6FAD3, DestroyBuildingMsg.class, DestroyBuildingHandler.class), // Destroy Building
@@ -95,8 +95,8 @@ public enum Protocol {
     EQUIP(0x3CB1AF8C, TransferItemFromInventoryToEquipMsg.class, null), // Transfer Item from Inventory to Equip
     EXPERIENCE(0xC57802A7, GrantExperienceMsg.class, null), //TODO rename once identified
     FORGETOBJECTS(0xE307A0E1, UnloadObjectsMsg.class, null), // Unload Objects
-    FRIENDACCEPT(0xCA297870,AcceptFriendMsg.class,FriendAcceptHandler.class),
-    FRIENDDECLINE(0xF08FC279,DeclineFriendMsg.class,FriendDeclineHandler.class),
+    FRIENDACCEPT(0xCA297870, AcceptFriendMsg.class, FriendAcceptHandler.class),
+    FRIENDDECLINE(0xF08FC279, DeclineFriendMsg.class, FriendDeclineHandler.class),
     FURNITURE(0xCE7FA503, FurnitureMsg.class, FurnitureHandler.class),
     GAMESERVERIPRESPONSE(0x6C95CF87, GameServerIPResponseMsg.class, null), // Game Server IP Response
     GLOBALCHANNELMESSAGE(0x2bf03fd2, null, null),
@@ -109,7 +109,7 @@ public enum Protocol {
     GUILDMEMBERONLINE(0x7B79EB3A, GuildEnterWorldMsg.class, null), // Send Enter World Message to Guild
     GUILDRANKCHANGE(0x0DEFB21F, ChangeRankMsg.class, ChangeRankHandler.class), // Change Rank
     GUILDTREESTATUS(0x4B95FB85, GuildTreeStatusMsg.class, null),
-    HIRELINGSERVICE(0xD3D93322,HirelingServiceMsg.class,HirelingServiceMsgHandler.class),
+    HIRELINGSERVICE(0xD3D93322, HirelingServiceMsg.class, HirelingServiceMsgHandler.class),
     IGNORE(0xBD8881EE, IgnoreMsg.class, null), //client sent /ignore command
     INITIATETRADEHUDS(0x667D29D8, OpenTradeWindowMsg.class, null), // Open Trade Window
     INVITEGROUP(0x004A2012, GroupInviteMsg.class, GroupInviteHandler.class), // Send/Receive/Deny Group Invite
@@ -164,11 +164,11 @@ public enum Protocol {
     RAISEATTR(0x5EEB65E0, ModifyStatMsg.class, null), // Modify Stat
     RANDOM(0xAC5D0135, RandomMsg.class, null), //RequestSend random roll
     READYTOENTER(0x490E4FE0, EnterWorldReceivedMsg.class, null), //Client Ack Receive Enter World
-    REALMDATA(0x2399B775, null, null),			//Realm Data - Optional(?)
+    REALMDATA(0x2399B775, null, null),            //Realm Data - Optional(?)
     RECOMMENDNATION(0x6D4579E9, RecommendNationMsg.class, RecommendNationMsgHandler.class), // Recommend as Ally/Enemy, error
     RECYCLEPOWER(0x24033B67, RecyclePowerMsg.class, null), //Unlock power for reUse
     REMOVECHAR(0x5D3F9739, DeleteCharacterMsg.class, null), // Delete Character
-    REMOVEFRIEND(0xE0D5DB42,RemoveFriendMessage.class,RemoveFriendHandler.class),
+    REMOVEFRIEND(0xE0D5DB42, RemoveFriendMessage.class, RemoveFriendHandler.class),
     REPAIRBUILDING(0xAF8C2560, RepairBuildingMsg.class, RepairBuildingMsgHandler.class),
     REPAIROBJECT(0x782219CE, RepairMsg.class, null), //Repair Window Req/Ack, RepairObject item Req/Ack
     REQUESTCONTENTS(0xA786B0A2, LootWindowRequestMsg.class, null), // MoveObjectToContainer Window Request
@@ -179,7 +179,7 @@ public enum Protocol {
     REQUESTTOTRADE(0x4D84259B, TradeRequestMsg.class, null), // Trade Request
     REQUESTTRADECANCEL(0xCB0C5735, RejectTradeRequestMsg.class, null), // Reject RequestToTrade
     REQUESTTRADEOK(0xFFD29841, AcceptTradeRequestMsg.class, null), // Accept Trade Request
-    RESETAFTERDEATH(0xFDCBB98F,RespawnMsg.class, null), //Respawn Request/Response
+    RESETAFTERDEATH(0xFDCBB98F, RespawnMsg.class, null), //Respawn Request/Response
     ROTATEMSG(0x57F2088E, RotateObjectMsg.class, null),
     SAFEMODE(0x9CF3922A, SafeModeMsg.class, null), //Tell client they're in safe mode
     SCALEOBJECT(0xE2B392D9, null, null), // Adjust scale of object
@@ -210,7 +210,7 @@ public enum Protocol {
     TAXCITY(0xCD41EAA6, TaxCityMsg.class, TaxCityMsgHandler.class),
     TAXRESOURCES(0x4AD458AF, TaxResourcesMsg.class, TaxResourcesMsgHandler.class),
     TELEPORT(0x23E726EA, TeleportToPointMsg.class, null), // Teleport to point
-    TERRITORYCHANGE(0x6B388C8C,TerritoryChangeMessage.class, null), //Hey rich, look what I found? :)
+    TERRITORYCHANGE(0x6B388C8C, TerritoryChangeMessage.class, null), //Hey rich, look what I found? :)
     TOGGLESITSTAND(0x624F3C0F, ToggleSitStandMsg.class, null), //Toggle Sit/Stand
     TRADEADDGOLD(0x654ACB45, AddGoldToTradeWindowMsg.class, null), // Add Gold to Trade Window
     TRADEADDOBJECT(0x55D363E9, AddItemToTradeWindowMsg.class, null), // Add an Item to the Trade Window
@@ -227,7 +227,7 @@ public enum Protocol {
     TRANSFERITEMFROMVAULTTOINVENTORY(0x0119A64D, TransferItemFromVaultToInventoryMsg.class, null), // Transfer Item from Vault to Inventory
     TRANSFERITEMTOBANK(0xD48C46FA, TransferItemFromInventoryToBankMsg.class, null), // Transfer Item from Inventory to Bank
     UNEQUIP(0xC6BFB907, TransferItemFromEquipToInventoryMsg.class, null), // Transfer Item from Equip to Inventory
-    UNKNOWN(0x238C9259, UnknownMsg.class,null),
+    UNKNOWN(0x238C9259, UnknownMsg.class, null),
     UPDATECHARORMOB(0xB6D78961, null, null),
     UPDATECLIENTALLIANCES(0xF3FEB5D4, null, GuildUnknownHandler.class), //AlliancesMsg
     UPDATECLIENTINVENTORIES(0xE66F533D, UpdateInventoryMsg.class, null), //Update player inventory
@@ -247,14 +247,14 @@ public enum Protocol {
     WEIGHTINVENTORY(0xF1B6A85C, LootWindowResponseMsg.class, null), // MoveObjectToContainer Window Response
     WHOREQUEST(0xF431CCE9, WhoRequestMsg.class, null), // Request /who
     WHORESPONSE(0xD7C36568, WhoResponseMsg.class, null), // Response /who
-	REQUESTBALLLIST(0xE366FF64,RequestBallListMessage.class,RequestBallListHandler.class),
-	SENDBALLENTRY(0xAC2B5EDC,SendBallEntryMessage.class,SendBallEntryHandler.class),
-	UNKNOWN1(-263523523, Unknown1Msg.class,null),
-	DROPGOLD(1461654160,DropGoldMsg.class,null);
+    REQUESTBALLLIST(0xE366FF64, RequestBallListMessage.class, RequestBallListHandler.class),
+    SENDBALLENTRY(0xAC2B5EDC, SendBallEntryMessage.class, SendBallEntryHandler.class),
+    UNKNOWN1(-263523523, Unknown1Msg.class, null),
+    DROPGOLD(1461654160, DropGoldMsg.class, null);
 
     public int opcode;
-    private Class message;
-    private Class handlerClass;
+    private final Class message;
+    private final Class handlerClass;
     public Constructor constructor;
     public AbstractClientMsgHandler handler;
 
@@ -275,7 +275,7 @@ public enum Protocol {
             }
         }
 
-       // Create instance of message handler for incoming protocol messages
+        // Create instance of message handler for incoming protocol messages
 
         if (this.handlerClass != null) {
             try {
@@ -286,7 +286,7 @@ public enum Protocol {
         }
     }
 
-    private static HashMap<Integer, Protocol> _protocolMsgByOpcode = new HashMap<>();
+    private static final HashMap<Integer, Protocol> _protocolMsgByOpcode = new HashMap<>();
 
     public static Protocol getByOpcode(int opcode) {
 
@@ -302,37 +302,37 @@ public enum Protocol {
 
         for (Protocol protocol : Protocol.values()) {
 
-        	if (_protocolMsgByOpcode.containsKey(protocol.opcode)){
-        		Logger.error("Duplicate opcodes for " + protocol.name() + " and " + _protocolMsgByOpcode.get(protocol.opcode).name());
-        	}
+            if (_protocolMsgByOpcode.containsKey(protocol.opcode)) {
+                Logger.error("Duplicate opcodes for " + protocol.name() + " and " + _protocolMsgByOpcode.get(protocol.opcode).name());
+            }
             _protocolMsgByOpcode.put(protocol.opcode, protocol);
         }
     }
 
 
-public static int FindNextValidOpcode(ByteBufferReader reader){
-    int startPos = reader.position();
-    int bytesLeft = reader.remaining();
+    public static int FindNextValidOpcode(ByteBufferReader reader) {
+        int startPos = reader.position();
+        int bytesLeft = reader.remaining();
 
-    if (bytesLeft < 4)
+        if (bytesLeft < 4)
+            return startPos;
+        int nextPos = startPos;
+        for (int i = 1; i < bytesLeft; i++) {
+            reader.position(nextPos);
+            if (reader.remaining() < 4)
+                return reader.position();
+            int newOpcode = reader.getInt();
+
+            Protocol foundProtocol = Protocol.getByOpcode(newOpcode);
+            if (foundProtocol.equals(Protocol.NONE)) {
+                nextPos += 1;
+                continue;
+            }
+
+            //found opcode. return position - 4 to rewind back to start of opcode, so we can handle it.
+            return reader.position() - 4;
+        }
+
         return startPos;
-    int nextPos = startPos;
-    for (int i = 1; i< bytesLeft; i++ ){
-    reader.position(nextPos);
-    if (reader.remaining() < 4)
-        return reader.position();
-    int newOpcode = reader.getInt();
-
-    Protocol foundProtocol = Protocol.getByOpcode(newOpcode);
-    if (foundProtocol.equals(Protocol.NONE)){
-        nextPos += 1;
-        continue;
     }
-
-    //found opcode. return position - 4 to rewind back to start of opcode, so we can handle it.
-        return reader.position() - 4;
-    }
-
-    return startPos;
-}
 }

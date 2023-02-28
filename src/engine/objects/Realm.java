@@ -21,6 +21,7 @@ import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
+import java.awt.*;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,8 +37,9 @@ public class Realm {
 
 	// Internal class cache
 
-	private static ConcurrentHashMap<Integer, Realm> _realms = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+	public static ConcurrentHashMap<Integer, Realm> _realms = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
 
+	public Color mapColor;
 	private final float mapR; //Red color
 	private final float mapG; //Green color
 	private final float mapB; //Blue color
@@ -63,7 +65,7 @@ public class Realm {
 	private final int stretchY;
 	private final int locX;
 	private final int locY;
-	private final int realmID;
+	public final int realmID;
 	private final HashSet<Integer> cities = new HashSet<>();
 	private String hash;
 
@@ -72,6 +74,7 @@ public class Realm {
 	 */
 	public Realm(ResultSet rs) throws SQLException, UnknownHostException {
 
+		this.mapColor = new Color(rs.getInt("mapColor"));
 		this.mapR = rs.getFloat("mapR");
 		this.mapG = rs.getFloat("mapG");
 		this.mapB = rs.getFloat("mapB");
@@ -200,20 +203,8 @@ public class Realm {
 
 	public static void configureAllRealms() {
 
-		Realm serverRealm;
-		int realmID;
-
-		for (Enum.RealmType realmType : Enum.RealmType.values()) {
-
-			realmID = realmType.getRealmID();
-			// Don't serialize seafloor
-
-			if (realmID == 0)
-				continue;
-
-			serverRealm = Realm.getRealm(realmID);
-			serverRealm.configure();
-
+		for (Realm realm : Realm._realms.values()) {
+			realm.configure();
 		}
 	}
 

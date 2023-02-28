@@ -54,6 +54,7 @@ public class GuildCreationFinalizeHandler extends AbstractClientMsgHandler {
 		GuildCreationFinalizeMsg msg;
 		Enum.GuildType charterType;
 		Guild newGuild;
+		Guild playerGuild;
 		ItemBase itemBase;
 		Item charter;
 		Dispatch dispatch;
@@ -61,9 +62,9 @@ public class GuildCreationFinalizeHandler extends AbstractClientMsgHandler {
 		msg = (GuildCreationFinalizeMsg) baseMsg;
 
 		player = SessionManager.getPlayerCharacter(origin);
+		playerGuild = player.getGuild();
 
-		boolean isGuildLeader = GuildStatusController.isGuildLeader(player.getGuildStatus());
-		if (GuildStatusController.isGuildLeader(player.getGuildStatus()) || player.getGuild() != null && player.getGuild().getGuildLeaderUUID() == player.getObjectUUID()) {
+		if (playerGuild.isEmptyGuild() == false && player.getGuild().getGuildLeaderUUID() == player.getObjectUUID()) {
 			ErrorPopupMsg.sendErrorPopup(player, GuildManager.MUST_LEAVE_GUILD);
 			return true;
 		}
@@ -77,10 +78,7 @@ public class GuildCreationFinalizeHandler extends AbstractClientMsgHandler {
 			return true;
 		}
 
-		
-
 		itemBase = charter.getItemBase();
-
 
 		// Item must be a valid charterType (type 10 in db)
 
@@ -88,18 +86,13 @@ public class GuildCreationFinalizeHandler extends AbstractClientMsgHandler {
 			ErrorPopupMsg.sendErrorPopup(player, GuildManager.NO_CHARTER_FOUND);
 			return true;
 		}
+
 		charterType = Enum.GuildType.getGuildTypeFromCharter(itemBase);
-
-
 
 		if (charterType == null){
 			ErrorPopupMsg.sendErrorPopup(player, GuildManager.NO_CHARTER_FOUND);
 			return true;
 		}
-
-
-
-
 
 		//Validate Guild Tags
 
@@ -110,10 +103,8 @@ public class GuildCreationFinalizeHandler extends AbstractClientMsgHandler {
 
 		// Validation passes.  Leave current guild and create new one.
 
-		if (player.getGuild() != null && player.getGuild().getObjectUUID() != 0)
+		if (player.getGuild() != null && player.getGuild().isEmptyGuild() == false)
 			player.getGuild().removePlayer(player,GuildHistoryType.LEAVE);
-
-
 
 		int leadershipType = ((msg.getICVoteFlag() << 1) | msg.getMemberVoteFlag());
 
