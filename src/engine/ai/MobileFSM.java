@@ -1668,6 +1668,7 @@ public class MobileFSM {
                     }
                     msg.setUnknown04(2);
                     PowersManager.finishUseMobPower(msg, mob, 0, 0);
+                    //default minimum seconds between cast = 10
                     if(mobPower.getCooldown() < 10000){
                         mob.nextCastTime = System.currentTimeMillis() + 10000;
                     } else {
