@@ -345,8 +345,8 @@ public class CombatUtilities {
 			//damage calc for pet
 			float str = agent.getStatStrCurrent();
 			float dex = agent.getStatDexCurrent();
-			double minDmg =  getMinDmg(min,str,dex,agent.getLevel());
-			double maxDmg =  getMaxDmg(max,str,dex,agent.getLevel());
+			double minDmg =  getMinDmg(min,str,dex,agent.getLevel(), null);
+			double maxDmg =  getMaxDmg(max,str,dex,agent.getLevel(), null);
 			dmgMultiplier += agent.getLevel() / 10;
 			range = (float) (maxDmg - minDmg);
 			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
@@ -369,8 +369,8 @@ public class CombatUtilities {
 			double maxDmg = weapon.getMaxDamage();
 			float str = agent.getStatStrCurrent();
 			float dex = agent.getStatDexCurrent();
-			min = (float) getMinDmg(minDmg,str,dex,agent.getLevel());
-			max = (float) getMaxDmg(maxDmg,str,dex,agent.getLevel());
+			min = (float) getMinDmg(minDmg,str,dex,agent.getLevel(), weapon);
+			max = (float) getMaxDmg(maxDmg,str,dex,agent.getLevel(), weapon);
 			DamageType dt = weapon.getDamageType();
 			range = max - min;
 			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
@@ -379,29 +379,42 @@ public class CombatUtilities {
 					damage *= 2.5f; //increase damage if sitting
 			if (AbstractWorldObject.IsAbstractCharacter(target))
 				return ((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, damage, 0) * dmgMultiplier;
-		}
-		else{
-			//damage calc for regular mob
-			if(agent.getLevel() > 85) {
-				min = agent.getMobBase().getDamageMin();
-				max = agent.getMobBase().getMaxDmg();
-			}
-
+		}else if (agent.getLevel() > 80) {
+			//handle r8 mob damage
 			DamageType dt = DamageType.Crush;
-			if(agent.getEquip().get(1) != null && agent.getEquip().get(2) == null){
-				min = agent.getEquip().get(1).getItemBase().getMinDamage();
-				max = agent.getEquip().get(1).getItemBase().getMaxDamage();
-			} else if(agent.getEquip().get(1) == null && agent.getEquip().get(2) != null){
-				min = agent.getEquip().get(2).getItemBase().getMinDamage();
-				max = agent.getEquip().get(2).getItemBase().getMaxDamage();
-			} else if(agent.getEquip().get(1) != null && agent.getEquip().get(2) != null){
-				min = agent.getEquip().get(1).getItemBase().getMinDamage() + agent.getEquip().get(2).getItemBase().getMinDamage();
-				max = agent.getEquip().get(1).getItemBase().getMaxDamage() + agent.getEquip().get(2).getItemBase().getMaxDamage();
+			if (agent.getEquip().get(1).getItemBase() != null) {
+				dt = agent.getEquip().get(1).getItemBase().getDamageType();
+			} else if(agent.getEquip().get(2).getItemBase() != null && agent.getEquip().get(2).getItemBase().isShield() == false){
+				dt = agent.getEquip().get(2).getItemBase().getDamageType();
 			}
-			if(agent.getLevel() > 80){
-				min = agent.getMobBase().getMinDmg();
-				max = agent.getMobBase().getDamageMax();
+			min = agent.getMobBase().getMinDmg();
+			max = agent.getMobBase().getMaxDmg();
+			range = max - min;
+			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
+			return ((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, damage, 0) * dmgMultiplier;
+		} else{
+			//damage calc for regular mob
+			DamageType dt = DamageType.Crush;
+			ItemBase mainHand = agent.getEquip().get(1).getItemBase();
+			ItemBase offHand = agent.getEquip().get(2).getItemBase();
+			if(mainHand != null && offHand == null){
+				//main hand only attack
+				min = mainHand.getMinDamage();
+				max = mainHand.getMaxDamage();
+				dt = mainHand.getDamageType();
+			} else if(mainHand == null && offHand != null && offHand.isShield() == false){
+				//off hand attack only
+				min = offHand.getMinDamage();
+				max = offHand.getMaxDamage();
+				dt = offHand.getDamageType();
+			} else if(mainHand != null && offHand != null && offHand.isShield() == false){
+				//attack from both hands
+				min = mainHand.getMinDamage() + offHand.getMinDamage();
+				max = mainHand.getMaxDamage() + offHand.getMaxDamage();
+				dt = mainHand.getDamageType();
 			}
+			min = (float) getMinDmg(min,agent.getStatStrCurrent(),agent.getStatDexCurrent(),agent.getLevel(),mainHand);
+			max = (float) getMaxDmg(max,agent.getStatStrCurrent(),agent.getStatDexCurrent(),agent.getLevel(),mainHand);
 			range = max - min;
 			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
 			if (AbstractWorldObject.IsAbstractCharacter(target))
@@ -420,7 +433,7 @@ public class CombatUtilities {
 		//impossible to get this far
 		return 0;
 	}
-	public static double getMinDmg(double min, float str, float dex, int level){
+	public static double getMinDmg(double min, float str, float dex, int level, ItemBase equipped){
 		if(str == 0){
 			str = 1;
 		}
@@ -429,14 +442,28 @@ public class CombatUtilities {
 		}
 		return (min * pow((0.0048*str +.049*(str-0.75)),pow(0.5 + 0.0066*dex + 0.064*(dex-0.75),0.5 + 0.01*(200/level))));
 	}
-	public static double getMaxDmg(double max, float str, float dex, int level){
+	public static double getMaxDmg(double max, float str, float dex, int level,ItemBase equipped){
 		if(str == 0){
 			str = 1;
 		}
 		if(dex == 0){
 			dex = 1;
 		}
-		return (max * pow((0.0124*str +0.118*(str-0.75)),pow(0.5 + 0.0022*dex + 0.028*(dex-0.75),0.5 + 0.0075*(200/level))));
+		float primary = 0;
+		float secondary = 0;
+		if(equipped == null){
+			primary = str;
+			secondary = dex;
+		}
+		else if(equipped.isStrBased()){
+			primary = str;
+			secondary = dex;
+		}
+		else{
+			primary = dex;
+			secondary = str;
+		}
+		return (max * pow((0.0124*primary +0.118*(primary-0.75)),pow(0.5 + 0.0022*secondary + 0.028*(secondary-0.75),0.5 + 0.0075*(200/level))));
 	}
 	public static boolean RunAIRandom(){
 		int random = ThreadLocalRandom.current().nextInt(4);
