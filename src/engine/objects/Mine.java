@@ -68,8 +68,6 @@ public class Mine extends AbstractGameObject {
 
         this.mineType = MineProduction.getByName(rs.getString("mine_type"));
 
-        float offsetX = rs.getFloat("mine_offsetX");
-        float offsetZ = rs.getFloat("mine_offsetZ");
         int ownerUID = rs.getInt("mine_ownerUID");
         this.buildingID = rs.getInt("mine_buildingUID");
         this.flags = rs.getInt("flags");
