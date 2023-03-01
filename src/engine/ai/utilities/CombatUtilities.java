@@ -295,7 +295,7 @@ public class CombatUtilities {
 				swingIsBlock(agent, target, passiveAnim);
 				return;
 			}
-				swingIsDamage(agent,target, determineDamage(agent,target), anim);
+				swingIsDamage(agent,target, determineDamage(agent), anim);
 
 			if (agent.getWeaponPower() != null)
 				agent.getWeaponPower().attack(target, MBServerStatics.ONE_MINUTE);
@@ -326,9 +326,14 @@ public class CombatUtilities {
 
 
 	}
-	public static float determineDamage(Mob agent,AbstractWorldObject target) {
-		if(agent == null || target == null){
+	public static float determineDamage(Mob agent) {
+		if(agent == null){
 			//early exit for null
+			return 0;
+		}
+		AbstractWorldObject target = agent.getCombatTarget();
+		if(target == null){
+			//early exit for null target
 			return 0;
 		}
 		float damage = 0;
