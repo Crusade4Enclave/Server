@@ -331,139 +331,168 @@ public class CombatUtilities {
 			//early exit for null
 			return 0;
 		}
-		//set default values
-			float min = 40;
-			float max = 60;
-		if(agent.getLevel() == 85){
-			min = agent.getMinDamageHandOne();
-			max = agent.getMaxDamageHandOne();
-		}
-			float range;
-			float damage;
-			float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+		float damage = 0;
+		DamageType dt = getDamageType(agent);
 		if(agent.isSummonedPet() == true || agent.isPet() == true || agent.isNecroPet() == true) {
-			//damage calc for pet
-			float str = agent.getStatStrCurrent();
-			float dex = agent.getStatDexCurrent();
-			double minDmg =  getMinDmg(min,str,dex,agent.getLevel(), null);
-			double maxDmg =  getMaxDmg(max,str,dex,agent.getLevel(), null);
-			dmgMultiplier += agent.getLevel() / 10;
-			range = (float) (maxDmg - minDmg);
-			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
-			if (AbstractWorldObject.IsAbstractCharacter(target))
-				if (((AbstractCharacter) target).isSit())
-					damage *= 2.5f; //increase damage if sitting
-
-			if (AbstractWorldObject.IsAbstractCharacter(target))
-				return ((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, DamageType.Crush, damage, 0) * dmgMultiplier;
-
-			if (target.getObjectType() == GameObjectType.Building) {
-				Building building = (Building) target;
-				Resists resists = building.getResists();
-				return (damage * (1 - (resists.getResist(DamageType.Crush, 0) / 100))) * dmgMultiplier;
-			}
+			damage = calculatePetDamage(agent);
 		}else if(agent.isPlayerGuard() == true){
-			//damage calc for guard
-			ItemBase weapon = agent.getEquip().get(1).getItemBase();
-			double minDmg = weapon.getMinDamage();
-			double maxDmg = weapon.getMaxDamage();
-			float str = agent.getStatStrCurrent();
-			float dex = agent.getStatDexCurrent();
-			min = (float) getMinDmg(minDmg,str,dex,agent.getLevel(), weapon);
-			max = (float) getMaxDmg(maxDmg,str,dex,agent.getLevel(), weapon);
-			DamageType dt = weapon.getDamageType();
-			range = max - min;
-			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
-			if (AbstractWorldObject.IsAbstractCharacter(target))
-				if (((AbstractCharacter) target).isSit())
-					damage *= 2.5f; //increase damage if sitting
-			if (AbstractWorldObject.IsAbstractCharacter(target))
-				return ((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, damage, 0) * dmgMultiplier;
+			damage = calculateGuardDamage(agent);
 		}else if (agent.getLevel() > 80) {
-			//handle r8 mob damage
-			DamageType dt = DamageType.Crush;
-			if (agent.getEquip().get(1).getItemBase() != null) {
-				dt = agent.getEquip().get(1).getItemBase().getDamageType();
-			} else if(agent.getEquip().get(2).getItemBase() != null && agent.getEquip().get(2).getItemBase().isShield() == false){
-				dt = agent.getEquip().get(2).getItemBase().getDamageType();
-			}
-			min = agent.getMobBase().getMinDmg();
-			max = agent.getMobBase().getMaxDmg();
-			range = max - min;
-			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
-			return ((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, damage, 0) * dmgMultiplier;
+			damage = calculateEpicDamage(agent);
 		} else{
-			//damage calc for regular mob
-			DamageType dt = DamageType.Crush;
-			ItemBase mainHand = agent.getEquip().get(1).getItemBase();
-			ItemBase offHand = agent.getEquip().get(2).getItemBase();
-			if(mainHand != null && offHand == null){
-				//main hand only attack
-				min = mainHand.getMinDamage();
-				max = mainHand.getMaxDamage();
-				dt = mainHand.getDamageType();
-			} else if(mainHand == null && offHand != null && offHand.isShield() == false){
-				//off hand attack only
-				min = offHand.getMinDamage();
-				max = offHand.getMaxDamage();
-				dt = offHand.getDamageType();
-			} else if(mainHand != null && offHand != null && offHand.isShield() == false){
-				//attack from both hands
-				min = mainHand.getMinDamage() + offHand.getMinDamage();
-				max = mainHand.getMaxDamage() + offHand.getMaxDamage();
-				dt = mainHand.getDamageType();
-			}
-			min = (float) getMinDmg(min,agent.getStatStrCurrent(),agent.getStatDexCurrent(),agent.getLevel(),mainHand);
-			max = (float) getMaxDmg(max,agent.getStatStrCurrent(),agent.getStatDexCurrent(),agent.getLevel(),mainHand);
-			range = max - min;
-			damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
-			if (AbstractWorldObject.IsAbstractCharacter(target))
-				if (((AbstractCharacter) target).isSit())
-					damage *= 2.5f; //increase damage if sitting
-
-			if (AbstractWorldObject.IsAbstractCharacter(target))
-				return ((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, damage, 0) * dmgMultiplier;
-
-			if (target.getObjectType() == GameObjectType.Building) {
-				Building building = (Building) target;
-				Resists resists = building.getResists();
-				return (damage * (1 - (resists.getResist(dt, 0) / 100))) * dmgMultiplier;
-			}
+			damage = calculateMobDamage(agent);
 		}
-		//impossible to get this far
+		if (AbstractWorldObject.IsAbstractCharacter(target)) {
+			if (((AbstractCharacter) target).isSit()) {
+				damage *= 2.5f; //increase damage if sitting
+			}
+			return (int) (((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, damage, 0));
+		}
+		if (target.getObjectType() == GameObjectType.Building) {
+			Building building = (Building) target;
+			Resists resists = building.getResists();
+			return (int) ((damage * (1 - (resists.getResist(dt, 0) / 100))));
+		}
+		return damage;
+	}
+	public static DamageType getDamageType(Mob agent){
+		DamageType dt = DamageType.Crush;
+		if(agent.getEquip().get(1).getItemBase() != null ){
+			return agent.getEquip().get(1).getItemBase().getDamageType();
+		}
+		if(agent.getEquip().get(2).getItemBase() != null && agent.getEquip().get(2).getItemBase().isShield() == false){
+			return agent.getEquip().get(2).getItemBase().getDamageType();
+		}
+		return dt;
+	}
+	public static int calculatePetDamage(Mob agent) {
+		//damage calc for pet
+		float range;
+		float damage;
+		float min = 40;
+		float max = 60;
+		AbstractWorldObject target = agent.getCombatTarget();
+		float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+		float str = agent.getStatStrCurrent();
+		float dex = agent.getStatDexCurrent();
+		double minDmg =  getMinDmg(min,agent, null);
+		double maxDmg =  getMaxDmg(max,agent, null);
+		dmgMultiplier += agent.getLevel() / 10;
+		range = (float) (maxDmg - minDmg);
+		damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
+		return (int) (damage * dmgMultiplier);
+	}
+	public static int calculateGuardDamage(Mob agent){
+		//damage calc for guard
+		ItemBase weapon = agent.getEquip().get(1).getItemBase();
+		AbstractWorldObject target = agent.getCombatTarget();
+		float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+		double minDmg = weapon.getMinDamage();
+		double maxDmg = weapon.getMaxDamage();
+		float str = agent.getStatStrCurrent();
+		float dex = agent.getStatDexCurrent();
+		double min = getMinDmg(minDmg,agent, weapon);
+		double max = getMaxDmg(maxDmg,agent, weapon);
+		DamageType dt = weapon.getDamageType();
+		double range = max - min;
+		double damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
+		if (AbstractWorldObject.IsAbstractCharacter(target))
+			if (((AbstractCharacter) target).isSit())
+				damage *= 2.5f; //increase damage if sitting
+		if (AbstractWorldObject.IsAbstractCharacter(target))
+			return (int) (((AbstractCharacter) target).getResists().getResistedDamage((AbstractCharacter) agent, (AbstractCharacter) target, dt, (float) damage, 0) * dmgMultiplier);
 		return 0;
 	}
-	public static double getMinDmg(double min, float str, float dex, int level, ItemBase equipped){
-		if(str == 0){
-			str = 1;
+	public static int calculateEpicDamage(Mob agent){
+		//handle r8 mob damage
+		DamageType dt = DamageType.Crush;
+		AbstractWorldObject target = agent.getCombatTarget();
+		float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+		if (agent.getEquip().get(1).getItemBase() != null) {
+			dt = agent.getEquip().get(1).getItemBase().getDamageType();
+		} else if(agent.getEquip().get(2).getItemBase() != null && agent.getEquip().get(2).getItemBase().isShield() == false){
+			dt = agent.getEquip().get(2).getItemBase().getDamageType();
 		}
-		if(dex == 0){
-			dex = 1;
-		}
-		return (min * pow((0.0048*str +.049*(str-0.75)),pow(0.5 + 0.0066*dex + 0.064*(dex-0.75),0.5 + 0.01*(200/level))));
+		double min = agent.getMobBase().getMinDmg();
+		double max = agent.getMobBase().getMaxDmg();
+		double range = max - min;
+		double damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
+		return (int) (((AbstractCharacter) target).getResists().getResistedDamage((AbstractCharacter) agent, (AbstractCharacter) target, dt, (float) damage, 0) * dmgMultiplier);
 	}
-	public static double getMaxDmg(double max, float str, float dex, int level,ItemBase equipped){
-		if(str == 0){
-			str = 1;
+	public static int calculateMobDamage(Mob agent){
+		ItemBase weapon = null;
+		double minDmg;
+		double maxDmg;
+		DamageType dt;
+		if(agent.getEquip().get(1).getItemBase() != null){
+			//mainhand damage
+			weapon = agent.getEquip().get(1).getItemBase();
+		} else if(agent.getEquip().get(2).getItemBase() != null){
+			//offhand damage
+			weapon = agent.getEquip().get(2).getItemBase();
 		}
-		if(dex == 0){
-			dex = 1;
+		if(weapon != null){
+			minDmg = weapon.getMinDamage();
+			maxDmg = weapon.getMaxDamage();
+			dt = weapon.getDamageType();
+		}else{
+			minDmg = agent.getMobBase().getMinDmg();
+			maxDmg = agent.getMobBase().getMaxDmg();
+			dt = DamageType.Crush;
 		}
-		float primary = 0;
-		float secondary = 0;
-		if(equipped == null){
-			primary = str;
-			secondary = dex;
-		}
-		else if(equipped.isStrBased()){
-			primary = str;
-			secondary = dex;
+		AbstractWorldObject target = agent.getCombatTarget();
+		float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+		float str = agent.getStatStrCurrent();
+		float dex = agent.getStatDexCurrent();
+		double min = getMinDmg(minDmg,agent, weapon);
+		double max = getMaxDmg(maxDmg,agent, weapon);
+
+		double range = max - min;
+		double damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
+		if (AbstractWorldObject.IsAbstractCharacter(target))
+			if (((AbstractCharacter) target).isSit())
+				damage *= 2.5f; //increase damage if sitting
+		if (AbstractWorldObject.IsAbstractCharacter(target))
+			return (int) (((AbstractCharacter) target).getResists().getResistedDamage((AbstractCharacter) agent, (AbstractCharacter) target, dt, (float) damage, 0) * dmgMultiplier);
+		return 0;
+	}
+	public static double getMinDmg(double min, Mob agent, ItemBase weapon){
+		int primary = 0;
+		int secondary = 0;
+		int focusLevel = 0;
+		int masteryLevel = 0;
+		if(weapon.isStrBased() == true){
+			primary = agent.getStatStrCurrent();
+			secondary = agent.getStatDexCurrent();
 		}
 		else{
-			primary = dex;
-			secondary = str;
+		primary = agent.getStatDexCurrent();
+		secondary = agent.getStatStrCurrent();
 		}
-		return (max * pow((0.0124*primary +0.118*(primary-0.75)),pow(0.5 + 0.0022*secondary + 0.028*(secondary-0.75),0.5 + 0.0075*(200/level))));
+		if (weapon != null) {
+			focusLevel = (int) agent.getSkills().get(weapon.getSkillRequired()).getModifiedAmount();
+			masteryLevel = (int) agent.getSkills().get(weapon.getMastery()).getModifiedAmount();
+		}
+		return min * (pow(0.0048*primary +.049*(primary-0.75),0.5) + pow(0.0066*secondary + 0.064*(secondary-0.75),0.5) + + 0.01*(focusLevel + masteryLevel));
+	}
+	public static double getMaxDmg(double max, Mob agent, ItemBase weapon){
+		int primary = 0;
+		int secondary = 0;
+		int focusLevel = 0;
+		int masteryLevel = 0;
+		if(weapon.isStrBased() == true){
+			primary = agent.getStatStrCurrent();
+			secondary = agent.getStatDexCurrent();
+		}
+		else{
+			primary = agent.getStatDexCurrent();
+			secondary = agent.getStatStrCurrent();
+		}
+		if (weapon != null) {
+			focusLevel = (int) agent.getSkills().get(weapon.getSkillRequired()).getModifiedAmount();
+			masteryLevel = (int) agent.getSkills().get(weapon.getMastery()).getModifiedAmount();
+		}
+		return max * (pow(0.0124*primary + 0.118*(primary -0.75),0.5) + pow(0.0022*secondary + 0.028*(secondary-0.75),0.5) + 0.0075*(focusLevel + masteryLevel));
 	}
 	public static boolean RunAIRandom(){
 		int random = ThreadLocalRandom.current().nextInt(4);
