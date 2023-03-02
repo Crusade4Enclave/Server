@@ -209,6 +209,9 @@ public class MagicBot extends ListenerAdapter {
             case "#recruit":
                 ChatChannelHandler.handleRequest(ChatChannel.RECRUIT, event, args);
                 break;
+            case "#magicbox":
+                ChatChannelHandler.handleRequest(ChatChannel.MAGICBOX, event, args);
+                break;
             case "#lookup":
                 LookupRequestHandler.handleRequest(event, args);
                 break;

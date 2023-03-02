@@ -20,7 +20,7 @@ public enum ChatChannel {
     GENERAL("MB_MAGICBOT_GENERAL"),
     FORTOFIX("MB_MAGICBOT_FORTOFIX"),
     RECRUIT("MB_MAGICBOT_RECRUIT"),
-
+    MAGICBOX("MB_MAGICBOT_MAGICBOX"),
     ADMINLOG("MB_MAGICBOT_ADMINLOG");
 
     public final String configName;
