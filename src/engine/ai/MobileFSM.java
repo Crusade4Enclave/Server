@@ -17,6 +17,7 @@ import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.*;
+import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
@@ -36,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static engine.math.FastMath.sqr;
+import static java.lang.Math.sqrt;
 
 public class MobileFSM {
 
@@ -1700,14 +1702,28 @@ public class MobileFSM {
         return false;
     }
     public static void MobCallForHelp(Mob mob) {
+        if(mob.nextCallForHelp == 0){
+            mob.nextCallForHelp = System.currentTimeMillis();
+        }
         if(mob.nextCallForHelp < System.currentTimeMillis()){
             return;
         }
         Zone mobCamp = mob.getParentZone();
         for (Mob mob1 : mobCamp.zoneMobSet) {
             if (mob1.getMobBase().getFlags().contains(Enum.MobFlagType.RESPONDSTOCALLSFORHELP)) {
-                if (mob1.getState() == STATE.Idle) {
-                    MovementUtilities.moveToLocation(mob1, mob.getLoc(), 0);
+                if (mob1.getState() == STATE.Awake) {
+                    Vector3fImmutable loc1 = mob.getLoc();
+                    Vector3fImmutable loc2 = mob1.getLoc();
+                    double sum = 0;
+                    double x = loc1.x - loc2.x;
+                    sum += x * x;
+                    double z = loc1.z - loc2.z;
+                    sum += z * z;
+                    double dist = sqrt(sum);
+                    double aggroRange = mob.getAggroRange();
+                    if (dist <= aggroRange) {
+                        MovementUtilities.moveToLocation(mob1, mob.getLoc(), 0);
+                    }
                 }
             }
         }
