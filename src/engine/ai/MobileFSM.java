@@ -1667,7 +1667,7 @@ public class MobileFSM {
             }
 
         }
-        int random = ThreadLocalRandom.current().nextInt(eligiblePowers.size() *2);
+        int random = ThreadLocalRandom.current().nextInt(eligiblePowers.size());
         int powerToken = 0;
         int powerRank = 0;
         Map<Integer, Integer> entries = eligiblePowers;
@@ -1678,7 +1678,7 @@ public class MobileFSM {
                 powerToken = entry.getKey();
                 powerRank = entry.getValue();
                 PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
-                if (CombatUtilities.inRangeToCast2D(mob, mob.getCombatTarget(), mobPower)) {
+                if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
                     //PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
                     PerformActionMsg msg = new PerformActionMsg();
                     if(mobPower.isHarmful() == false || mobPower.targetSelf == true){
@@ -1712,16 +1712,7 @@ public class MobileFSM {
         for (Mob mob1 : mobCamp.zoneMobSet) {
             if (mob1.getMobBase().getFlags().contains(Enum.MobFlagType.RESPONDSTOCALLSFORHELP)) {
                 if (mob1.getState() == STATE.Awake) {
-                    Vector3fImmutable loc1 = mob.getLoc();
-                    Vector3fImmutable loc2 = mob1.getLoc();
-                    double sum = 0;
-                    double x = loc1.x - loc2.x;
-                    sum += x * x;
-                    double z = loc1.z - loc2.z;
-                    sum += z * z;
-                    double dist = sqrt(sum);
-                    double aggroRange = mob.getAggroRange();
-                    if (dist <= aggroRange) {
+                    if (CombatUtilities.inRange2D(mob, mob1, mob.getAggroRange()) == true) {
                         MovementUtilities.moveToLocation(mob1, mob.getLoc(), 0);
                     }
                 }

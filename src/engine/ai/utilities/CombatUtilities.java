@@ -33,6 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static engine.math.FastMath.sqr;
 import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 public class CombatUtilities {
 
@@ -82,18 +83,17 @@ public class CombatUtilities {
 		}
 
 	}
-	public static boolean inRangeToCast2D(Mob agent,AbstractWorldObject target, PowersBase power) {
-
-		if (Float.isNaN(agent.getLoc().x))
-			return false;
-		try {
-			Vector3fImmutable sl = agent.getLoc();
-			Vector3fImmutable tl = target.getLoc();
-			float range = power.getRange();
-			range += CombatManager.calcHitBox(target) + CombatManager.calcHitBox(agent);
-			return !(sl.distanceSquared2D(tl) > sqr(range));
-		} catch (Exception e) {
-			Logger.error(e.toString());
+	public static boolean inRange2D(AbstractWorldObject entity1, AbstractWorldObject entity2, double range){
+		Vector3fImmutable loc1 = entity1.getLoc();
+		Vector3fImmutable loc2 = entity2.getLoc();
+		double sum = 0;
+		double x = loc1.x - loc2.x;
+		sum += x * x;
+		double z = loc1.z - loc2.z;
+		sum += z * z;
+		if(sqrt(sum) <= range){
+			return true;
+		} else {
 			return false;
 		}
 	}
