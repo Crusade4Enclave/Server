@@ -1679,7 +1679,7 @@ public class MobileFSM {
                 powerRank = entry.getValue();
                 PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
                 if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
-                    //PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
+                    PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
                     PerformActionMsg msg = new PerformActionMsg();
                     if(mobPower.isHarmful() == false || mobPower.targetSelf == true){
                         msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
