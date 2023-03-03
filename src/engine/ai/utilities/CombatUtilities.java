@@ -449,8 +449,8 @@ public class CombatUtilities {
 			weapon = agent.getEquip().get(2).getItemBase();
 		}
 		if(weapon != null){
-			minDmg = weapon.getMinDamage();
-			maxDmg = weapon.getMaxDamage();
+			minDmg = getMinDmg(weapon.getMinDamage(),agent,weapon);
+			maxDmg = getMaxDmg(weapon.getMaxDamage(),agent, weapon);
 			dt = weapon.getDamageType();
 		}else{
 			minDmg = agent.getMobBase().getDamageMin();

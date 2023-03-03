@@ -1652,12 +1652,15 @@ public class MobileFSM {
         PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
         HashMap<Integer,Integer> eligiblePowers = mob.mobPowers;
         for(Map.Entry<Integer,Integer> power : mob.mobPowers.entrySet()) {
-            ConcurrentHashMap<String, Effect> effects = target.getEffects();
             PowersBase pwr= PowersManager.getPowerByToken(power.getKey());
             for(ActionsBase act : pwr.getActions()){
                 String des = act.stackType;
-                if(target.getEffects().containsKey(des)){
-                    eligiblePowers.remove(power.getKey());
+                try {
+                    if (target.getEffects() != null && target.getEffects().containsKey(des) == true) {
+                        eligiblePowers.remove(power.getKey());
+                    }
+                }catch(Exception ex){
+
                 }
             }
 
