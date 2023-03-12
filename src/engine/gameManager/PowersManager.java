@@ -2786,6 +2786,7 @@ SourceType sourceType = SourceType.GetSourceType(pb.getCategory());
 		}
 	}
 	public static void GatherMobPowers(){
+		AllMobPowers = new HashMap<Integer,HashMap<Integer,Integer>>();
 		for(Mob mob : DbManager.MobQueries.GET_ALL_MOBS()){
 			if(DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mob.getMobBaseID()).isEmpty() == true){
 				continue;
