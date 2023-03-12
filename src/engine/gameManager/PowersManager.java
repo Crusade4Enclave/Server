@@ -54,6 +54,7 @@ public enum PowersManager {
 	public static HashMap<Integer, AbstractEffectModifier> modifiersByToken = new HashMap<>();
 	public static HashMap<String,Integer> AnimationOverrides = new HashMap<>();
 	private static JobScheduler js;
+	public static HashMap<Integer,HashMap<Integer,Integer>> AllMobPowers;
 
 	public static void initPowersManager(boolean fullPowersLoad) {
 
@@ -2783,6 +2784,18 @@ SourceType sourceType = SourceType.GetSourceType(pb.getCategory());
 				}
 			}
 		}
+	}
+	public static void GatherMobPowers(){
+		for(Mob mob : DbManager.MobQueries.GET_ALL_MOBS()){
+			if(DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mob.getMobBaseID()).isEmpty() == true){
+				continue;
+			}
+			else {
+				HashMap<Integer, Integer> mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mob.getMobBaseID());
+				AllMobPowers.put(mob.getMobBaseID(), mobPowers);
+			}
+		}
+		Logger.info("Static Mob Powers HashMap Loaded Successfully...");
 	}
 }
 

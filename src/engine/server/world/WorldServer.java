@@ -75,7 +75,6 @@ public class WorldServer {
 	// Member variable declaration
 
 	public static HashMap<Integer,HashMap<Integer,ArrayList<Integer>>> ZoneFidelityMobRunes = new HashMap<>();
-	public static HashMap<Integer,HashMap<Integer,Integer>> AllMobPowers;
 	public WorldServer() {
 		super();
 	}
@@ -471,20 +470,8 @@ public class WorldServer {
 		System.gc();
 
 		Logger.info("Loading All Mob Powers...");
-		GatherMobPowers();
+		PowersManager.GatherMobPowers();
 		return true;
-	}
-	private void GatherMobPowers(){
-		for(Mob mob : DbManager.MobQueries.GET_ALL_MOBS()){
-			if(DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mob.getMobBaseID()).isEmpty() == true){
-				continue;
-			}
-			else {
-				HashMap<Integer, Integer> mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mob.getMobBaseID());
-				AllMobPowers.put(mob.getMobBaseID(), mobPowers);
-			}
-		}
-		Logger.info("Static Mob Powers HashMap Loaded Successfully...");
 	}
 	protected boolean initDatabaselayer() {
 
