@@ -54,11 +54,6 @@ public class Mine extends AbstractGameObject {
     public GuildTag nationTag;
     private final String zoneName;
     private Resource production;
-    private final float latitude;
-    private final float longitude;
-
-    //flags 1: never been claimed (make active).
-    private final float altitude;
     private Guild owningGuild;
     private int flags;
     private int buildingID;
@@ -73,28 +68,12 @@ public class Mine extends AbstractGameObject {
 
         this.mineType = MineProduction.getByName(rs.getString("mine_type"));
 
-        float offsetX = rs.getFloat("mine_offsetX");
-        float offsetZ = rs.getFloat("mine_offsetZ");
         int ownerUID = rs.getInt("mine_ownerUID");
         this.buildingID = rs.getInt("mine_buildingUID");
         this.flags = rs.getInt("flags");
         int parent = rs.getInt("parent");
         this.parentZone = ZoneManager.getZoneByUUID(parent);
-        if (parentZone != null) {
-            this.latitude = parentZone.getLoc().x + offsetX;
-            this.longitude = parentZone.getLoc().z + offsetZ;
-            this.altitude = parentZone.getLoc().y;
-            if (this.parentZone.getParent() != null)
-                this.zoneName = this.parentZone.getParent().getName();
-            else
-                this.zoneName = this.parentZone.getName();
-        } else {
-            Logger.error("Missing parentZone of ID " + parent);
-            this.latitude = -1000;
-            this.longitude = 1000;
-            this.altitude = 0;
-            this.zoneName = "Unknown Mine";
-        }
+        this.zoneName = this.parentZone.getParent().getName();
 
         this.owningGuild = Guild.getGuild(ownerUID);
         Guild nation = null;
@@ -230,9 +209,11 @@ public class Mine extends AbstractGameObject {
         writer.putLocalDateTime(mineOpenTime.plusHours(1));
         writer.put(mine.isActive ? (byte) 0x01 : (byte) 0x00);
 
-        writer.putFloat(mine.latitude);
-        writer.putFloat(mine.altitude);
-        writer.putFloat(mine.longitude);
+        Building mineTower = BuildingManager.getBuilding(mine.buildingID);
+        writer.putFloat(mineTower.getLoc().x);
+        writer.putFloat(mineTower.getParentZone().getLoc().y);
+        writer.putFloat(mineTower.getLoc().z);
+
         writer.putInt(mine.isExpansion() ? mine.mineType.xpacHash : mine.mineType.hash);
 
         writer.putString(mine.guildName);
@@ -367,10 +348,6 @@ public class Mine extends AbstractGameObject {
 
     public boolean getIsActive() {
         return this.isActive;
-    }
-
-    public float getAltitude() {
-        return this.altitude;
     }
 
     public Guild getOwningGuild() {
