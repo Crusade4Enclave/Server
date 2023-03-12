@@ -305,12 +305,12 @@ public class WorldServer {
 		BaseClass.LoadAllBaseClasses();
 		Race.loadAllRaces();
 		RuneBaseEffect.LoadRuneBaseEffects();
-
-		Logger.info("Loading MobBases.");
-		DbManager.MobBaseQueries.GET_ALL_MOBBASES();
 		//Load Static Mob Powers List
 		Logger.info("Loading All Mob Powers...");
 		PowersManager.GatherMobPowers();
+		Logger.info("Loading MobBases.");
+		DbManager.MobBaseQueries.GET_ALL_MOBBASES();
+
 		//load item enchantment values
 		DbManager.LootQueries.LOAD_ENCHANT_VALUES();
 
