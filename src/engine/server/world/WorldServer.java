@@ -362,6 +362,9 @@ public class WorldServer {
 		Logger.info("Loading Support Types");
 		SupportMsgType.InitializeSupportMsgType();
 
+		//Load Static Mob Power sList
+		Logger.info("Loading All Mob Powers...");
+		PowersManager.GatherMobPowers();
 		//Load Buildings, Mobs and NPCs for server
 
 		getWorldBuildingsMobsNPCs();
@@ -468,9 +471,6 @@ public class WorldServer {
 
 		Logger.info("Running garbage collection...");
 		System.gc();
-
-		Logger.info("Loading All Mob Powers...");
-		PowersManager.GatherMobPowers();
 		return true;
 	}
 	protected boolean initDatabaselayer() {
