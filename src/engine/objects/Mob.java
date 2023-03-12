@@ -2219,6 +2219,7 @@ public class Mob extends AbstractIntelligenceAgent {
 		} catch(Exception e){
 			Logger.error( e.getMessage());
 		}
+		mobPowers = new HashMap<Integer,Integer>();
 		//mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(this.getMobBaseID());
 		if(PowersManager.AllMobPowers.containsKey(this.getMobBaseID()) == true){
 			mobPowers = PowersManager.AllMobPowers.get(this.getMobBaseID());
