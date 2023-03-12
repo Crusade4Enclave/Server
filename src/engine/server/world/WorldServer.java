@@ -308,7 +308,9 @@ public class WorldServer {
 
 		Logger.info("Loading MobBases.");
 		DbManager.MobBaseQueries.GET_ALL_MOBBASES();
-
+		//Load Static Mob Powers List
+		Logger.info("Loading All Mob Powers...");
+		PowersManager.GatherMobPowers();
 		//load item enchantment values
 		DbManager.LootQueries.LOAD_ENCHANT_VALUES();
 
@@ -362,11 +364,7 @@ public class WorldServer {
 		Logger.info("Loading Support Types");
 		SupportMsgType.InitializeSupportMsgType();
 
-		//Load Static Mob Power sList
-		Logger.info("Loading All Mob Powers...");
-		PowersManager.GatherMobPowers();
 		//Load Buildings, Mobs and NPCs for server
-
 		getWorldBuildingsMobsNPCs();
 
 		// Configure realms for serialization
