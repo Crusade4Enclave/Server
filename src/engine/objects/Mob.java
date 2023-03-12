@@ -2220,15 +2220,8 @@ public class Mob extends AbstractIntelligenceAgent {
 			Logger.error( e.getMessage());
 		}
 		//mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(this.getMobBaseID());
-		mobPowers = (HashMap<Integer, Integer>) PowersManager.AllMobPowers.get(this.getMobBaseID()).entrySet();
-		if(this.isPlayerGuard() == true){
-			//load guards powers
-			ArrayList<MobBase> mobbases = DbManager.MobBaseQueries.GET_ALL_MOBBASES();
-			for(MobBase mb : mobbases){
-				if(this.getNameOverride().contains(mb.getFirstName())){
-					this.mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mb.getObjectUUID());
-				}
-			}
+		if(PowersManager.AllMobPowers.containsKey(this.getMobBaseID()) == true){
+			mobPowers = (HashMap<Integer, Integer>) PowersManager.AllMobPowers.get(this.getMobBaseID()).entrySet();
 		}
 		if (this.equip == null) {
 			Logger.error("Null equipset returned for uuid " + currentID);
