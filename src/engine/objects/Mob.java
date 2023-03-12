@@ -2219,7 +2219,8 @@ public class Mob extends AbstractIntelligenceAgent {
 		} catch(Exception e){
 			Logger.error( e.getMessage());
 		}
-		mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(this.getMobBaseID());
+		//mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(this.getMobBaseID());
+		mobPowers = (HashMap<Integer, Integer>) WorldServer.AllMobPowers.get(this.getMobBaseID()).entrySet();
 		if(this.isPlayerGuard() == true){
 			//load guards powers
 			ArrayList<MobBase> mobbases = DbManager.MobBaseQueries.GET_ALL_MOBBASES();
