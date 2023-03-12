@@ -305,9 +305,6 @@ public class WorldServer {
 		BaseClass.LoadAllBaseClasses();
 		Race.loadAllRaces();
 		RuneBaseEffect.LoadRuneBaseEffects();
-		//Load Static Mob Powers List
-		Logger.info("Loading All Mob Powers...");
-		PowersManager.GatherMobPowers();
 		Logger.info("Loading MobBases.");
 		DbManager.MobBaseQueries.GET_ALL_MOBBASES();
 

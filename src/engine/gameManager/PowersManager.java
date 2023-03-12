@@ -64,7 +64,9 @@ public enum PowersManager {
 			PowersManager.InitializeLoginPowers();
 
 		PowersManager.js = JobScheduler.getInstance();
-
+		//Load Static Mob Powers List
+		Logger.info("Loading All Mob Powers...");
+		PowersManager.GatherMobPowers();
 	}
 
 	private PowersManager() {
