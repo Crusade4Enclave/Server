@@ -2221,7 +2221,7 @@ public class Mob extends AbstractIntelligenceAgent {
 		}
 		//mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(this.getMobBaseID());
 		if(PowersManager.AllMobPowers.containsKey(this.getMobBaseID()) == true){
-			mobPowers = (HashMap<Integer, Integer>) PowersManager.AllMobPowers.get(this.getMobBaseID()).entrySet();
+			mobPowers = PowersManager.AllMobPowers.get(this.getMobBaseID());
 		}
 		if (this.equip == null) {
 			Logger.error("Null equipset returned for uuid " + currentID);
