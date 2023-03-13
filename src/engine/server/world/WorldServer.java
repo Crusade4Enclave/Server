@@ -290,6 +290,9 @@ public class WorldServer {
 		Logger.info("Loading Gold Loot for Mobbases");
 		MobbaseGoldEntry.LoadMobbaseGold();
 
+		Logger.info("Loading All Mob Powers...");
+		PowersManager.LoadAllMobPowers();
+
 		Logger.info("Loading fidelity mob runes.");
 		DbManager.MobQueries.LOAD_RUNES_FOR_FIDELITY_MOBS();
 

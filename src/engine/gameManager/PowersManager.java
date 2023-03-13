@@ -54,7 +54,7 @@ public enum PowersManager {
 	public static HashMap<Integer, AbstractEffectModifier> modifiersByToken = new HashMap<>();
 	public static HashMap<String,Integer> AnimationOverrides = new HashMap<>();
 	private static JobScheduler js;
-	public static HashMap<Integer,HashMap<Integer,Integer>> AllMobPowers;
+	public static HashMap<Integer,HashMap<Integer,Integer>> AllMobPowers = new HashMap<>();
 
 	public static void initPowersManager(boolean fullPowersLoad) {
 
@@ -64,9 +64,7 @@ public enum PowersManager {
 			PowersManager.InitializeLoginPowers();
 
 		PowersManager.js = JobScheduler.getInstance();
-		//Load Static Mob Powers List
-		Logger.info("Loading All Mob Powers...");
-		PowersManager.GatherMobPowers();
+
 	}
 
 	private PowersManager() {
@@ -2787,18 +2785,24 @@ SourceType sourceType = SourceType.GetSourceType(pb.getCategory());
 			}
 		}
 	}
-	public static void GatherMobPowers(){
-		AllMobPowers = new HashMap<Integer,HashMap<Integer,Integer>>();
-		for(Mob mob : DbManager.MobQueries.GET_ALL_MOBS()){
-			if(DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mob.getMobBaseID()).isEmpty() == true){
-				continue;
+	public static void LoadAllMobPowers(){
+
+		int count = 0;
+
+		for(AbstractGameObject mobBaseAgo :  DbManager.getList(GameObjectType.MobBase)){
+
+			int mobBaseID = ((MobBase) mobBaseAgo).getLoadID();
+
+			HashMap powersList = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mobBaseID);
+
+			if (powersList.isEmpty())
+				continue;;
+
+			AllMobPowers.put(mobBaseID, powersList);
+			count ++;
 			}
-			else {
-				HashMap<Integer, Integer> mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mob.getMobBaseID());
-				AllMobPowers.put(mob.getMobBaseID(), mobPowers);
-			}
-		}
-		Logger.info("Static Mob Powers HashMap Loaded Successfully...");
+
+		Logger.info("Powers loaded for " + count + " Mobbases/");
 	}
 }
 
