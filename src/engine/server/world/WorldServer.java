@@ -290,9 +290,6 @@ public class WorldServer {
 		Logger.info("Loading Gold Loot for Mobbases");
 		MobbaseGoldEntry.LoadMobbaseGold();
 
-		Logger.info("Loading All Mob Powers...");
-		PowersManager.LoadAllMobPowers();
-
 		Logger.info("Loading fidelity mob runes.");
 		DbManager.MobQueries.LOAD_RUNES_FOR_FIDELITY_MOBS();
 
@@ -310,6 +307,9 @@ public class WorldServer {
 		RuneBaseEffect.LoadRuneBaseEffects();
 		Logger.info("Loading MobBases.");
 		DbManager.MobBaseQueries.GET_ALL_MOBBASES();
+
+		Logger.info("Loading Mob Powers for MobBases");
+		PowersManager.LoadAllMobPowers();
 
 		//load item enchantment values
 		DbManager.LootQueries.LOAD_ENCHANT_VALUES();
