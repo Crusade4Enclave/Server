@@ -16,6 +16,7 @@ import engine.ai.MobileFSM.STATE;
 import engine.gameManager.ChatManager;
 import engine.gameManager.CombatManager;
 import engine.gameManager.PowersManager;
+import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
@@ -84,18 +85,7 @@ public class CombatUtilities {
 
 	}
 	public static boolean inRange2D(AbstractWorldObject entity1, AbstractWorldObject entity2, double range){
-		Vector3fImmutable loc1 = entity1.getLoc();
-		Vector3fImmutable loc2 = entity2.getLoc();
-		double sum = 0;
-		double x = loc1.x - loc2.x;
-		sum += x * x;
-		double z = loc1.z - loc2.z;
-		sum += z * z;
-		if((sum*sum) <= (range*range)){
-			return true;
-		} else {
-			return false;
-		}
+		return entity1.getLoc().distance2D(entity2.getLoc()) < range;
 	}
 	public static void swingIsBlock(Mob agent,AbstractWorldObject target, int animation) {
 

@@ -1730,13 +1730,23 @@ public class MobileFSM {
         mob.nextCallForHelp = System.currentTimeMillis() + 60000;
     }
     public static void handleMobChase(Mob mob){
-        if(CombatUtilities.inRange2D(mob,mob.getCombatTarget(),mob.getRange()) == true) {
-            MovementUtilities.moveToLocation(mob, mob.getLoc(), 0);
+        if (!MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget())) {
+            mob.setAggroTargetID(0);
+            mob.setCombatTarget(null);
+            MovementUtilities.moveToLocation(mob, mob.getTrueBindLoc(), 0);
+            mob.setState(STATE.Awake);
+            return;
+        }
+        float range = mob.getRange();
+        float distance = mob.getLoc().distanceSquared2D(mob.getCombatTarget().getLoc());
+        boolean inRange = mob.getLoc().inRange2D(mob.getCombatTarget().getLoc(),range);
+        if(range > distance) {
+            mob.stopMovement(mob.getLoc());
             mob.setState(STATE.Attack);
         }
-        else{
-            mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
-            MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+        else if(mob.isMoving() == true){
+                mob.destination = mob.getCombatTarget().getLoc();//MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
+                MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
         }
     }
 }
