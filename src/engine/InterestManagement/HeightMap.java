@@ -100,11 +100,7 @@ public class HeightMap {
         float numOfBuckets = this.heightmapImage.getWidth() - 1;
         float calculatedWidth = this.fullExtentsX / numOfBuckets;
         this.bucketWidthX = calculatedWidth;
-
-        numOfBuckets = this.heightmapImage.getHeight() - 1;
-        calculatedWidth = this.fullExtentsY / numOfBuckets;
-
-        this.bucketWidthY = calculatedWidth; // This makes no sense.
+        this.bucketWidthY =  this.bucketWidthX; // This makes no sense.
 
         // Generate pixel array from image data
 
