@@ -91,7 +91,7 @@ public class CombatUtilities {
 		sum += x * x;
 		double z = loc1.z - loc2.z;
 		sum += z * z;
-		if(sqrt(sum) <= range){
+		if((sum*sum) <= (range*range)){
 			return true;
 		} else {
 			return false;

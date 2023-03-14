@@ -786,6 +786,12 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 			if (mob.isSiege()) {
 				return 300;
 			}
+			float DefaultRange = 8;
+			if(((Mob) this).getEquip().get(0) != null){
+				return ((Mob) this).getEquip().get(0).getItemBase().getRange();
+			} else if(((Mob) this).getEquip().get(1) != null){
+				return ((Mob) this).getEquip().get(1).getItemBase().getRange();
+			}
 		}
 		if (this.rangeHandOne > this.rangeHandTwo) {
 			return this.rangeHandOne;
