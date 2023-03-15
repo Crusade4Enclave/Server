@@ -781,11 +781,22 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 		// Treb range does not appear to be set here
 		// what gives?
 
+
 		if (this.getObjectType() == GameObjectType.Mob) {
 			Mob mob = (Mob) this;
 			if (mob.isSiege()) {
 				return 300;
 			}
+			float range = 8;
+			if(((Mob) this).getEquip().get(1) != null){
+				range = ((Mob) this).getEquip().get(1).getItemBase().getRange();
+			} else if(((Mob) this).getEquip().get(2) != null){
+				range = ((Mob) this).getEquip().get(2).getItemBase().getRange();
+			}
+			if(range > 80){
+				range = 80;
+			}
+			return range;
 		}
 		if (this.rangeHandOne > this.rangeHandTwo) {
 			return this.rangeHandOne;

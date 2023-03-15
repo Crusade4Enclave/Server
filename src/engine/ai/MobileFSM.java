@@ -17,7 +17,6 @@ import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.*;
-import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
@@ -25,8 +24,6 @@ import engine.net.client.msg.PowerProjectileMsg;
 import engine.net.client.msg.UpdateStateMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
-import engine.powers.EffectsBase;
-import engine.powers.PowerPrereq;
 import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
@@ -53,7 +50,8 @@ public class MobileFSM {
         Home,
         Dead,
         Recalling,
-        Retaliate
+        Retaliate,
+        Chase
     }
 
     public static void run(Mob mob) {
@@ -116,7 +114,6 @@ public class MobileFSM {
                     rwss.setPlayer(mob);
                     DispatchMessage.sendToAllInRange(mob, rwss);
                 }
-
                 if (mob.isPlayerGuard())
                     guardAttack(mob);
                 else if (mob.isPet() || mob.isSiege())
@@ -143,6 +140,9 @@ public class MobileFSM {
                 break;
             case Retaliate:
                 retaliate(mob);
+                break;
+            case Chase:
+                handleMobChase(mob);
                 break;
         }
     }
@@ -339,8 +339,8 @@ public class MobileFSM {
         if (!MovementUtilities.canMove(aiAgent))
             return;
 
-
-        if (CombatUtilities.inRangeToAttack2D(aiAgent, mob))
+        double WeaponRange = aiAgent.getEquip().get(0).getItemBase().getRange();
+        if (CombatUtilities.inRange2D(aiAgent, mob, WeaponRange))
             return;
 
 
@@ -465,11 +465,12 @@ public class MobileFSM {
             aiAgent.setState(STATE.Patrol);
             return;
         }
+        aiAgent.setCombatTarget(aggroTarget);
         if (canCast(aiAgent) == true) {
             if (MobCast(aiAgent) == false) {
                 attack(aiAgent, targetID);
             }
-        } else if (CombatUtilities.inRangeToAttack(aiAgent, aggroTarget)) {
+        } else if (CombatUtilities.inRange2D(aiAgent, aggroTarget, aiAgent.getRange())) {
             aiAgent.setState(STATE.Attack);
             attack(aiAgent, targetID);
             return;
@@ -824,18 +825,19 @@ public class MobileFSM {
             aiAgent.setState(STATE.Awake);
             return;
         }
-        if (CombatUtilities.inRangeToAttack(aiAgent, player)) {
+        if (CombatUtilities.inRange2D(aiAgent, player, aiAgent.getRange())) {
 
             //no weapons, defualt mob attack speed 3 seconds.
 
             if (System.currentTimeMillis() < aiAgent.getLastAttackTime())
                 return;
 
-            if (!CombatUtilities.RunAIRandom())
-                return;
+            //if (!CombatUtilities.RunAIRandom())
+            //    return;
 
             // ranged mobs cant attack while running. skip until they finally stop.
-            if (aiAgent.getRange() >= 30 && aiAgent.isMoving())
+            //if (aiAgent.getRange() >= 30 && aiAgent.isMoving())
+            if(aiAgent.isMoving())
                 return;
 
             // add timer for last attack.
@@ -888,10 +890,8 @@ public class MobileFSM {
         //this stops mobs from attempting to move while they are underneath a player.
         if (CombatUtilities.inRangeToAttack2D(aiAgent, player))
             return;
-
-        aiAgent.destination = MovementUtilities.GetDestinationToCharacter(aiAgent, player);
-        MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
-
+        //set mob to pursue target
+        aiAgent.setState(MobileFSM.STATE.Chase);
     }
     private static void handleMobAttackForPet(Mob aiAgent, Mob mob) {
 
@@ -1145,12 +1145,6 @@ public class MobileFSM {
         aiAgent.setAggroTargetID(0);
         aiAgent.setCombatTarget(null);
         aiAgent.setState(STATE.Awake);
-    }
-    private static void recall(Mob aiAgent) {
-        //recall home.
-        PowersBase recall = PowersManager.getPowerByToken(-1994153779);
-        PowersManager.useMobPower(aiAgent, aiAgent, recall, 40);
-        aiAgent.setState(MobileFSM.STATE.Recalling);
     }
     private static void recalling(Mob aiAgent) {
         //recall home.
@@ -1648,72 +1642,59 @@ public class MobileFSM {
         return true;
     }
     public static boolean MobCast(Mob mob) {
-
-        // Method picks a random spell from a mobile's list of powers
-        // and casts it on the player.  Validation (including empty lists)
-        // if done previously in canCast();
-
-        ArrayList<Integer> powerTokens;
-        PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
-
-        if (mob.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP))
+        if (mob.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP)) {
             MobCallForHelp(mob);
-
-        // Generate a list of tokens from the mob powers for this mobile.
-
-        powerTokens = new ArrayList<>(mob.mobPowers.keySet());
-
-        // If player has this effect on them already then remove the token
-        // from the list of mob powers
-
-        for (int powerToken : powerTokens){
-
-            PowersBase pwr= PowersManager.getPowerByToken(powerToken);
-
+        }
+        PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
+        HashMap<Integer,Integer> eligiblePowers = mob.mobPowers;
+        for(Map.Entry<Integer,Integer> power : mob.mobPowers.entrySet()) {
+            PowersBase pwr= PowersManager.getPowerByToken(power.getKey());
             for(ActionsBase act : pwr.getActions()){
-
                 String des = act.stackType;
+                try {
+                    if (target.getEffects() != null && target.getEffects().containsKey(des) == true) {
+                        eligiblePowers.remove(power.getKey());
+                    }
+                }catch(Exception ex){
 
-                if (target.getEffects() != null && target.getEffects().containsKey(des))
-                    powerTokens.remove(powerToken);
+                }
+            }
+
+        }
+        int random = ThreadLocalRandom.current().nextInt(eligiblePowers.size());
+        int powerToken = 0;
+        int powerRank = 0;
+        Map<Integer, Integer> entries = eligiblePowers;
+        int count = -1;
+        for (Map.Entry<Integer, Integer> entry : entries.entrySet()) {
+            count += 1;
+            if (count == random) {
+                powerToken = entry.getKey();
+                powerRank = entry.getValue();
+                PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
+                if (CombatUtilities.inRange2D(mob, target, mobPower.getRange())) {
+                    PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
+                    PerformActionMsg msg = new PerformActionMsg();
+                    if(mobPower.isHarmful() == false || mobPower.targetSelf == true){
+                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
+                    } else {
+                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                    }
+                    msg.setUnknown04(2);
+                    PowersManager.finishUseMobPower(msg, mob, 0, 0);
+                    //default minimum seconds between cast = 10
+                    long cooldown = mobPower.getCooldown();
+                    if(cooldown < 10000){
+                        mob.nextCastTime = System.currentTimeMillis() + 10000 + cooldown;
+                    } else {
+                        mob.nextCastTime = System.currentTimeMillis() + cooldown;
+                    }
+                    return true;
+                }
             }
         }
-
-        // Pick random spell from our list of powers
-
-        int powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
-        int powerRank = mob.mobPowers.get(powerToken);
-        PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
-
-        // Cast the spell
-
-        if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
-            PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
-            PerformActionMsg msg;
-
-            if(mobPower.isHarmful() == false || mobPower.targetSelf == true)
-                msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
-            else
-                msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
-
-            msg.setUnknown04(2);
-            PowersManager.finishUseMobPower(msg, mob, 0, 0);
-
-            //default minimum seconds between cast = 10
-
-            long coolDown = mobPower.getCooldown();
-
-            if(coolDown < 10000)
-                mob.nextCastTime = System.currentTimeMillis() + 10000 + coolDown;
-            else
-                mob.nextCastTime = System.currentTimeMillis() + coolDown;
-
-            return true;
-                }
-
         return false;
     }
-
     public static void MobCallForHelp(Mob mob) {
         if(mob.nextCallForHelp == 0){
             mob.nextCallForHelp = System.currentTimeMillis();
@@ -1733,5 +1714,30 @@ public class MobileFSM {
         }
         //wait 60 seconds to call for help again
         mob.nextCallForHelp = System.currentTimeMillis() + 60000;
+    }
+    public static void handleMobChase(Mob mob){
+        if (!MovementUtilities.inRangeOfBindLocation(mob)) {
+            mob.setCombatTarget(null);
+            mob.setAggroTargetID(0);
+            mob.setWalkingHome(false);
+            mob.setState(STATE.Home);
+            return;
+        }
+        mob.updateMovementState();
+        mob.updateLocation();
+        if(CombatUtilities.inRange2D(mob,mob.getCombatTarget(), mob.getRange()) == true) {
+            MovementUtilities.moveToLocation(mob, mob.getLoc(), 0);
+            mob.setState(STATE.Attack);
+        }
+        else {//if (mob.isMoving() == false){
+            if(mob.getRange() > 15) {
+                mob.destination = mob.getCombatTarget().getLoc();
+                MovementUtilities.moveToLocation(mob, mob.destination, 0);
+            } else{
+                mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
+                MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+            }
+
+        }
     }
 }
