@@ -1642,59 +1642,72 @@ public class MobileFSM {
         return true;
     }
     public static boolean MobCast(Mob mob) {
-        if (mob.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP)) {
-            MobCallForHelp(mob);
-        }
+
+        // Method picks a random spell from a mobile's list of powers
+        // and casts it on the player.  Validation (including empty lists)
+        // if done previously in canCast();
+
+        ArrayList<Integer> powerTokens;
         PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
-        HashMap<Integer,Integer> eligiblePowers = mob.mobPowers;
-        for(Map.Entry<Integer,Integer> power : mob.mobPowers.entrySet()) {
-            PowersBase pwr= PowersManager.getPowerByToken(power.getKey());
+
+        if (mob.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP))
+            MobCallForHelp(mob);
+
+        // Generate a list of tokens from the mob powers for this mobile.
+
+        powerTokens = new ArrayList<>(mob.mobPowers.keySet());
+
+        // If player has this effect on them already then remove the token
+        // from the list of mob powers
+
+        for (int powerToken : powerTokens){
+
+            PowersBase pwr= PowersManager.getPowerByToken(powerToken);
+
             for(ActionsBase act : pwr.getActions()){
+
                 String des = act.stackType;
-                try {
-                    if (target.getEffects() != null && target.getEffects().containsKey(des) == true) {
-                        eligiblePowers.remove(power.getKey());
-                    }
-                }catch(Exception ex){
 
-                }
-            }
-
-        }
-        int random = ThreadLocalRandom.current().nextInt(eligiblePowers.size());
-        int powerToken = 0;
-        int powerRank = 0;
-        Map<Integer, Integer> entries = eligiblePowers;
-        int count = -1;
-        for (Map.Entry<Integer, Integer> entry : entries.entrySet()) {
-            count += 1;
-            if (count == random) {
-                powerToken = entry.getKey();
-                powerRank = entry.getValue();
-                PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
-                if (CombatUtilities.inRange2D(mob, target, mobPower.getRange())) {
-                    PowersManager.useMobPower(mob,(AbstractCharacter)mob.getCombatTarget(),mobPower,powerRank);
-                    PerformActionMsg msg = new PerformActionMsg();
-                    if(mobPower.isHarmful() == false || mobPower.targetSelf == true){
-                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
-                    } else {
-                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
-                    }
-                    msg.setUnknown04(2);
-                    PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                    //default minimum seconds between cast = 10
-                    long cooldown = mobPower.getCooldown();
-                    if(cooldown < 10000){
-                        mob.nextCastTime = System.currentTimeMillis() + 10000 + cooldown;
-                    } else {
-                        mob.nextCastTime = System.currentTimeMillis() + cooldown;
-                    }
-                    return true;
-                }
+                if (target.getEffects() != null && target.getEffects().containsKey(des))
+                    powerTokens.remove(powerToken);
             }
         }
-        return false;
-    }
+
+        // Pick random spell from our list of powers
+
+        int powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
+        int powerRank = mob.mobPowers.get(powerToken);
+        PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
+
+        // Cast the spell
+
+        if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
+            PowersManager.useMobPower(mob, (AbstractCharacter) mob.getCombatTarget(), mobPower, powerRank);
+            PerformActionMsg msg;
+
+            if (mobPower.isHarmful() == false || mobPower.targetSelf == true)
+                msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
+            else
+                msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+
+            msg.setUnknown04(2);
+            PowersManager.finishUseMobPower(msg, mob, 0, 0);
+
+            //default minimum seconds between cast = 10
+
+            long coolDown = mobPower.getCooldown();
+
+            if (coolDown < 10000)
+                mob.nextCastTime = System.currentTimeMillis() + 10000 + coolDown;
+            else
+                mob.nextCastTime = System.currentTimeMillis() + coolDown;
+
+            return true;
+        }
+
+     return false;
+                }
+
     public static void MobCallForHelp(Mob mob) {
         if(mob.nextCallForHelp == 0){
             mob.nextCallForHelp = System.currentTimeMillis();
