@@ -17,7 +17,6 @@ import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.*;
-import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
@@ -25,8 +24,6 @@ import engine.net.client.msg.PowerProjectileMsg;
 import engine.net.client.msg.UpdateStateMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
-import engine.powers.EffectsBase;
-import engine.powers.PowerPrereq;
 import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
@@ -469,17 +466,11 @@ public class MobileFSM {
             return;
         }
         aiAgent.setCombatTarget(aggroTarget);
-        double AttackRange = 3;
-        if(aiAgent.getEquip().get(0) != null){
-            AttackRange = aiAgent.getEquip().get(0).getItemBase().getRange();
-        } else if(aiAgent.getEquip().get(1) != null){
-            AttackRange = aiAgent.getEquip().get(1).getItemBase().getRange();
-        }
         if (canCast(aiAgent) == true) {
             if (MobCast(aiAgent) == false) {
                 attack(aiAgent, targetID);
             }
-        } else if (CombatUtilities.inRange2D(aiAgent, aggroTarget, AttackRange)) {
+        } else if (CombatUtilities.inRange2D(aiAgent, aggroTarget, aiAgent.getRange())) {
             aiAgent.setState(STATE.Attack);
             attack(aiAgent, targetID);
             return;
@@ -1155,12 +1146,6 @@ public class MobileFSM {
         aiAgent.setCombatTarget(null);
         aiAgent.setState(STATE.Awake);
     }
-    private static void recall(Mob aiAgent) {
-        //recall home.
-        PowersBase recall = PowersManager.getPowerByToken(-1994153779);
-        PowersManager.useMobPower(aiAgent, aiAgent, recall, 40);
-        aiAgent.setState(MobileFSM.STATE.Recalling);
-    }
     private static void recalling(Mob aiAgent) {
         //recall home.
         if (aiAgent.getLoc() == aiAgent.getBindLoc())
@@ -1731,15 +1716,28 @@ public class MobileFSM {
         mob.nextCallForHelp = System.currentTimeMillis() + 60000;
     }
     public static void handleMobChase(Mob mob){
+        if (!MovementUtilities.inRangeOfBindLocation(mob)) {
+            mob.setCombatTarget(null);
+            mob.setAggroTargetID(0);
+            mob.setWalkingHome(false);
+            mob.setState(STATE.Home);
+            return;
+        }
         mob.updateMovementState();
         mob.updateLocation();
         if(CombatUtilities.inRange2D(mob,mob.getCombatTarget(), mob.getRange()) == true) {
             MovementUtilities.moveToLocation(mob, mob.getLoc(), 0);
             mob.setState(STATE.Attack);
         }
-        else if (mob.isMoving() == false){
-            mob.destination = mob.getCombatTarget().getLoc();
-            MovementUtilities.moveToLocation(mob, mob.destination, 0);
+        else {//if (mob.isMoving() == false){
+            if(mob.getRange() > 15) {
+                mob.destination = mob.getCombatTarget().getLoc();
+                MovementUtilities.moveToLocation(mob, mob.destination, 0);
+            } else{
+                mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
+                MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+            }
+
         }
     }
 }
