@@ -1669,7 +1669,7 @@ public class MobileFSM {
                 String des = act.stackType;
 
                 if (target.getEffects() != null && target.getEffects().containsKey(des))
-                    powerTokens.remove(powerToken);
+                    powerTokens.remove(Integer.valueOf(powerToken));
             }
         }
 
