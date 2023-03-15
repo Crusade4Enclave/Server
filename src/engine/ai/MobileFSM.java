@@ -1644,8 +1644,8 @@ public class MobileFSM {
     public static boolean MobCast(Mob mob) {
 
         // Method picks a random spell from a mobile's list of powers
-        // and casts it on the player.  Validation (including empty lists)
-        // if done previously in canCast();
+        // and casts it on the current target.  Validation (including
+        // empty lists) is done previously within canCast();
 
         ArrayList<Integer> powerTokens;
         ArrayList<Integer> purgeTokens;
@@ -1659,18 +1659,18 @@ public class MobileFSM {
         powerTokens = new ArrayList<>(mob.mobPowers.keySet());
         purgeTokens = new ArrayList<>();
 
-        // If player has this effect on them already then remove the token
-        // from our list of mob powers
+        // If player has this effect on them currently then remove
+        // this token from our list.
 
         for (int powerToken : powerTokens){
 
-            PowersBase pwr= PowersManager.getPowerByToken(powerToken);
+            PowersBase powerBase= PowersManager.getPowerByToken(powerToken);
 
-            for(ActionsBase act : pwr.getActions()){
+            for(ActionsBase actionBase : powerBase.getActions()){
 
-                String des = act.stackType;
+                String stackType = actionBase.stackType;
 
-                if (target.getEffects() != null && target.getEffects().containsKey(des))
+                if (target.getEffects() != null && target.getEffects().containsKey(stackType))
                     purgeTokens.add(powerToken);
             }
         }
@@ -1691,6 +1691,7 @@ public class MobileFSM {
         // Cast the spell
 
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
+
             PowersManager.useMobPower(mob, (AbstractCharacter) mob.getCombatTarget(), mobPower, powerRank);
             PerformActionMsg msg;
 
@@ -1702,7 +1703,7 @@ public class MobileFSM {
             msg.setUnknown04(2);
             PowersManager.finishUseMobPower(msg, mob, 0, 0);
 
-            //default minimum seconds between cast = 10
+            // Default minimum seconds between cast = 10
 
             long coolDown = mobPower.getCooldown();
 
