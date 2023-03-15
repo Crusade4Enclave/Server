@@ -1648,6 +1648,7 @@ public class MobileFSM {
         // if done previously in canCast();
 
         ArrayList<Integer> powerTokens;
+        ArrayList<Integer> purgeTokens;
         PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
 
         if (mob.getMobBase().getFlags().contains(Enum.MobFlagType.CALLSFORHELP))
@@ -1656,9 +1657,10 @@ public class MobileFSM {
         // Generate a list of tokens from the mob powers for this mobile.
 
         powerTokens = new ArrayList<>(mob.mobPowers.keySet());
+        purgeTokens = new ArrayList<>();
 
         // If player has this effect on them already then remove the token
-        // from the list of mob powers
+        // from our list of mob powers
 
         for (int powerToken : powerTokens){
 
@@ -1669,9 +1671,11 @@ public class MobileFSM {
                 String des = act.stackType;
 
                 if (target.getEffects() != null && target.getEffects().containsKey(des))
-                    powerTokens.remove(Integer.valueOf(powerToken));
+                    purgeTokens.add(powerToken);
             }
         }
+
+        powerTokens.removeAll(purgeTokens);
 
         // Pick random spell from our list of powers
 
