@@ -1677,6 +1677,11 @@ public class MobileFSM {
 
         powerTokens.removeAll(purgeTokens);
 
+        // Sanity check
+
+        if (powerTokens.isEmpty())
+            return false;
+
         // Pick random spell from our list of powers
 
         int powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
