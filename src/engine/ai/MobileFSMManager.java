@@ -16,6 +16,8 @@ import engine.server.MBServerStatics;
 import engine.util.ThreadUtils;
 import org.pmw.tinylog.Logger;
 
+import java.util.Random;
+
 
 public class MobileFSMManager {
 
@@ -70,8 +72,9 @@ public class MobileFSMManager {
 		long mobPulse = System.currentTimeMillis() + MBServerStatics.AI_PULSE_MOB_THRESHOLD;
 
 		while (alive) {
-
-			ThreadUtils.sleep(1);
+			//assign random range of delay between 1ms and 2000ms so mob actions don't appear synchronized
+			Random r = new Random();
+			ThreadUtils.sleep(r.nextInt(2000-1) + 1);
 
 			if (System.currentTimeMillis() > mobPulse) {
 
