@@ -834,18 +834,19 @@ public class MobileFSM {
             aiAgent.setState(STATE.Awake);
             return;
         }
-        if (CombatUtilities.inRangeToAttack(aiAgent, player)) {
+        if (CombatUtilities.inRange2D(aiAgent, player, aiAgent.getRange())) {
 
             //no weapons, defualt mob attack speed 3 seconds.
 
             if (System.currentTimeMillis() < aiAgent.getLastAttackTime())
                 return;
 
-            if (!CombatUtilities.RunAIRandom())
-                return;
+            //if (!CombatUtilities.RunAIRandom())
+            //    return;
 
             // ranged mobs cant attack while running. skip until they finally stop.
-            if (aiAgent.getRange() >= 30 && aiAgent.isMoving())
+            //if (aiAgent.getRange() >= 30 && aiAgent.isMoving())
+            if(aiAgent.isMoving())
                 return;
 
             // add timer for last attack.
@@ -898,9 +899,7 @@ public class MobileFSM {
         //this stops mobs from attempting to move while they are underneath a player.
         if (CombatUtilities.inRangeToAttack2D(aiAgent, player))
             return;
-        //move mob to within attack range again
-        aiAgent.destination = MovementUtilities.GetDestinationToCharacter(aiAgent, (AbstractCharacter) aiAgent.getCombatTarget());
-        MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
+        //set mob to pursue target
         aiAgent.setState(MobileFSM.STATE.Chase);
     }
     private static void handleMobAttackForPet(Mob aiAgent, Mob mob) {
@@ -1732,8 +1731,15 @@ public class MobileFSM {
         mob.nextCallForHelp = System.currentTimeMillis() + 60000;
     }
     public static void handleMobChase(Mob mob){
-        if(CombatUtilities.inRangeToAttack(mob,mob.getCombatTarget()) == true) {
+        mob.updateMovementState();
+        mob.updateLocation();
+        if(CombatUtilities.inRange2D(mob,mob.getCombatTarget(), mob.getRange()) == true) {
+            MovementUtilities.moveToLocation(mob, mob.getLoc(), 0);
             mob.setState(STATE.Attack);
+        }
+        else if (mob.isMoving() == false){
+            mob.destination = mob.getCombatTarget().getLoc();
+            MovementUtilities.moveToLocation(mob, mob.destination, 0);
         }
     }
 }
