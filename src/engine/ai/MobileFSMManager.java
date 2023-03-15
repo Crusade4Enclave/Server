@@ -9,6 +9,7 @@
 
 package engine.ai;
 
+import engine.gameManager.SessionManager;
 import engine.gameManager.ZoneManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
@@ -67,7 +68,10 @@ public class MobileFSMManager {
 
 	private void execution() {
 
-		//Load zone threshold once.
+		//no players online means no mob action required
+		if(SessionManager.getActivePlayerCharacterCount() <= 0){
+			return;
+		}
 
 		long mobPulse = System.currentTimeMillis() + MBServerStatics.AI_PULSE_MOB_THRESHOLD;
 
@@ -79,7 +83,11 @@ public class MobileFSMManager {
 			if (System.currentTimeMillis() > mobPulse) {
 
 				for (Zone zone : ZoneManager.getAllZones()) {
-
+					//check if any players are in the zone
+					if(zone.hasPlayers() == false){
+						//if zone has no players no need for mobs to do anything
+						return;
+					}
 					for (Mob mob : zone.zoneMobSet) {
 
 						try {

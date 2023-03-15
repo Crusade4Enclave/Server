@@ -13,6 +13,7 @@ import engine.Enum;
 import engine.InterestManagement.HeightMap;
 import engine.db.archive.DataWarehouse;
 import engine.gameManager.DbManager;
+import engine.gameManager.SessionManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Bounds;
 import engine.math.Vector2f;
@@ -25,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -508,6 +510,16 @@ public class Zone extends AbstractGameObject {
 
 	public float getWorldAltitude() {
 		return worldAltitude;
+	}
+	public boolean hasPlayers(){
+		for(PlayerCharacter pc : SessionManager.getAllActivePlayers()){
+			for(Zone zone : ZoneManager.getAllZonesIn(pc.getLoc())) {
+				if(zone.equals(this)){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }
