@@ -899,6 +899,8 @@ public class MobileFSM {
         if (CombatUtilities.inRangeToAttack2D(aiAgent, player))
             return;
         //move mob to within attack range again
+        aiAgent.destination = MovementUtilities.GetDestinationToCharacter(aiAgent, (AbstractCharacter) aiAgent.getCombatTarget());
+        MovementUtilities.moveToLocation(aiAgent, aiAgent.destination, aiAgent.getRange());
         aiAgent.setState(MobileFSM.STATE.Chase);
     }
     private static void handleMobAttackForPet(Mob aiAgent, Mob mob) {
@@ -1730,23 +1732,8 @@ public class MobileFSM {
         mob.nextCallForHelp = System.currentTimeMillis() + 60000;
     }
     public static void handleMobChase(Mob mob){
-        if (!MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget())) {
-            mob.setAggroTargetID(0);
-            mob.setCombatTarget(null);
-            MovementUtilities.moveToLocation(mob, mob.getTrueBindLoc(), 0);
-            mob.setState(STATE.Awake);
-            return;
-        }
-        float range = mob.getRange();
-        float distance = mob.getLoc().distanceSquared2D(mob.getCombatTarget().getLoc());
-        boolean inRange = mob.getLoc().inRange2D(mob.getCombatTarget().getLoc(),range);
-        if(range > distance) {
-            mob.stopMovement(mob.getLoc());
+        if(CombatUtilities.inRangeToAttack(mob,mob.getCombatTarget()) == true) {
             mob.setState(STATE.Attack);
-        }
-        else if(mob.isMoving() == true){
-                mob.destination = mob.getCombatTarget().getLoc();//MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
-                MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
         }
     }
 }
