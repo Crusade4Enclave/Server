@@ -1627,20 +1627,22 @@ public class MobileFSM {
         MovementUtilities.moveToLocation(aiAgent, aiAgent.getCombatTarget().getLoc(), aiAgent.getRange());
     }
     public static boolean canCast(Mob mob) {
-        if(mob == null){
+
+        // Performs validation to determine if a
+        // mobile in the proper state to cast.
+
+        if(mob == null)
             return false;
-        }
-        if(mob.mobPowers.isEmpty() == true){
+
+        if(mob.mobPowers.isEmpty())
             return false;
-        }
-        if(mob.nextCastTime == 0){
+
+        if(mob.nextCastTime == 0)
             mob.nextCastTime = System.currentTimeMillis();
-        }
-        if (mob.nextCastTime > System.currentTimeMillis()) {
-            return false;
-        }
-        return true;
+
+        return mob.nextCastTime <= System.currentTimeMillis();
     }
+
     public static boolean MobCast(Mob mob) {
 
         // Method picks a random spell from a mobile's list of powers
