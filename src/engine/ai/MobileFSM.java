@@ -1644,8 +1644,8 @@ public class MobileFSM {
     public static boolean MobCast(Mob mob) {
 
         // Method picks a random spell from a mobile's list of powers
-        // and casts it on the current target.  Validation (including
-        // empty lists) is done previously within canCast();
+        // and casts it on the current target (or itself).  Validation
+        // (including empty lists) is done previously within canCast();
 
         ArrayList<Integer> powerTokens;
         ArrayList<Integer> purgeTokens;
